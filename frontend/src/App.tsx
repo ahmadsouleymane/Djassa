@@ -5,6 +5,7 @@ import { Login } from "./pages/Login";
 import { Register } from "./pages/Register";
 import { Dashboard } from "./pages/Dashboard";
 import { Catalogue } from "./pages/Catalogue";
+import { Marche } from "./pages/Marche";
 
 export function App() {
   return (
@@ -14,6 +15,7 @@ export function App() {
           <Route path="/" element={<Navigate to="/connexion" replace />} />
           <Route path="/connexion" element={<Login />} />
           <Route path="/inscription" element={<Register />} />
+          <Route path="/marche" element={<Marche />} />
           <Route
             path="/tableau-de-bord"
             element={
