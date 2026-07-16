@@ -19,15 +19,20 @@ export function MessageComposer({ onSend }: { onSend: (text: string, offerPrice?
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input value={text} onChange={(e) => setText(e.target.value)} placeholder="Message" required />
-      <input
-        type="number"
-        value={offerPrice}
-        onChange={(e) => setOfferPrice(e.target.value)}
-        placeholder="Offre de prix (FCFA, optionnel)"
-      />
-      <button type="submit" disabled={isSending}>
+    <form className="form-row" onSubmit={handleSubmit}>
+      <div className="field" style={{ flex: 3 }}>
+        <input className="input" value={text} onChange={(e) => setText(e.target.value)} placeholder="Écris ton message..." required />
+      </div>
+      <div className="field">
+        <input
+          className="input"
+          type="number"
+          value={offerPrice}
+          onChange={(e) => setOfferPrice(e.target.value)}
+          placeholder="Offre (FCFA)"
+        />
+      </div>
+      <button className="btn btn-primary" type="submit" disabled={isSending}>
         Envoyer
       </button>
     </form>

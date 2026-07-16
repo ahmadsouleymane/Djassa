@@ -37,8 +37,9 @@ export function Abonnement() {
         {!isPro && (
           <div style={{ marginTop: "1rem" }}>
             <p>
-              Palier Pro : <span className="price">7 000 FCFA/mois</span> — commission réduite à 3%, badge, mise en avant, stats
-              avancées.
+              Passe Pro pour vendre plus vite : commission à 3% au lieu de 5%, le badge Vendeur vérifié affiché sur toutes tes
+              annonces, une mise en avant sur le Marché et des statistiques de vente détaillées — pour{" "}
+              <span className="price">7 000 FCFA/mois</span>.
             </p>
             <button className="btn btn-primary" onClick={handleSubscribe}>
               Passer Pro

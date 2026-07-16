@@ -4,6 +4,7 @@ import { connectSocket, disconnectSocket } from "../realtime/socket";
 import { conversationsApi, type Conversation, type ChatMessage } from "../api/conversations";
 import { ConversationThread } from "../components/ConversationThread";
 import { MessageComposer } from "../components/MessageComposer";
+import "./Messagerie.css";
 
 export function Messagerie() {
   const { user, accessToken } = useAuth();
@@ -47,22 +48,33 @@ export function Messagerie() {
 
   return (
     <div>
-      <h1>Messagerie</h1>
-      <div>
-        <ul>
-          {conversations.map((c) => (
-            <li key={c.id}>
-              <button onClick={() => setActiveId(c.id)}>{c.product.title}</button>
-            </li>
-          ))}
-        </ul>
-        {activeId && user && (
-          <>
-            <ConversationThread messages={messages} currentUserId={user.id} />
-            <MessageComposer onSend={handleSend} />
-          </>
-        )}
+      <div className="page-header">
+        <h1>Messagerie</h1>
       </div>
+      {conversations.length === 0 ? (
+        <div className="empty-state">Aucune conversation pour l'instant. Contacte un vendeur depuis une fiche produit pour démarrer.</div>
+      ) : (
+        <div className="messagerie-layout">
+          <ul className="conversation-list">
+            {conversations.map((c) => (
+              <li key={c.id}>
+                <button
+                  className={`conversation-item ${c.id === activeId ? "is-active" : ""}`}
+                  onClick={() => setActiveId(c.id)}
+                >
+                  {c.product.title}
+                </button>
+              </li>
+            ))}
+          </ul>
+          {activeId && user && (
+            <div className="thread-panel">
+              <ConversationThread messages={messages} currentUserId={user.id} />
+              <MessageComposer onSend={handleSend} />
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

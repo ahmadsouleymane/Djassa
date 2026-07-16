@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { apiClient } from "../api/client";
 import type { Product } from "../api/products";
 import { ProductCard } from "../components/ProductCard";
+import "./Marche.css";
 
 const CATEGORIES = [
   { value: "", label: "Toutes catégories" },
@@ -29,8 +30,11 @@ export function Marche() {
 
   return (
     <div>
-      <h1>Marché DJASSA</h1>
-      <select value={category} onChange={(e) => setCategory(e.target.value)}>
+      <div className="page-header">
+        <h1>Marché Jassa</h1>
+        <p>Achète en toute confiance — les fonds restent bloqués jusqu'à ta confirmation de réception.</p>
+      </div>
+      <select className="input marche-filter" value={category} onChange={(e) => setCategory(e.target.value)}>
         {CATEGORIES.map((c) => (
           <option key={c.value} value={c.value}>
             {c.label}
@@ -38,9 +42,11 @@ export function Marche() {
         ))}
       </select>
       {isLoading ? (
-        <p>Chargement...</p>
+        <div className="empty-state">Chargement...</div>
+      ) : products.length === 0 ? (
+        <div className="empty-state">Aucun produit ici pour l'instant. Reviens bientôt ou essaie une autre catégorie.</div>
       ) : (
-        <div>
+        <div className="marche-grid">
           {products.map((p) => (
             <ProductCard key={p.id} product={p} />
           ))}

@@ -42,39 +42,62 @@ export function ProductForm({ onCreated }: { onCreated: (product: Product) => vo
       setPrice("");
       setPhotoFile(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur lors de la création du produit");
+      setError(err instanceof Error ? err.message : "Le produit n'a pas pu être publié. Réessaie dans un instant.");
     } finally {
       setIsSubmitting(false);
     }
   }
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form className="card section" onSubmit={handleSubmit}>
       <h2>Ajouter un produit</h2>
-      {error && <p role="alert">{error}</p>}
-      <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Titre" required />
-      <textarea
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        placeholder="Description"
-        required
-      />
-      <input
-        type="number"
-        value={price}
-        onChange={(e) => setPrice(e.target.value)}
-        placeholder="Prix (FCFA)"
-        required
-      />
-      <select value={category} onChange={(e) => setCategory(e.target.value)}>
-        {CATEGORIES.map((c) => (
-          <option key={c.value} value={c.value}>
-            {c.label}
-          </option>
-        ))}
-      </select>
-      <input type="file" accept="image/*" onChange={(e) => setPhotoFile(e.target.files?.[0] ?? null)} required />
-      <button type="submit" disabled={isSubmitting}>
+      {error && <p className="error-text" role="alert">{error}</p>}
+      <div className="field">
+        <label>Titre</label>
+        <input className="input" value={title} onChange={(e) => setTitle(e.target.value)} required />
+      </div>
+      <div className="field">
+        <label>Description</label>
+        <textarea
+          className="input"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          required
+        />
+      </div>
+      <div className="form-row">
+        <div className="field">
+          <label>Prix (FCFA)</label>
+          <input
+            className="input"
+            type="number"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            required
+          />
+        </div>
+        <div className="field">
+          <label>Catégorie</label>
+          <select className="input" value={category} onChange={(e) => setCategory(e.target.value)}>
+            {CATEGORIES.map((c) => (
+              <option key={c.value} value={c.value}>
+                {c.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="field">
+          <label>Photo</label>
+          <input
+            className="input"
+            type="file"
+            accept="image/*"
+            onChange={(e) => setPhotoFile(e.target.files?.[0] ?? null)}
+            required
+          />
+        </div>
+      </div>
+      <button className="btn btn-primary" type="submit" disabled={isSubmitting}>
         {isSubmitting ? "Publication..." : "Publier"}
       </button>
     </form>

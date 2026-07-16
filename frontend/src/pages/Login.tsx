@@ -28,7 +28,7 @@ export function Login() {
   return (
     <div className="auth-shell">
       <form className="auth-card" onSubmit={handleSubmit}>
-        <h1>DJASSA</h1>
+        <h1>Jassa</h1>
         <p style={{ color: "var(--text2)", marginBottom: "1.5rem" }}>Connecte-toi à ton compte</p>
         {error && <p className="error-text" role="alert">{error}</p>}
         <div className="field">
