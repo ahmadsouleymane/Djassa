@@ -26,7 +26,10 @@ export class ProductRepository {
   }
 
   findPublic(options: { category?: ProductCategory; cursor?: string; limit: number }): Promise<Product[]> {
-    const where: Prisma.ProductWhereInput = options.category ? { category: options.category } : {};
+    const where: Prisma.ProductWhereInput = {
+      vendor: { sellerVerificationStatus: "approuvee" },
+      ...(options.category ? { category: options.category } : {}),
+    };
     return prisma.product.findMany({
       where,
       orderBy: { createdAt: "desc" },

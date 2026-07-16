@@ -15,6 +15,7 @@ describe("ProductRepository", () => {
       accountType: "vendeur",
     });
     vendorId = vendor.id;
+    await userRepo.update(vendorId, { sellerVerificationStatus: "approuvee" });
   });
 
   afterAll(async () => {

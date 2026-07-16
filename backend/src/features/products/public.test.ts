@@ -13,7 +13,7 @@ describe("GET /api/public/products", () => {
     await prisma.$disconnect();
   });
 
-  it("returns products without authentication", async () => {
+  it("hides products from an unverified vendor", async () => {
     const regRes = await request(app)
       .post("/api/auth/register")
       .send({ email, password: "password123", accountType: "vendeur" });
@@ -29,6 +29,14 @@ describe("GET /api/public/products", () => {
         photos: ["https://res.cloudinary.com/demo/image/upload/sac.jpg"],
       });
     productId = createRes.body.product.id;
+
+    const before = await request(app).get("/api/public/products");
+    expect(before.body.products.some((p: { id: string }) => p.id === productId)).toBe(false);
+
+    await prisma.user.update({
+      where: { id: regRes.body.user.id },
+      data: { sellerVerificationStatus: "approuvee" },
+    });
 
     const res = await request(app).get("/api/public/products");
     expect(res.status).toBe(200);

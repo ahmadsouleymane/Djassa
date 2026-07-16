@@ -14,6 +14,7 @@ import { publicProductRouter } from "./features/products/public.routes.js";
 import { conversationRouter } from "./features/conversations/conversation.routes.js";
 import { orderRouter } from "./features/orders/order.routes.js";
 import { webhookRouter, billingRouter } from "./features/billing/billing.routes.js";
+import { verificationRouter } from "./features/verification/verification.routes.js";
 
 export const app = express();
 
@@ -42,5 +43,6 @@ app.use("/api/public/products", publicProductRouter);
 app.use("/api/conversations", conversationRouter);
 app.use("/api/orders", orderRouter);
 app.use("/api/billing", billingRouter);
+app.use("/api/verification", verificationRouter);
 
 app.use(errorHandler);
