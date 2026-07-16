@@ -6,14 +6,34 @@ import { prisma } from "../../shared/db/client.js";
 describe("Product CRUD", () => {
   const vendorEmail = "product-crud-vendor@djassa.test";
   const otherEmail = "product-crud-other@djassa.test";
+  const clientEmail = "product-crud-client@djassa.test";
   let vendorToken: string;
   let otherToken: string;
   let productId: string;
 
   afterAll(async () => {
     await prisma.product.deleteMany({ where: { vendor: { email: { in: [vendorEmail, otherEmail] } } } });
-    await prisma.user.deleteMany({ where: { email: { in: [vendorEmail, otherEmail] } } });
+    await prisma.user.deleteMany({ where: { email: { in: [vendorEmail, otherEmail, clientEmail] } } });
     await prisma.$disconnect();
+  });
+
+  it("rejects product creation from a client account", async () => {
+    const clientRes = await request(app)
+      .post("/api/auth/register")
+      .send({ email: clientEmail, password: "password123", accountType: "client" });
+
+    const res = await request(app)
+      .post("/api/products")
+      .set("Authorization", `Bearer ${clientRes.body.accessToken}`)
+      .send({
+        title: "Produit interdit",
+        description: "Un client ne devrait pas pouvoir créer ceci",
+        price: 1000,
+        category: "autre",
+        photos: ["https://res.cloudinary.com/demo/image/upload/x.jpg"],
+      });
+
+    expect(res.status).toBe(401);
   });
 
   it("registers two vendors for the test", async () => {

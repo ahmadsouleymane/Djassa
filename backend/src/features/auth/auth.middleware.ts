@@ -28,3 +28,8 @@ export function requireAuth(req: Request, _res: Response, next: NextFunction) {
     next(new UnauthorizedError("Session invalide"));
   }
 }
+
+export function requireVendor(req: Request, _res: Response, next: NextFunction) {
+  if (req.accountType !== "vendeur") return next(new UnauthorizedError("Réservé aux comptes vendeur"));
+  next();
+}
