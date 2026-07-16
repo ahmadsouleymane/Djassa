@@ -42,14 +42,19 @@ export const AuthService = {
     return { user, ...signTokens(user.id, user.accountType) };
   },
 
-  refreshAccessToken(refreshToken: string): string {
+  async refreshAccessToken(refreshToken: string): Promise<string> {
+    let userId: string;
     try {
-      const payload = jwt.verify(refreshToken, config.jwt.refreshSecret) as { userId: string };
-      return jwt.sign({ userId: payload.userId }, config.jwt.accessSecret, {
-        expiresIn: config.jwt.accessExpiresIn,
-      } as jwt.SignOptions);
+      ({ userId } = jwt.verify(refreshToken, config.jwt.refreshSecret) as { userId: string });
     } catch {
       throw new UnauthorizedError("Session expirée, reconnectez-vous");
     }
+
+    const user = await userRepo.findById(userId);
+    if (!user) throw new UnauthorizedError("Session expirée, reconnectez-vous");
+
+    return jwt.sign({ userId: user.id, accountType: user.accountType }, config.jwt.accessSecret, {
+      expiresIn: config.jwt.accessExpiresIn,
+    } as jwt.SignOptions);
   },
 };

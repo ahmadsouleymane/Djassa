@@ -14,7 +14,15 @@ export const app = express();
 app.use(requestId);
 app.use(pinoHttp({ logger }));
 app.use(helmet());
-app.use(cors({ origin: config.corsOrigin, credentials: true }));
+app.use(
+  cors({
+    origin: config.corsOrigin,
+    credentials: true,
+    methods: ["GET", "POST", "PATCH", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    maxAge: 600,
+  }),
+);
 app.use(cookieParser());
 app.use(express.json());
 

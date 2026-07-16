@@ -1,7 +1,10 @@
 import type { Request, Response, NextFunction } from "express";
 import { AuthService } from "./auth.service.js";
 import { registerSchema, loginSchema } from "./auth.schema.js";
-import { ValidationError } from "../../shared/errors/index.js";
+import { ValidationError, UnauthorizedError } from "../../shared/errors/index.js";
+import { UserRepository } from "../users/user.repository.js";
+
+const userRepo = new UserRepository();
 
 const REFRESH_COOKIE = "djassa_refresh";
 const REFRESH_COOKIE_OPTIONS = {
@@ -50,12 +53,22 @@ export async function login(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-export function refresh(req: Request, res: Response, next: NextFunction) {
+export async function refresh(req: Request, res: Response, next: NextFunction) {
   try {
     const token = req.cookies?.[REFRESH_COOKIE];
-    if (!token) throw new Error("no cookie");
-    const accessToken = AuthService.refreshAccessToken(token);
+    if (!token) throw new UnauthorizedError("Aucune session à renouveler");
+    const accessToken = await AuthService.refreshAccessToken(token);
     res.json({ accessToken });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function me(req: Request, res: Response, next: NextFunction) {
+  try {
+    const user = await userRepo.findById(req.userId!);
+    if (!user) throw new UnauthorizedError();
+    res.json({ user: toPublicUser(user) });
   } catch (err) {
     next(err);
   }

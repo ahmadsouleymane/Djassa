@@ -40,3 +40,49 @@ describe("POST /api/auth/register + /api/auth/login", () => {
     expect(res.status).toBe(401);
   });
 });
+
+describe("GET /api/auth/me + POST /api/auth/refresh", () => {
+  const email = "auth-session-test@djassa.test";
+
+  afterAll(async () => {
+    await prisma.user.deleteMany({ where: { email } });
+    await prisma.$disconnect();
+  });
+
+  it("rejects /me without a token", async () => {
+    const res = await request(app).get("/api/auth/me");
+    expect(res.status).toBe(401);
+  });
+
+  it("returns the current user for a valid access token", async () => {
+    const registerRes = await request(app)
+      .post("/api/auth/register")
+      .send({ email, password: "password123", accountType: "vendeur" });
+
+    const meRes = await request(app)
+      .get("/api/auth/me")
+      .set("Authorization", `Bearer ${registerRes.body.accessToken}`);
+
+    expect(meRes.status).toBe(200);
+    expect(meRes.body.user.email).toBe(email);
+  });
+
+  it("issues a new access token from the refresh cookie", async () => {
+    const registerRes = await request(app)
+      .post("/api/auth/register")
+      .send({ email: "auth-refresh-test@djassa.test", password: "password123", accountType: "client" });
+
+    const cookie = registerRes.headers["set-cookie"];
+    const refreshRes = await request(app).post("/api/auth/refresh").set("Cookie", cookie);
+
+    expect(refreshRes.status).toBe(200);
+    expect(refreshRes.body.accessToken).toBeDefined();
+
+    await prisma.user.deleteMany({ where: { email: "auth-refresh-test@djassa.test" } });
+  });
+
+  it("rejects refresh without a cookie", async () => {
+    const res = await request(app).post("/api/auth/refresh");
+    expect(res.status).toBe(401);
+  });
+});
