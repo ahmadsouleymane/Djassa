@@ -11,6 +11,7 @@ import { authRouter } from "./features/auth/auth.routes.js";
 import { uploadRouter } from "./features/uploads/upload.routes.js";
 import { productRouter } from "./features/products/product.routes.js";
 import { publicProductRouter } from "./features/products/public.routes.js";
+import { conversationRouter } from "./features/conversations/conversation.routes.js";
 
 export const app = express();
 
@@ -35,5 +36,6 @@ app.use("/api/auth", authRouter);
 app.use("/api/uploads", uploadRouter);
 app.use("/api/products", productRouter);
 app.use("/api/public/products", publicProductRouter);
+app.use("/api/conversations", conversationRouter);
 
 app.use(errorHandler);
