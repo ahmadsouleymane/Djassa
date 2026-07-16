@@ -2,6 +2,7 @@ import { apiClient } from "./client";
 
 export type Product = {
   id: string;
+  vendorId: string;
   title: string;
   description: string;
   price: number;
@@ -14,7 +15,7 @@ type SignedUpload = { cloudName: string; apiKey: string; timestamp: number; sign
 
 export const productsApi = {
   listMine: () => apiClient.get<{ products: Product[] }>("/api/products/mine"),
-  create: (data: Omit<Product, "id" | "createdAt">) =>
+  create: (data: Omit<Product, "id" | "vendorId" | "createdAt">) =>
     apiClient.post<{ product: Product }>("/api/products", data),
   signUpload: () => apiClient.post<SignedUpload>("/api/uploads/sign", {}),
 };

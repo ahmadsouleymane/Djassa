@@ -7,6 +7,10 @@ import { Dashboard } from "./pages/Dashboard";
 import { Catalogue } from "./pages/Catalogue";
 import { Marche } from "./pages/Marche";
 import { Messagerie } from "./pages/Messagerie";
+import { Commandes } from "./pages/Commandes";
+import { Verification } from "./pages/Verification";
+import { Abonnement } from "./pages/Abonnement";
+import { AdminVerifications } from "./pages/admin/AdminVerifications";
 
 export function App() {
   return (
@@ -38,6 +42,38 @@ export function App() {
             element={
               <PrivateRoute>
                 <Messagerie />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/commandes"
+            element={
+              <PrivateRoute>
+                <Commandes />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/verification"
+            element={
+              <PrivateRoute>
+                <Verification />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/abonnement"
+            element={
+              <PrivateRoute>
+                <Abonnement />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin/verifications"
+            element={
+              <PrivateRoute>
+                <AdminVerifications />
               </PrivateRoute>
             }
           />
