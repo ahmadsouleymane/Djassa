@@ -4,6 +4,7 @@ import { PrivateRoute } from "./routes/PrivateRoute";
 import { Login } from "./pages/Login";
 import { Register } from "./pages/Register";
 import { Dashboard } from "./pages/Dashboard";
+import { Catalogue } from "./pages/Catalogue";
 
 export function App() {
   return (
@@ -18,6 +19,14 @@ export function App() {
             element={
               <PrivateRoute>
                 <Dashboard />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/catalogue"
+            element={
+              <PrivateRoute>
+                <Catalogue />
               </PrivateRoute>
             }
           />
