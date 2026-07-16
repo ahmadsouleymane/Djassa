@@ -8,6 +8,7 @@ import { logger } from "./shared/logger/index.js";
 import { requestId } from "./shared/middleware/requestId.js";
 import { errorHandler } from "./shared/middleware/errorHandler.js";
 import { authRouter } from "./features/auth/auth.routes.js";
+import { uploadRouter } from "./features/uploads/upload.routes.js";
 
 export const app = express();
 
@@ -29,5 +30,6 @@ app.use(express.json());
 app.get("/health", (_req, res) => res.json({ status: "ok" }));
 
 app.use("/api/auth", authRouter);
+app.use("/api/uploads", uploadRouter);
 
 app.use(errorHandler);
