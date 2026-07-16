@@ -12,6 +12,8 @@ import { uploadRouter } from "./features/uploads/upload.routes.js";
 import { productRouter } from "./features/products/product.routes.js";
 import { publicProductRouter } from "./features/products/public.routes.js";
 import { conversationRouter } from "./features/conversations/conversation.routes.js";
+import { orderRouter } from "./features/orders/order.routes.js";
+import { webhookRouter, billingRouter } from "./features/billing/billing.routes.js";
 
 export const app = express();
 
@@ -28,6 +30,7 @@ app.use(
   }),
 );
 app.use(cookieParser());
+app.use("/api/billing/webhook", express.raw({ type: "application/json" }), webhookRouter);
 app.use(express.json());
 
 app.get("/health", (_req, res) => res.json({ status: "ok" }));
@@ -37,5 +40,7 @@ app.use("/api/uploads", uploadRouter);
 app.use("/api/products", productRouter);
 app.use("/api/public/products", publicProductRouter);
 app.use("/api/conversations", conversationRouter);
+app.use("/api/orders", orderRouter);
+app.use("/api/billing", billingRouter);
 
 app.use(errorHandler);

@@ -22,4 +22,11 @@ export const config = {
     apiKey: requiredEnv("CLOUDINARY_API_KEY"),
     apiSecret: requiredEnv("CLOUDINARY_API_SECRET"),
   },
+  geniusPay: {
+    webhookSecret: requiredEnv("GENIUSPAY_WEBHOOK_SECRET"),
+  },
+  adminEmails: (process.env.ADMIN_EMAILS ?? "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean),
 } as const;

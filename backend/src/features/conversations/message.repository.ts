@@ -17,4 +17,8 @@ export class MessageRepository {
       orderBy: { createdAt: "asc" },
     });
   }
+
+  findById(id: string): Promise<ChatMessage | null> {
+    return prisma.chatMessage.findUnique({ where: { id } });
+  }
 }
