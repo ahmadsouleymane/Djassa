@@ -1,0 +1,344 @@
+/* Layout */
+.container {
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.page {
+  flex: 1;
+  padding: 2.5rem 0 4rem;
+}
+
+.page-header {
+  margin-bottom: 2rem;
+}
+
+.page-header p {
+  color: var(--text2);
+}
+
+.section {
+  margin-bottom: 2.5rem;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  padding: 0.65rem 1.25rem;
+  border-radius: var(--radius-control);
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease, transform 0.1s ease;
+}
+
+.btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.btn-secondary {
+  background: var(--surface1);
+  color: var(--text1);
+  border-color: var(--border);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  border-color: var(--border-visible);
+}
+
+.btn-danger {
+  background: var(--surface1);
+  color: var(--error);
+  border-color: var(--error-bg);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: var(--error-bg);
+}
+
+.btn-sm {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8125rem;
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* Forms */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+}
+
+.field label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text2);
+}
+
+.input,
+textarea.input,
+select.input {
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  padding: 0.65rem 0.85rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--surface1);
+  color: var(--text1);
+  width: 100%;
+}
+
+.input:focus,
+textarea.input:focus,
+select.input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(124, 140, 193, 0.3);
+}
+
+textarea.input {
+  min-height: 5rem;
+  resize: vertical;
+}
+
+.form-row {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.form-row .field {
+  flex: 1;
+  min-width: 10rem;
+  margin-bottom: 0;
+}
+
+.error-text {
+  color: var(--error);
+  font-size: 0.875rem;
+  margin: 0 0 0.75rem;
+}
+
+/* Card */
+.card {
+  background: var(--surface1);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-component);
+  padding: 1.25rem 1.5rem;
+  box-shadow: var(--shadow-1);
+}
+
+.card + .card {
+  margin-top: 0.75rem;
+}
+
+.card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Badges / status pills */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  line-height: 1;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.3rem 0.6rem;
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+}
+
+.pill-neutral {
+  background: var(--surface2);
+  color: var(--text2);
+}
+
+.pill-success {
+  background: var(--success-bg);
+  color: var(--success);
+}
+
+.pill-warning {
+  background: var(--warning-bg);
+  color: var(--warning);
+}
+
+.pill-danger {
+  background: var(--error-bg);
+  color: var(--error);
+}
+
+/* Mono data (prices, codes) */
+.mono {
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+
+.code-chip {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--text2);
+  background: var(--surface2);
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-control);
+}
+
+.price {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--text1);
+}
+
+/* Empty / loading state */
+.empty-state {
+  color: var(--text2);
+  padding: 2rem 0;
+  text-align: center;
+}
+
+/* Auth pages */
+.auth-shell {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--surface1);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-container);
+  padding: 2rem;
+  box-shadow: var(--shadow-2);
+}
+
+.auth-card h1 {
+  font-size: 1.5rem;
+}
+
+.auth-card .btn {
+  width: 100%;
+  margin-top: 0.25rem;
+}
+
+.auth-switch {
+  margin-top: 1.25rem;
+  font-size: 0.875rem;
+  color: var(--text2);
+  text-align: center;
+}
+
+/* Escrow rail (signature element) — chaque étape est un mini-tampon,
+   pas un point de stepper générique. Coche en CSS pur (::after), pas
+   d'icône, pas de changement de markup dans Commandes.tsx. */
+.rail {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin: 0.75rem 0 1rem;
+}
+
+.rail-step {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.rail-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: var(--radius-pill);
+  border: 1.5px dashed var(--border-visible);
+  background: transparent;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.rail-dot.is-done {
+  border: 2px solid var(--accent);
+  background: var(--accent-subtle);
+}
+
+.rail-dot.is-done::after {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 6px;
+  width: 8px;
+  height: 4px;
+  border-left: 1.5px solid var(--accent);
+  border-bottom: 1.5px solid var(--accent);
+  transform: rotate(-45deg);
+}
+
+.rail-dot.is-current {
+  border: 2px dashed var(--accent);
+  animation: railPulse 1.6s ease-in-out infinite;
+}
+
+.rail-dot.is-danger {
+  border: 2px solid var(--error);
+  background: var(--error-bg);
+}
+
+@keyframes railPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 var(--accent-subtle);
+  }
+  50% {
+    box-shadow: 0 0 0 4px var(--accent-subtle);
+  }
+}
+
+.rail-line {
+  flex: 1;
+  height: 2px;
+  background: var(--border);
+  margin: 0 0.35rem;
+}
+
+.rail-line.is-done {
+  background: var(--accent);
+}
