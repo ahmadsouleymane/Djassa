@@ -10,5 +10,11 @@ export function TrustBadge({ vendorId }: { vendorId: string }) {
 
   if (!trust) return null;
 
-  return <span>Confiance : {trust.score}/100</span>;
+  const tone = trust.score >= 70 ? "stamp-accent" : trust.score >= 40 ? "stamp-warning" : "stamp-danger";
+
+  return (
+    <span className={`stamp-sm ${tone}`} title={`Confiance ${trust.score}/100`}>
+      {trust.score}
+    </span>
+  );
 }
