@@ -12,16 +12,38 @@ enum AccountType {
   client
 }
 
+enum SellerVerificationStatus {
+  non_soumise
+  en_attente
+  approuvee
+  rejetee
+}
+
+enum PlanTier {
+  standard
+  pro
+}
+
 model User {
-  id                  String         @id @default(uuid())
-  email               String         @unique
-  passwordHash        String
-  accountType         AccountType    @default(vendeur)
-  createdAt           DateTime       @default(now())
-  products            Product[]
-  buyerConversations  Conversation[] @relation("BuyerConversations")
-  vendorConversations Conversation[] @relation("VendorConversations")
-  messages            ChatMessage[]
+  id                       String                    @id @default(uuid())
+  email                    String                    @unique
+  passwordHash             String
+  accountType              AccountType               @default(vendeur)
+  createdAt                DateTime                  @default(now())
+  products                 Product[]
+  buyerConversations       Conversation[]            @relation("BuyerConversations")
+  vendorConversations      Conversation[]            @relation("VendorConversations")
+  messages                 ChatMessage[]
+  buyerOrders              Order[]                   @relation("BuyerOrders")
+  vendorOrders             Order[]                   @relation("VendorOrders")
+  sellerVerificationStatus SellerVerificationStatus  @default(non_soumise)
+  sellerVerificationDocUrl String?
+  sellerVerificationReason String?
+  buyerReviews             Review[]                  @relation("BuyerReviews")
+  vendorReviews            Review[]                  @relation("VendorReviews")
+  planTier                 PlanTier                  @default(standard)
+  planPeriodEnd            DateTime?
+  payments                 Payment[]
 }
 
 enum ProductCategory {
@@ -45,6 +67,7 @@ model Product {
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
   conversations Conversation[]
+  orders        Order[]
 }
 
 model Conversation {
@@ -70,4 +93,67 @@ model ChatMessage {
   text           String
   offerPrice     Int?
   createdAt      DateTime     @default(now())
+  order          Order?
+}
+
+enum OrderStatus {
+  en_attente_paiement
+  paye
+  expedie
+  confirme
+  en_litige
+  rembourse
+}
+
+model Order {
+  id               String      @id @default(uuid())
+  buyerId          String
+  buyer            User        @relation("BuyerOrders", fields: [buyerId], references: [id])
+  vendorId         String
+  vendor           User        @relation("VendorOrders", fields: [vendorId], references: [id])
+  productId        String
+  product          Product     @relation(fields: [productId], references: [id])
+  chatMessageId    String      @unique
+  chatMessage      ChatMessage @relation(fields: [chatMessageId], references: [id])
+  price            Int
+  commissionAmount Int
+  netAmount        Int
+  status           OrderStatus @default(en_attente_paiement)
+  paymentReference String      @unique
+  confirmationCode String
+  shipBy           DateTime?
+  confirmBy        DateTime?
+  shippedAt        DateTime?
+  disputeReason    String?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  review           Review?
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  orderId   String   @unique
+  order     Order    @relation(fields: [orderId], references: [id])
+  buyerId   String
+  buyer     User     @relation("BuyerReviews", fields: [buyerId], references: [id])
+  vendorId  String
+  vendor    User     @relation("VendorReviews", fields: [vendorId], references: [id])
+  rating    Int
+  comment   String
+  createdAt DateTime @default(now())
+}
+
+enum PaymentStatus {
+  pending
+  paid
+}
+
+model Payment {
+  id        String        @id @default(uuid())
+  userId    String
+  user      User          @relation(fields: [userId], references: [id])
+  reference String        @unique
+  amount    Int
+  status    PaymentStatus @default(pending)
+  createdAt DateTime      @default(now())
 }
