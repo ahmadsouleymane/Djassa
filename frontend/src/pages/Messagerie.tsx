@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import { connectSocket, disconnectSocket } from "../realtime/socket";
 import { conversationsApi, type Conversation, type ChatMessage } from "../api/conversations";
@@ -10,6 +10,8 @@ export function Messagerie() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const activeIdRef = useRef<string | null>(null);
+  activeIdRef.current = activeId;
 
   useEffect(() => {
     conversationsApi.listMine().then((res) => {
@@ -27,12 +29,12 @@ export function Messagerie() {
     if (!accessToken) return;
     const socket = connectSocket(accessToken);
     socket.on("message:new", (payload: { conversationId: string; message: ChatMessage }) => {
-      if (payload.conversationId === activeId) {
+      if (payload.conversationId === activeIdRef.current) {
         setMessages((prev) => [...prev, payload.message]);
       }
     });
     return () => disconnectSocket();
-  }, [accessToken, activeId]);
+  }, [accessToken]);
 
   const handleSend = useCallback(
     async (text: string, offerPrice?: number) => {
