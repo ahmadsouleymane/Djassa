@@ -13,12 +13,15 @@ enum AccountType {
 }
 
 model User {
-  id           String      @id @default(uuid())
-  email        String      @unique
-  passwordHash String
-  accountType  AccountType @default(vendeur)
-  createdAt    DateTime    @default(now())
-  products     Product[]
+  id                  String         @id @default(uuid())
+  email               String         @unique
+  passwordHash        String
+  accountType         AccountType    @default(vendeur)
+  createdAt           DateTime       @default(now())
+  products            Product[]
+  buyerConversations  Conversation[] @relation("BuyerConversations")
+  vendorConversations Conversation[] @relation("VendorConversations")
+  messages            ChatMessage[]
 }
 
 enum ProductCategory {
@@ -31,14 +34,40 @@ enum ProductCategory {
 }
 
 model Product {
-  id          String          @id @default(uuid())
-  vendorId    String
-  vendor      User            @relation(fields: [vendorId], references: [id])
-  title       String
-  description String
-  price       Int
-  category    ProductCategory
-  photos      String[]
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  id            String          @id @default(uuid())
+  vendorId      String
+  vendor        User            @relation(fields: [vendorId], references: [id])
+  title         String
+  description   String
+  price         Int
+  category      ProductCategory
+  photos        String[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  conversations Conversation[]
+}
+
+model Conversation {
+  id        String        @id @default(uuid())
+  buyerId   String
+  buyer     User          @relation("BuyerConversations", fields: [buyerId], references: [id])
+  vendorId  String
+  vendor    User          @relation("VendorConversations", fields: [vendorId], references: [id])
+  productId String
+  product   Product       @relation(fields: [productId], references: [id])
+  messages  ChatMessage[]
+  createdAt DateTime      @default(now())
+
+  @@unique([buyerId, vendorId, productId])
+}
+
+model ChatMessage {
+  id             String       @id @default(uuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  senderId       String
+  sender         User         @relation(fields: [senderId], references: [id])
+  text           String
+  offerPrice     Int?
+  createdAt      DateTime     @default(now())
 }
