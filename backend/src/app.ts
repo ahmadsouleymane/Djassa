@@ -10,6 +10,7 @@ import { errorHandler } from "./shared/middleware/errorHandler.js";
 import { authRouter } from "./features/auth/auth.routes.js";
 import { uploadRouter } from "./features/uploads/upload.routes.js";
 import { productRouter } from "./features/products/product.routes.js";
+import { publicProductRouter } from "./features/products/public.routes.js";
 
 export const app = express();
 
@@ -33,5 +34,6 @@ app.get("/health", (_req, res) => res.json({ status: "ok" }));
 app.use("/api/auth", authRouter);
 app.use("/api/uploads", uploadRouter);
 app.use("/api/products", productRouter);
+app.use("/api/public/products", publicProductRouter);
 
 app.use(errorHandler);
