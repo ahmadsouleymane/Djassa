@@ -4,9 +4,11 @@ import { app } from "./app.js";
 import { config } from "./shared/config/index.js";
 import { logger } from "./shared/logger/index.js";
 import { initRealtime } from "./services/realtime.js";
+import { startOrderTimeoutJob } from "./jobs/orderTimeoutJob.js";
 
 const httpServer = createServer(app);
 initRealtime(httpServer);
+startOrderTimeoutJob();
 
 httpServer.listen(config.port, () => {
   logger.info({ port: config.port }, "Serveur démarré");
