@@ -7,6 +7,7 @@ type AuthResponse = { user: User; accessToken: string };
 
 type AuthContextValue = {
   user: User | null;
+  accessToken: string | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, accountType: AccountType) => Promise<void>;
@@ -17,17 +18,20 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [accessToken, setAccessTokenState] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function restoreSession() {
       try {
-        const { accessToken } = await apiClient.post<{ accessToken: string }>("/api/auth/refresh", {});
-        setAccessToken(accessToken);
+        const { accessToken: token } = await apiClient.post<{ accessToken: string }>("/api/auth/refresh", {});
+        setAccessToken(token);
+        setAccessTokenState(token);
         const { user: restoredUser } = await apiClient.get<{ user: User }>("/api/auth/me");
         setUser(restoredUser);
       } catch {
         setAccessToken(null);
+        setAccessTokenState(null);
       } finally {
         setIsLoading(false);
       }
@@ -38,22 +42,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(async (email: string, password: string) => {
     const res = await apiClient.post<AuthResponse>("/api/auth/login", { email, password });
     setAccessToken(res.accessToken);
+    setAccessTokenState(res.accessToken);
     setUser(res.user);
   }, []);
 
   const register = useCallback(async (email: string, password: string, accountType: AccountType) => {
     const res = await apiClient.post<AuthResponse>("/api/auth/register", { email, password, accountType });
     setAccessToken(res.accessToken);
+    setAccessTokenState(res.accessToken);
     setUser(res.user);
   }, []);
 
   const logout = useCallback(() => {
     setAccessToken(null);
+    setAccessTokenState(null);
     setUser(null);
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, register, logout }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ user, accessToken, isLoading, login, register, logout }}>
+      {children}
+    </AuthContext.Provider>
   );
 }
 

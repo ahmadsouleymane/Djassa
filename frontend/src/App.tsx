@@ -6,6 +6,7 @@ import { Register } from "./pages/Register";
 import { Dashboard } from "./pages/Dashboard";
 import { Catalogue } from "./pages/Catalogue";
 import { Marche } from "./pages/Marche";
+import { Messagerie } from "./pages/Messagerie";
 
 export function App() {
   return (
@@ -29,6 +30,14 @@ export function App() {
             element={
               <PrivateRoute>
                 <Catalogue />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/messagerie"
+            element={
+              <PrivateRoute>
+                <Messagerie />
               </PrivateRoute>
             }
           />
