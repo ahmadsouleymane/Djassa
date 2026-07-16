@@ -18,4 +18,27 @@ model User {
   passwordHash String
   accountType  AccountType @default(vendeur)
   createdAt    DateTime    @default(now())
+  products     Product[]
+}
+
+enum ProductCategory {
+  mode_beaute
+  electronique
+  maison
+  telephones
+  alimentation
+  autre
+}
+
+model Product {
+  id          String          @id @default(uuid())
+  vendorId    String
+  vendor      User            @relation(fields: [vendorId], references: [id])
+  title       String
+  description String
+  price       Int
+  category    ProductCategory
+  photos      String[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
 }
