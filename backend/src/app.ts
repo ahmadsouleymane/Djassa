@@ -15,6 +15,7 @@ import { conversationRouter } from "./features/conversations/conversation.routes
 import { orderRouter } from "./features/orders/order.routes.js";
 import { webhookRouter, billingRouter } from "./features/billing/billing.routes.js";
 import { verificationRouter } from "./features/verification/verification.routes.js";
+import { reviewRouter, publicReviewRouter } from "./features/reviews/review.routes.js";
 
 export const app = express();
 
@@ -44,5 +45,7 @@ app.use("/api/conversations", conversationRouter);
 app.use("/api/orders", orderRouter);
 app.use("/api/billing", billingRouter);
 app.use("/api/verification", verificationRouter);
+app.use("/api/reviews", reviewRouter);
+app.use("/api/public/vendors/:vendorId/reviews", publicReviewRouter);
 
 app.use(errorHandler);
