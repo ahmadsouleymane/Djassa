@@ -18,22 +18,35 @@ export function Abonnement() {
     setCheckoutUrl(checkoutUrl);
   }
 
+  const isPro = status?.planTier === "pro";
+
   return (
     <div>
-      <h1>Abonnement</h1>
-      {status && (
-        <p>
-          Palier actuel : {status.planTier === "pro" ? "Pro" : "Standard"}
-          {status.planPeriodEnd && ` (jusqu'au ${new Date(status.planPeriodEnd).toLocaleDateString("fr-FR")})`}
-        </p>
-      )}
-      {status?.planTier !== "pro" && (
-        <div>
-          <p>Palier Pro : 7 000 FCFA/mois — commission réduite à 3%, badge, mise en avant, stats avancées.</p>
-          <button onClick={handleSubscribe}>Passer Pro</button>
-        </div>
-      )}
-      {checkoutUrl && <p>Paiement simulé — référence : {checkoutUrl}</p>}
+      <div className="page-header">
+        <h1>Abonnement</h1>
+      </div>
+      <div className="card section">
+        {status && (
+          <p>
+            Palier actuel : <span className={`pill ${isPro ? "pill-success" : "pill-neutral"}`}>{isPro ? "Pro" : "Standard"}</span>
+            {status.planPeriodEnd && (
+              <span style={{ color: "var(--text2)" }}> — jusqu'au {new Date(status.planPeriodEnd).toLocaleDateString("fr-FR")}</span>
+            )}
+          </p>
+        )}
+        {!isPro && (
+          <div style={{ marginTop: "1rem" }}>
+            <p>
+              Palier Pro : <span className="price">7 000 FCFA/mois</span> — commission réduite à 3%, badge, mise en avant, stats
+              avancées.
+            </p>
+            <button className="btn btn-primary" onClick={handleSubscribe}>
+              Passer Pro
+            </button>
+          </div>
+        )}
+        {checkoutUrl && <p className="code-chip" style={{ marginTop: "1rem" }}>Paiement simulé — référence : {checkoutUrl}</p>}
+      </div>
     </div>
   );
 }

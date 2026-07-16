@@ -9,6 +9,13 @@ const STATUS_LABELS: Record<VerificationStatus["status"], string> = {
   rejetee: "Rejetée",
 };
 
+const STATUS_TONE: Record<VerificationStatus["status"], string> = {
+  non_soumise: "pill-neutral",
+  en_attente: "pill-warning",
+  approuvee: "pill-success",
+  rejetee: "pill-danger",
+};
+
 export function Verification() {
   const [status, setStatus] = useState<VerificationStatus | null>(null);
   const [file, setFile] = useState<File | null>(null);
@@ -33,17 +40,25 @@ export function Verification() {
 
   return (
     <div>
-      <h1>Vérification vendeur</h1>
-      {status && (
-        <p>
-          Statut : {STATUS_LABELS[status.status]}
-          {status.reason && ` — Motif : ${status.reason}`}
-        </p>
-      )}
-      <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
-      <button onClick={handleSubmit} disabled={!file || isSubmitting}>
-        {isSubmitting ? "Envoi..." : "Soumettre ma pièce d'identité"}
-      </button>
+      <div className="page-header">
+        <h1>Vérification vendeur</h1>
+        <p>Tes produits ne sont visibles publiquement qu'une fois ton identité vérifiée.</p>
+      </div>
+      <div className="card section">
+        {status && (
+          <p>
+            Statut : <span className={`pill ${STATUS_TONE[status.status]}`}>{STATUS_LABELS[status.status]}</span>
+            {status.reason && <span style={{ color: "var(--text2)" }}> — Motif : {status.reason}</span>}
+          </p>
+        )}
+        <div className="field" style={{ marginTop: "1rem" }}>
+          <label>Pièce d'identité</label>
+          <input className="input" type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+        </div>
+        <button className="btn btn-primary" onClick={handleSubmit} disabled={!file || isSubmitting}>
+          {isSubmitting ? "Envoi..." : "Soumettre ma pièce d'identité"}
+        </button>
+      </div>
     </div>
   );
 }

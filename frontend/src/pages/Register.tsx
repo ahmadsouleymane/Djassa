@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { ApiError } from "../api/client";
 
@@ -10,35 +10,68 @@ export function Register() {
   const [password, setPassword] = useState("");
   const [accountType, setAccountType] = useState<"vendeur" | "client">("client");
   const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
+    setIsSubmitting(true);
     try {
       await register(email, password, accountType);
       navigate("/tableau-de-bord");
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Erreur d'inscription");
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h1>Créer un compte</h1>
-      {error && <p role="alert">{error}</p>}
-      <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" required />
-      <input
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="Mot de passe (8 caractères min.)"
-        required
-      />
-      <select value={accountType} onChange={(e) => setAccountType(e.target.value as "vendeur" | "client")}>
-        <option value="client">Acheteur</option>
-        <option value="vendeur">Vendeur</option>
-      </select>
-      <button type="submit">S'inscrire</button>
-    </form>
+    <div className="auth-shell">
+      <form className="auth-card" onSubmit={handleSubmit}>
+        <h1>DJASSA</h1>
+        <p style={{ color: "var(--text2)", marginBottom: "1.5rem" }}>Crée ton compte</p>
+        {error && <p className="error-text" role="alert">{error}</p>}
+        <div className="field">
+          <label>Email</label>
+          <input
+            className="input"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="toi@exemple.com"
+            required
+          />
+        </div>
+        <div className="field">
+          <label>Mot de passe</label>
+          <input
+            className="input"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="8 caractères min."
+            required
+          />
+        </div>
+        <div className="field">
+          <label>Je suis</label>
+          <select
+            className="input"
+            value={accountType}
+            onChange={(e) => setAccountType(e.target.value as "vendeur" | "client")}
+          >
+            <option value="client">Acheteur</option>
+            <option value="vendeur">Vendeur</option>
+          </select>
+        </div>
+        <button className="btn btn-primary" type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Création..." : "S'inscrire"}
+        </button>
+        <p className="auth-switch">
+          Déjà un compte ? <Link to="/connexion">Se connecter</Link>
+        </p>
+      </form>
+    </div>
   );
 }
