@@ -4,9 +4,11 @@ import { connectSocket, disconnectSocket } from "../realtime/socket";
 import { conversationsApi, type Conversation, type ChatMessage } from "../api/conversations";
 import { ConversationThread } from "../components/ConversationThread";
 import { MessageComposer } from "../components/MessageComposer";
+import { usePageTitle } from "../hooks/usePageTitle";
 import "./Messagerie.css";
 
 export function Messagerie() {
+  usePageTitle("Messagerie");
   const { user, accessToken } = useAuth();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);

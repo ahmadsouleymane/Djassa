@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { uploadPhoto } from "../api/products";
 import { verificationApi, type VerificationStatus } from "../api/verification";
+import { usePageTitle } from "../hooks/usePageTitle";
 
 const STATUS_LABELS: Record<VerificationStatus["status"], string> = {
   non_soumise: "Non soumise",
@@ -17,6 +18,7 @@ const STATUS_TONE: Record<VerificationStatus["status"], string> = {
 };
 
 export function Verification() {
+  usePageTitle("Vérification vendeur");
   const [status, setStatus] = useState<VerificationStatus | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);

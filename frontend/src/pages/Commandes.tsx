@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { ordersApi, type Order } from "../api/orders";
 import { ReviewForm } from "../components/ReviewForm";
+import { usePageTitle } from "../hooks/usePageTitle";
 import "./Commandes.css";
 
 const STATUS_LABELS: Record<Order["status"], string> = {
@@ -141,6 +142,7 @@ function OrderRow({ order, currentUserId, onChange }: { order: Order; currentUse
 }
 
 export function Commandes() {
+  usePageTitle("Mes commandes");
   const { user } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);

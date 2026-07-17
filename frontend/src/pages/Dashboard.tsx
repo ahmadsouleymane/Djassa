@@ -1,6 +1,8 @@
 import { useAuth } from "../context/AuthContext";
+import { usePageTitle } from "../hooks/usePageTitle";
 
 export function Dashboard() {
+  usePageTitle("Tableau de bord");
   const { user } = useAuth();
   const isVendeur = user?.accountType === "vendeur";
 

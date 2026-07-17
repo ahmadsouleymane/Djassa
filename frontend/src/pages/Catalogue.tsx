@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { productsApi, type Product } from "../api/products";
 import { ProductForm } from "../components/ProductForm";
+import { usePageTitle } from "../hooks/usePageTitle";
 
 export function Catalogue() {
+  usePageTitle("Mon catalogue");
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 

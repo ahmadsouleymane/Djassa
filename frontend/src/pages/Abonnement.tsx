@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { billingApi, type PlanStatus } from "../api/billing";
+import { usePageTitle } from "../hooks/usePageTitle";
 
 export function Abonnement() {
+  usePageTitle("Abonnement");
   const [status, setStatus] = useState<PlanStatus | null>(null);
   const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { apiClient } from "../api/client";
 import type { Product } from "../api/products";
 import { ProductCard } from "../components/ProductCard";
+import { usePageTitle } from "../hooks/usePageTitle";
 import "./Marche.css";
 
 const CATEGORIES = [
@@ -15,6 +16,7 @@ const CATEGORIES = [
 ];
 
 export function Marche() {
+  usePageTitle("Marché");
   const [products, setProducts] = useState<Product[]>([]);
   const [category, setCategory] = useState("");
   const [isLoading, setIsLoading] = useState(true);
