@@ -21,20 +21,20 @@ const STEPS = [
   {
     icon: Search,
     n: "01",
-    title: "Parcours le marché",
-    body: "Des milliers d'articles chez des vendeurs vérifiés, dans toutes les catégories. Ajoute au panier ou négocie dans la messagerie.",
+    title: "Choisis ton affaire",
+    body: "Parcours le djassa : des vendeurs vérifiés dans toutes les catégories. Négocie chap-chap dans la messagerie avant d'acheter.",
   },
   {
     icon: CreditCard,
     n: "02",
-    title: "Paie en sécurité",
-    body: "Ton paiement part chez Jassa, pas directement chez le vendeur. Il reste bloqué le temps de la livraison.",
+    title: "Paie, c'est carré",
+    body: "Ton djai part chez Jassa, pas chez le vendeur. Il reste bloqué le temps que ton colis arrive.",
   },
   {
     icon: PackageCheck,
     n: "03",
-    title: "Reçois et confirme",
-    body: "À la réception, tu confirmes et le vendeur est payé. Un souci ? Tu ouvres un litige et tu es remboursé.",
+    title: "Reçois et valide",
+    body: "Colis en main, tu confirmes, le vendeur est payé. Un souci ? Tu ouvres un litige et tu es remboursé. On est ensemble.",
   },
 ];
 
@@ -42,17 +42,17 @@ const FEATURES = [
   {
     icon: Lock,
     title: "Séquestre automatique",
-    body: "Chaque commande bloque le paiement jusqu'à ta confirmation. Le vendeur a 72h pour expédier, sinon tu es remboursé automatiquement.",
+    body: "Chaque commande bloque le paiement jusqu'à ta confirmation. Le vendeur a 72h pour expédier, sinon tu es remboursé, y'a pas drap.",
   },
   {
     icon: BadgeCheck,
     title: "Vendeurs vérifiés",
-    body: "Chaque vendeur passe une vérification d'identité avant de vendre. Un indice de confiance accompagne chaque profil.",
+    body: "Chaque mogo passe une vérification d'identité avant de vendre. Tu sais toujours à qui tu as affaire.",
   },
   {
     icon: MessageSquareText,
     title: "Négociation intégrée",
-    body: "Discute, envoie une offre, tombe d'accord sur un prix : tout se passe dans la messagerie Jassa, sans quitter la plateforme.",
+    body: "Discute, envoie ton offre, tombez d'accord sur le prix : tout se passe dans la messagerie Jassa, sans quitter la plateforme.",
   },
 ];
 
@@ -64,7 +64,7 @@ function HeroCard({ cardRef }: { cardRef: React.RefObject<HTMLDivElement | null>
     { label: "Confirmé", done: false },
   ];
   return (
-    <div className="[perspective:1000px]">
+    <div className="[perspective:1000px]" data-parallax="-0.1">
       <div className="animate-float motion-reduce:animate-none">
         <div
           ref={cardRef}
@@ -159,23 +159,29 @@ export function Landing() {
         />
         <div className="relative mx-auto grid max-w-[1200px] items-center gap-12 px-4 py-16 md:py-24 lg:grid-cols-[1.1fr_0.9fr]">
           <div>
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 py-1.5 text-xs font-semibold text-brand-300">
+            <span
+              data-hero
+              className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 py-1.5 text-xs font-semibold text-brand-300"
+            >
               <span className="size-1.5 rounded-full bg-brand-300" />
-              Le marché en ligne ivoirien
+              Le djassa en ligne d'Abidjan
             </span>
-            <h1 className="mt-5 text-4xl leading-[1.02] font-semibold tracking-tight text-white sm:text-5xl md:text-6xl">
-              Achète en confiance,
+            <h1
+              data-hero
+              className="mt-5 text-4xl leading-[1.02] font-semibold tracking-tight text-white sm:text-5xl md:text-6xl"
+            >
+              Achète sans être gaou.
               <br />
-              <span className="text-brand-300">l'argent reste protégé.</span>
+              <span className="text-brand-300">Ton djai reste bloqué.</span>
             </h1>
-            <p className="mt-5 max-w-lg text-base leading-relaxed text-white/70 md:text-lg">
-              Sur Jassa, ton paiement reste bloqué en séquestre jusqu'à ta
-              confirmation de réception. Zéro arnaque, zéro mauvaise surprise.
+            <p data-hero className="mt-5 max-w-lg text-base leading-relaxed text-white/70 md:text-lg">
+              Sur Jassa, ton djai reste bloqué en séquestre jusqu'à ce que ton
+              colis arrive. Y'a pas drap, zéro arnaque.
             </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <div data-hero className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button asChild size="lg">
                 <Link to="/marche">
-                  Explorer le marché <ArrowRight className="size-4" />
+                  Je vois le djassa <ArrowRight className="size-4" />
                 </Link>
               </Button>
               <Button
@@ -187,21 +193,28 @@ export function Landing() {
                 <Link to="/inscription">Créer un compte gratuit</Link>
               </Button>
             </div>
-            <dl className="mt-10 flex flex-wrap gap-x-10 gap-y-4">
+            <dl data-hero className="mt-10 flex flex-wrap gap-x-10 gap-y-4">
               {[
-                ["100%", "Paiement séquestré"],
-                ["72h", "Pour expédier ou remboursé"],
-                ["0", "Frais côté acheteur"],
-              ].map(([k, v]) => (
-                <div key={v}>
-                  <dt className="font-display text-2xl font-semibold text-white tabular">{k}</dt>
-                  <dd className="text-sm text-white/60">{v}</dd>
+                { n: 100, suffix: "%", label: "Séquestré" },
+                { n: 72, suffix: "h", label: "Pour expédier ou remboursé" },
+                { n: 0, suffix: "", label: "Frais côté acheteur" },
+              ].map((s) => (
+                <div key={s.label}>
+                  <dt
+                    data-count={s.n}
+                    data-count-suffix={s.suffix}
+                    className="font-display text-2xl font-semibold text-white tabular"
+                  >
+                    {s.n}
+                    {s.suffix}
+                  </dt>
+                  <dd className="text-sm text-white/60">{s.label}</dd>
                 </div>
               ))}
             </dl>
           </div>
 
-          <div className="flex justify-center lg:justify-end">
+          <div data-hero className="flex justify-center lg:justify-end">
             <HeroCard cardRef={cardRef} />
           </div>
         </div>
@@ -214,10 +227,10 @@ export function Landing() {
             Comment ça marche
           </span>
           <h2 className="mt-2 text-3xl font-semibold md:text-4xl">
-            Trois étapes, zéro risque
+            Trois étapes, zéro gaou
           </h2>
           <p className="mt-3 text-muted-foreground">
-            Le séquestre Jassa te protège à chaque commande, du paiement à la
+            Le séquestre Jassa te couvre à chaque commande, du paiement à la
             réception.
           </p>
         </div>
@@ -256,7 +269,7 @@ export function Landing() {
                   Fraîchement arrivé
                 </span>
                 <h2 className="mt-2 text-2xl font-semibold md:text-3xl">
-                  Ça bouge sur le marché
+                  Les affaires kpata du moment
                 </h2>
               </div>
               <Button asChild variant="ghost" className="hidden sm:inline-flex">
@@ -287,12 +300,12 @@ export function Landing() {
               Le séquestre Jassa
             </span>
             <h2 className="mt-2 text-3xl font-semibold md:text-4xl">
-              Ton argent ne bouge pas tant que tu n'as pas reçu
+              Ton djai bouge pas tant que tu n'as pas reçu
             </h2>
             <p className="mt-4 text-[1.05rem] leading-relaxed text-muted-foreground">
-              Quand tu paies, l'argent est gardé par Jassa, pas par le vendeur.
+              Quand tu paies, ton djai est gardé par Jassa, pas par le vendeur.
               Il n'est libéré qu'une fois que tu confirmes avoir reçu ta
-              commande. Le vendeur est motivé à bien livrer, tu es protégé de
+              commande. Le vendeur est motivé à bien livrer, toi tu es couvert de
               bout en bout.
             </p>
             <ul className="mt-6 space-y-3">
@@ -387,8 +400,8 @@ export function Landing() {
             <div>
               <h3 className="text-xl font-semibold md:text-2xl">Tu veux vendre sur Jassa ?</h3>
               <p className="mt-1 max-w-xl text-muted-foreground">
-                Commission de 5% par vente, 3% avec l'abonnement Pro. Paiement
-                garanti dès que l'acheteur confirme.
+                Commission de 5% par vente, 3% avec l'abonnement Pro. Ton djai
+                est garanti dès que l'acheteur confirme.
               </p>
             </div>
           </div>
@@ -412,15 +425,15 @@ export function Landing() {
         />
         <div className="relative mx-auto max-w-[900px] px-4 py-20 text-center" data-reveal>
           <h2 className="text-3xl font-semibold text-white md:text-5xl">
-            Prêt à acheter sans stress ?
+            Prêt à faire ton djassa ?
           </h2>
           <p className="mx-auto mt-4 max-w-lg text-white/70">
-            Rejoins le marché où acheteurs et vendeurs se font confiance,
-            commande après commande.
+            Rejoins les mogos qui achètent et vendent sans se faire avoir. On est
+            ensemble.
           </p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <Button asChild size="lg">
-              <Link to="/inscription">Créer mon compte</Link>
+              <Link to="/inscription">Je crée mon compte</Link>
             </Button>
             <Button
               asChild
@@ -428,7 +441,7 @@ export function Landing() {
               variant="outline"
               className="border-white/25 bg-transparent text-white hover:border-white hover:bg-white/10"
             >
-              <Link to="/marche">Voir le marché</Link>
+              <Link to="/marche">Je vois le djassa</Link>
             </Button>
           </div>
         </div>

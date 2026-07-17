@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ShieldCheck } from "lucide-react";
+import { ShieldCheck, Sparkles } from "lucide-react";
 import { reviewsApi, type TrustScore } from "../api/reviews";
 import { cn } from "@/lib/utils";
 
@@ -25,6 +25,26 @@ export function TrustBadge({
 
   if (!trust) return null;
 
+  // Sans historique (aucune vente confirmée, aucun avis), le score par défaut
+  // vaut 100 mais ne veut rien dire : on affiche « Nouveau » plutôt qu'un chiffre
+  // trompeur. Le score chiffré n'apparaît que lorsqu'il est mérité.
+  const hasTrack = trust.salesCount > 0 || trust.reviewCount > 0;
+
+  if (!hasTrack) {
+    return (
+      <span
+        title="Vendeur vérifié · pas encore d'historique de ventes"
+        className={cn(
+          "inline-flex items-center gap-1 rounded-full bg-secondary px-2 py-0.5 text-[0.7rem] font-bold text-muted-foreground",
+          className,
+        )}
+      >
+        <Sparkles className="size-3" />
+        Nouveau
+      </span>
+    );
+  }
+
   const tone =
     trust.score >= 70
       ? "bg-accent text-accent-foreground"
@@ -34,7 +54,7 @@ export function TrustBadge({
 
   return (
     <span
-      title={`Indice de confiance ${trust.score}/100`}
+      title={`Indice de confiance ${trust.score}/100 · ${trust.salesCount} vente${trust.salesCount > 1 ? "s" : ""} confirmée${trust.salesCount > 1 ? "s" : ""}`}
       className={cn(
         "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[0.7rem] font-bold tabular",
         tone,

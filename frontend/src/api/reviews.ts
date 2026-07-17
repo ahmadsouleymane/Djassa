@@ -1,7 +1,7 @@
 import { apiClient } from "./client";
 
 export type Review = { id: string; rating: number; comment: string; createdAt: string };
-export type TrustScore = { score: number; disputeRate: number; lateShipRate: number; accountAgeDays: number; responseRate: number };
+export type TrustScore = { score: number; disputeRate: number; lateShipRate: number; accountAgeDays: number; responseRate: number; salesCount: number; reviewCount: number };
 
 export const reviewsApi = {
   create: (orderId: string, rating: number, comment: string) =>

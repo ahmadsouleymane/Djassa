@@ -18,7 +18,7 @@ const WHY = [
   {
     icon: HandCoins,
     title: "Paiement garanti",
-    body: "L'acheteur paie avant l'expédition. L'argent est bloqué sur Jassa, pas entre ses mains. Impossible qu'il disparaisse sans payer.",
+    body: "L'acheteur paie avant l'expédition. Le djai est bloqué chez Jassa, pas entre ses mains. Impossible qu'il disparaisse sans payer.",
   },
   {
     icon: BadgeCheck,
@@ -74,18 +74,24 @@ export function LandingVendeur() {
           }}
         />
         <div className="relative mx-auto max-w-[900px] px-4 py-20 text-center md:py-28">
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 py-1.5 text-xs font-semibold text-brand-300">
+          <span
+            data-hero
+            className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 py-1.5 text-xs font-semibold text-brand-300"
+          >
             <span className="size-1.5 rounded-full bg-brand-300" /> Vendre sur Jassa
           </span>
-          <h1 className="mt-5 text-4xl leading-[1.03] font-semibold tracking-tight text-white sm:text-5xl md:text-6xl">
-            Vends plus, <span className="text-brand-300">sois payé à coup sûr.</span>
+          <h1
+            data-hero
+            className="mt-5 text-4xl leading-[1.03] font-semibold tracking-tight text-white sm:text-5xl md:text-6xl"
+          >
+            Vends, encaisse, <span className="text-brand-300">sans te faire avoir.</span>
           </h1>
-          <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-white/70 md:text-lg">
+          <p data-hero className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-white/70 md:text-lg">
             Sur les réseaux, tu risques l'acheteur qui disparaît après réception.
-            Sur Jassa, l'argent est bloqué en séquestre dès la commande, et il
+            Sur Jassa, ton djai est bloqué en séquestre dès la commande, et il
             t'est versé dès que le client confirme la réception.
           </p>
-          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+          <div data-hero className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <Button asChild size="lg">
               <Link to="/inscription-vendeur">
                 Créer mon compte vendeur <ArrowRight className="size-4" />
