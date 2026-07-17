@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { apiClient } from "../api/client";
 import type { Product } from "../api/products";
 import { ProductCard } from "../components/ProductCard";
@@ -17,9 +18,10 @@ const CATEGORIES = [
 
 export function Marche() {
   usePageTitle("Marché");
+  const [searchParams] = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
   const [category, setCategory] = useState("");
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(() => searchParams.get("q") ?? "");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {

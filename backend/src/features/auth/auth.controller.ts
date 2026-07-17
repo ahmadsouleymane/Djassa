@@ -53,6 +53,15 @@ export async function login(req: Request, res: Response, next: NextFunction) {
   }
 }
 
+export async function logout(_req: Request, res: Response) {
+  res.clearCookie(REFRESH_COOKIE, {
+    httpOnly: REFRESH_COOKIE_OPTIONS.httpOnly,
+    secure: REFRESH_COOKIE_OPTIONS.secure,
+    sameSite: REFRESH_COOKIE_OPTIONS.sameSite,
+  });
+  res.status(204).end();
+}
+
 export async function refresh(req: Request, res: Response, next: NextFunction) {
   try {
     const token = req.cookies?.[REFRESH_COOKIE];

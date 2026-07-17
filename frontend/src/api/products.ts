@@ -20,6 +20,10 @@ export const productsApi = {
   signUpload: () => apiClient.post<SignedUpload>("/api/uploads/sign", {}),
 };
 
+export const publicProductsApi = {
+  get: (id: string) => apiClient.get<{ product: Product }>(`/api/public/products/${id}`),
+};
+
 export async function uploadPhoto(file: File): Promise<string> {
   const signed = await productsApi.signUpload();
   const formData = new FormData();

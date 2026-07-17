@@ -1,24 +1,36 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 import { PrivateRoute } from "./routes/PrivateRoute";
 import { Layout } from "./components/Layout";
+import { Landing } from "./pages/Landing";
 import { Login } from "./pages/Login";
 import { Register } from "./pages/Register";
-import { Dashboard } from "./pages/Dashboard";
 import { Catalogue } from "./pages/Catalogue";
 import { Marche } from "./pages/Marche";
+import { ProductDetail } from "./pages/ProductDetail";
 import { Messagerie } from "./pages/Messagerie";
 import { Commandes } from "./pages/Commandes";
 import { Verification } from "./pages/Verification";
 import { Abonnement } from "./pages/Abonnement";
 import { AdminVerifications } from "./pages/admin/AdminVerifications";
 
+function Home() {
+  const { user, isLoading } = useAuth();
+  if (isLoading) return <div className="empty-state">Chargement...</div>;
+  if (user) return <Navigate to="/marche" replace />;
+  return (
+    <Layout>
+      <Landing />
+    </Layout>
+  );
+}
+
 export function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <Routes>
-          <Route path="/" element={<Navigate to="/connexion" replace />} />
+          <Route path="/" element={<Home />} />
           <Route path="/connexion" element={<Login />} />
           <Route path="/inscription" element={<Register />} />
           <Route
@@ -30,11 +42,11 @@ export function App() {
             }
           />
           <Route
-            path="/tableau-de-bord"
+            path="/produit/:id"
             element={
-              <PrivateRoute>
-                <Dashboard />
-              </PrivateRoute>
+              <Layout>
+                <ProductDetail />
+              </Layout>
             }
           />
           <Route
@@ -47,6 +59,14 @@ export function App() {
           />
           <Route
             path="/messagerie"
+            element={
+              <PrivateRoute>
+                <Messagerie />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/messagerie/:conversationId"
             element={
               <PrivateRoute>
                 <Messagerie />

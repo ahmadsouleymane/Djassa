@@ -20,7 +20,7 @@ export function Register() {
     setIsSubmitting(true);
     try {
       await register(email, password, accountType);
-      navigate("/tableau-de-bord");
+      navigate("/marche");
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Erreur d'inscription");
     } finally {

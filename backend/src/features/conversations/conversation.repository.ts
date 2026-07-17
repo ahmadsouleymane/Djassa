@@ -18,7 +18,10 @@ export class ConversationRepository {
     return prisma.conversation.findMany({
       where: { OR: [{ buyerId: userId }, { vendorId: userId }] },
       orderBy: { createdAt: "desc" },
-      include: { product: true },
+      include: {
+        product: true,
+        messages: { orderBy: { createdAt: "desc" }, take: 1 },
+      },
     });
   }
 }

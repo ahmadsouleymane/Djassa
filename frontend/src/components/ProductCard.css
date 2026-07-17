@@ -3,7 +3,8 @@
   flex-direction: column;
   padding: 0;
   overflow: hidden;
-  cursor: default;
+  color: var(--ink);
+  text-decoration: none;
   transition: transform var(--duration-base) var(--ease), box-shadow var(--duration-base) var(--ease),
     border-color var(--duration-base) var(--ease);
 }
@@ -12,6 +13,7 @@
   border-color: var(--line-strong);
   box-shadow: var(--shadow-pop);
   transform: translate(-2px, -4px);
+  text-decoration: none;
 }
 
 .product-card-image {
@@ -98,7 +100,3 @@
   }
 }
 
-.product-card-cta {
-  margin-top: auto;
-  width: 100%;
-}

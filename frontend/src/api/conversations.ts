@@ -6,6 +6,7 @@ export type Conversation = {
   vendorId: string;
   productId: string;
   product: { title: string; photos: string[] };
+  messages: ChatMessage[];
   createdAt: string;
 };
 

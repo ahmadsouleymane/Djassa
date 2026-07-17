@@ -19,7 +19,7 @@ export function Login() {
     setIsSubmitting(true);
     try {
       await login(email, password);
-      navigate("/tableau-de-bord");
+      navigate("/marche");
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Erreur de connexion");
     } finally {

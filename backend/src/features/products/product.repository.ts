@@ -25,6 +25,12 @@ export class ProductRepository {
     return prisma.product.findMany({ where: { vendorId }, orderBy: { createdAt: "desc" } });
   }
 
+  findPublicById(id: string): Promise<Product | null> {
+    return prisma.product.findFirst({
+      where: { id, vendor: { sellerVerificationStatus: "approuvee" } },
+    });
+  }
+
   findPublic(options: { category?: ProductCategory; cursor?: string; limit: number }): Promise<Product[]> {
     const where: Prisma.ProductWhereInput = {
       vendor: { sellerVerificationStatus: "approuvee" },

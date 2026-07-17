@@ -32,3 +32,16 @@ publicProductRouter.get("/", async (req, res, next) => {
     next(err);
   }
 });
+
+publicProductRouter.get("/:id", async (req, res, next) => {
+  try {
+    const product = await productRepo.findPublicById(req.params.id);
+    if (!product) {
+      res.status(404).json({ error: "Produit introuvable" });
+      return;
+    }
+    res.json({ product });
+  } catch (err) {
+    next(err);
+  }
+});

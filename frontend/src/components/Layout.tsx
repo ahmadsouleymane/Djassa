@@ -1,6 +1,7 @@
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useState, type FormEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { Footer } from "./Footer";
 import "./Layout.css";
 
 function IconMarket() {
@@ -39,11 +40,21 @@ function IconUser() {
   );
 }
 
+function IconSearch() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="11" cy="11" r="7" />
+      <path d="m21 21-4.3-4.3" />
+    </svg>
+  );
+}
+
 export function Layout({ children }: { children: ReactNode }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
 
   function handleLogout() {
     setIsSheetOpen(false);
@@ -55,11 +66,17 @@ export function Layout({ children }: { children: ReactNode }) {
     return location.pathname === path;
   }
 
+  function handleSearchSubmit(e: FormEvent) {
+    e.preventDefault();
+    const q = searchValue.trim();
+    navigate(q ? `/marche?q=${encodeURIComponent(q)}` : "/marche");
+  }
+
   return (
     <>
       <header className="nav">
         <div className="container nav-inner">
-          <Link to={user ? "/tableau-de-bord" : "/marche"} className="nav-logo">
+          <Link to="/marche" className="nav-logo">
             Jassa<span className="nav-logo-dot" aria-hidden="true" />
           </Link>
           <nav className="nav-links">
@@ -70,6 +87,16 @@ export function Layout({ children }: { children: ReactNode }) {
             {user?.accountType === "vendeur" && <Link to="/abonnement">Abonnement</Link>}
             {user?.accountType === "vendeur" && <Link to="/verification">Vérification</Link>}
           </nav>
+          <form className="nav-search" onSubmit={handleSearchSubmit}>
+            <IconSearch />
+            <input
+              type="search"
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              placeholder="Rechercher sur Jassa..."
+              aria-label="Rechercher un produit"
+            />
+          </form>
           <div className="nav-actions">
             {user ? (
               <>
@@ -96,13 +123,15 @@ export function Layout({ children }: { children: ReactNode }) {
         <div className="container">{children}</div>
       </main>
 
+      <Footer />
+
       <nav className="bottom-nav">
         <Link to="/marche" className={`bottom-nav-item ${isActive("/marche") ? "is-active" : ""}`}>
           <IconMarket />
           <span>Marché</span>
         </Link>
         {user && (
-          <Link to="/messagerie" className={`bottom-nav-item ${isActive("/messagerie") ? "is-active" : ""}`}>
+          <Link to="/messagerie" className={`bottom-nav-item ${location.pathname.startsWith("/messagerie") ? "is-active" : ""}`}>
             <IconChat />
             <span>Messages</span>
           </Link>

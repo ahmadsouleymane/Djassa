@@ -1,0 +1,102 @@
+.composer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 0.85rem;
+  background: var(--surface);
+  border-top: 1.5px solid var(--line);
+  flex-shrink: 0;
+}
+
+.composer-offer-toggle {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1.5px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--ink-2);
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease), color var(--duration-fast) var(--ease);
+}
+
+.composer-offer-toggle:hover {
+  background: var(--surface-2);
+}
+
+.composer-offer-toggle.is-active {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--volt);
+}
+
+.composer-offer {
+  position: absolute;
+  left: 0.85rem;
+  bottom: calc(100% + 0.5rem);
+  width: 8rem;
+  box-shadow: var(--shadow-2);
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  padding: 0.55rem 0.75rem;
+  border: 1.5px solid var(--line-strong);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.composer-input {
+  flex: 1;
+  min-width: 0;
+  height: 42px;
+  padding: 0 1rem;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--line);
+  background: var(--surface-2);
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  color: var(--ink);
+}
+
+.composer-input:focus {
+  outline: none;
+  border-color: var(--line-strong);
+  background: var(--surface);
+}
+
+.composer-send {
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+  background: var(--brand);
+  color: var(--brand-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease), transform var(--duration-fast) var(--ease);
+}
+
+.composer-send svg {
+  width: 18px;
+  height: 18px;
+}
+
+.composer-send:hover:not(:disabled) {
+  background: var(--brand-hover);
+}
+
+.composer-send:active:not(:disabled) {
+  transform: scale(0.92);
+}
+
+.composer-send:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
