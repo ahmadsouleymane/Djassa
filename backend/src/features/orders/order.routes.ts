@@ -1,11 +1,12 @@
 import { Router } from "express";
 import { requireAuth, requireAdmin } from "../auth/auth.middleware.js";
-import { create, listMine, checkout, ship, confirm, dispute, resolveDispute } from "./order.controller.js";
+import { create, createDirect, listMine, checkout, ship, confirm, dispute, resolveDispute } from "./order.controller.js";
 
 export const orderRouter = Router();
 
 orderRouter.use(requireAuth);
 orderRouter.post("/", create);
+orderRouter.post("/direct", createDirect);
 orderRouter.get("/mine", listMine);
 orderRouter.post("/:id/checkout", checkout);
 orderRouter.post("/:id/ship", ship);

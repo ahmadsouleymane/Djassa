@@ -3,6 +3,8 @@ import { PaymentRepository } from "./payment.repository.js";
 import { UserRepository } from "../users/user.repository.js";
 import { NotFoundError } from "../../shared/errors/index.js";
 import { PRO_MONTHLY_PRICE, PRO_CYCLE_DAYS } from "../../config/plans.js";
+import { createPaymentSession } from "../../services/geniusPay.js";
+import { config } from "../../shared/config/index.js";
 
 const paymentRepo = new PaymentRepository();
 const userRepo = new UserRepository();
@@ -11,7 +13,13 @@ export const SubscriptionService = {
   async checkout(userId: string) {
     const reference = randomUUID();
     await paymentRepo.create({ userId, reference, amount: PRO_MONTHLY_PRICE });
-    return { checkoutUrl: `https://checkout.geniuspay.mock/${reference}`, reference };
+    const { paymentUrl } = await createPaymentSession({
+      amount: PRO_MONTHLY_PRICE,
+      reference,
+      callbackUrl: `${config.apiBaseUrl}/api/billing/webhook/geniuspay`,
+      returnUrl: `${config.corsOrigin}/abonnement`,
+    });
+    return { checkoutUrl: paymentUrl, reference };
   },
 
   async activate(userId: string) {

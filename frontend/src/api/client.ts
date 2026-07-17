@@ -36,16 +36,31 @@ async function rawRequest<T>(path: string, options: RequestInit = {}): Promise<T
   return res.json();
 }
 
+// Endpoints where a 401 is the real answer (bad credentials / no session),
+// not an expired access token. Retrying these through /refresh would mask the
+// real error with a misleading "Aucune session à renouveler".
+const NO_REFRESH_RETRY = new Set([
+  "/api/auth/login",
+  "/api/auth/register",
+  "/api/auth/refresh",
+  "/api/auth/logout",
+]);
+
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   try {
     return await rawRequest<T>(path, options);
   } catch (err) {
-    if (err instanceof ApiError && err.status === 401 && path !== "/api/auth/refresh") {
-      const { accessToken: newToken } = await rawRequest<{ accessToken: string }>("/api/auth/refresh", {
-        method: "POST",
-      });
-      setAccessToken(newToken);
-      return rawRequest<T>(path, options);
+    if (err instanceof ApiError && err.status === 401 && !NO_REFRESH_RETRY.has(path)) {
+      try {
+        const { accessToken: newToken } = await rawRequest<{ accessToken: string }>("/api/auth/refresh", {
+          method: "POST",
+        });
+        setAccessToken(newToken);
+        return await rawRequest<T>(path, options);
+      } catch {
+        // Refresh failed: surface the original 401, not the refresh error.
+        throw err;
+      }
     }
     throw err;
   }
@@ -54,4 +69,6 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 export const apiClient = {
   get: <T>(path: string) => request<T>(path),
   post: <T>(path: string, data: unknown) => request<T>(path, { method: "POST", body: JSON.stringify(data) }),
+  patch: <T>(path: string, data: unknown) => request<T>(path, { method: "PATCH", body: JSON.stringify(data) }),
+  delete: <T>(path: string) => request<T>(path, { method: "DELETE" }),
 };

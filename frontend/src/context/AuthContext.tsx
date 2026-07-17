@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useCallback, useEffect, type React
 import { apiClient, setAccessToken } from "../api/client";
 
 type AccountType = "vendeur" | "client";
-type User = { id: string; email: string; accountType: AccountType };
+type User = { id: string; email: string; accountType: AccountType; isAdmin: boolean };
 type AuthResponse = { user: User; accessToken: string };
 
 type AuthContextValue = {

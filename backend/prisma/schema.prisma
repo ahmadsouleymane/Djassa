@@ -113,8 +113,9 @@ model Order {
   vendor           User        @relation("VendorOrders", fields: [vendorId], references: [id])
   productId        String
   product          Product     @relation(fields: [productId], references: [id])
-  chatMessageId    String      @unique
-  chatMessage      ChatMessage @relation(fields: [chatMessageId], references: [id])
+  chatMessageId    String?      @unique
+  chatMessage      ChatMessage? @relation(fields: [chatMessageId], references: [id])
+  checkoutRef      String
   price            Int
   commissionAmount Int
   netAmount        Int
@@ -128,6 +129,8 @@ model Order {
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
   review           Review?
+
+  @@index([checkoutRef])
 }
 
 model Review {

@@ -21,4 +21,11 @@ export class UserRepository {
   findByVerificationStatus(status: SellerVerificationStatus): Promise<User[]> {
     return prisma.user.findMany({ where: { sellerVerificationStatus: status } });
   }
+
+  findPublicVendor(id: string) {
+    return prisma.user.findFirst({
+      where: { id, accountType: "vendeur", sellerVerificationStatus: "approuvee" },
+      select: { id: true, createdAt: true, sellerVerificationStatus: true, planTier: true },
+    });
+  }
 }

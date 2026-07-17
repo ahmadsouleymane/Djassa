@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 import type { Order } from "@prisma/client";
 import { OrderService } from "./order.service.js";
-import { createOrderSchema, disputeSchema, resolveDisputeSchema } from "./order.schema.js";
+import { createOrderSchema, createDirectOrderSchema, disputeSchema, resolveDisputeSchema } from "./order.schema.js";
 import { ValidationError } from "../../shared/errors/index.js";
 
 function fieldErrors(error: { flatten: () => { fieldErrors: Record<string, string[] | undefined> } }) {
@@ -25,6 +25,22 @@ export async function create(req: Request, res: Response, next: NextFunction) {
   try {
     const order = await OrderService.createFromOffer(req.userId!, parsed.data.chatMessageId);
     res.status(201).json({ order: serializeOrder(order, req.userId!) });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function createDirect(req: Request, res: Response, next: NextFunction) {
+  const parsed = createDirectOrderSchema.safeParse(req.body);
+  if (!parsed.success) return next(new ValidationError(fieldErrors(parsed.error)));
+
+  try {
+    const result = await OrderService.createDirectBatch(req.userId!, parsed.data.productIds);
+    res.status(201).json({
+      orders: result.orders.map((o) => serializeOrder(o, req.userId!)),
+      checkoutUrl: result.checkoutUrl,
+      reference: result.reference,
+    });
   } catch (err) {
     next(err);
   }

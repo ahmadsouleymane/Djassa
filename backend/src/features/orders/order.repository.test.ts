@@ -61,6 +61,7 @@ describe("OrderRepository", () => {
       vendorId,
       productId,
       chatMessageId,
+      checkoutRef: "test-ref-1",
       price: 18000,
       commissionAmount,
       netAmount,

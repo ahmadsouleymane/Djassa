@@ -3,13 +3,19 @@ import { OrderRepository } from "./order.repository.js";
 import { MessageRepository } from "../conversations/message.repository.js";
 import { ConversationRepository } from "../conversations/conversation.repository.js";
 import { UserRepository } from "../users/user.repository.js";
+import { ProductRepository } from "../products/product.repository.js";
 import { NotFoundError, UnauthorizedError, ValidationError, ConflictError } from "../../shared/errors/index.js";
 import { computeCommission, MARKETPLACE_SHIP_DEADLINE_HOURS, MARKETPLACE_CONFIRM_DEADLINE_DAYS } from "../../config/marketplace.js";
+import { createPaymentSession } from "../../services/geniusPay.js";
+import { config } from "../../shared/config/index.js";
+
+const GENIUSPAY_CALLBACK_URL = `${config.apiBaseUrl}/api/billing/webhook/geniuspay`;
 
 const orderRepo = new OrderRepository();
 const messageRepo = new MessageRepository();
 const conversationRepo = new ConversationRepository();
 const userRepo = new UserRepository();
+const productRepo = new ProductRepository();
 
 function hoursFromNow(hours: number): Date {
   return new Date(Date.now() + hours * 60 * 60 * 1000);
@@ -46,16 +52,18 @@ export const OrderService = {
     const isPro = vendor.planTier === "pro" && !!vendor.planPeriodEnd && vendor.planPeriodEnd > new Date();
     const { commissionAmount, netAmount } = computeCommission(message.offerPrice, isPro ? "pro" : "standard");
 
+    const paymentReference = randomUUID();
     try {
       return await orderRepo.create({
         buyerId,
         vendorId: conversation.vendorId,
         productId: conversation.productId,
         chatMessageId,
+        checkoutRef: paymentReference,
         price: message.offerPrice,
         commissionAmount,
         netAmount,
-        paymentReference: randomUUID(),
+        paymentReference,
         confirmationCode: String(randomInt(100000, 999999)),
       });
     } catch (err) {
@@ -66,6 +74,49 @@ export const OrderService = {
     }
   },
 
+  async createDirectBatch(buyerId: string, productIds: string[]) {
+    if (productIds.length === 0) throw new ValidationError({ items: "Le panier est vide" });
+
+    const checkoutRef = randomUUID();
+    const orders = [];
+    for (const productId of productIds) {
+      const product = await productRepo.findPublicById(productId);
+      if (!product) throw new NotFoundError("Produit");
+
+      const vendor = await userRepo.findById(product.vendorId);
+      if (!vendor) throw new NotFoundError("Vendeur");
+      if (vendor.sellerVerificationStatus !== "approuvee") {
+        throw new ValidationError({ vendorId: "Ce vendeur n'est pas encore vérifié" });
+      }
+
+      const isPro = vendor.planTier === "pro" && !!vendor.planPeriodEnd && vendor.planPeriodEnd > new Date();
+      const { commissionAmount, netAmount } = computeCommission(product.price, isPro ? "pro" : "standard");
+
+      const order = await orderRepo.create({
+        buyerId,
+        vendorId: product.vendorId,
+        productId: product.id,
+        checkoutRef,
+        price: product.price,
+        commissionAmount,
+        netAmount,
+        paymentReference: randomUUID(),
+        confirmationCode: String(randomInt(100000, 999999)),
+      });
+      orders.push(order);
+    }
+
+    const totalAmount = orders.reduce((sum, o) => sum + o.price, 0);
+    const { paymentUrl } = await createPaymentSession({
+      amount: totalAmount,
+      reference: checkoutRef,
+      callbackUrl: GENIUSPAY_CALLBACK_URL,
+      returnUrl: `${config.corsOrigin}/commandes`,
+    });
+
+    return { orders, checkoutUrl: paymentUrl, reference: checkoutRef };
+  },
+
   async checkout(buyerId: string, orderId: string) {
     const order = await orderRepo.findById(orderId);
     if (!order) throw new NotFoundError("Commande");
@@ -73,14 +124,23 @@ export const OrderService = {
     if (order.status !== "en_attente_paiement") {
       throw new ValidationError({ status: "Cette commande n'est plus en attente de paiement" });
     }
-    return { checkoutUrl: `https://checkout.geniuspay.mock/${order.paymentReference}`, reference: order.paymentReference };
+    const { paymentUrl } = await createPaymentSession({
+      amount: order.price,
+      reference: order.checkoutRef,
+      callbackUrl: GENIUSPAY_CALLBACK_URL,
+      returnUrl: `${config.corsOrigin}/commandes`,
+    });
+    return { checkoutUrl: paymentUrl, reference: order.checkoutRef };
   },
 
-  async markPaid(orderId: string) {
-    const order = await orderRepo.findById(orderId);
-    if (!order) throw new NotFoundError("Commande");
-    if (order.status !== "en_attente_paiement") return order;
-    return orderRepo.update(order.id, { status: "paye", shipBy: hoursFromNow(MARKETPLACE_SHIP_DEADLINE_HOURS) });
+  async markPaidByCheckoutRef(checkoutRef: string) {
+    const orders = await orderRepo.findByCheckoutRef(checkoutRef);
+    if (orders.length === 0) return null;
+    await orderRepo.updateManyByCheckoutRef(checkoutRef, {
+      status: "paye",
+      shipBy: hoursFromNow(MARKETPLACE_SHIP_DEADLINE_HOURS),
+    });
+    return orders;
   },
 
   async markShipped(vendorId: string, orderId: string) {

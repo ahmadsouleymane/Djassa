@@ -4,9 +4,12 @@ function requiredEnv(name: string): string {
   return value;
 }
 
+const port = parseInt(process.env.PORT ?? "4000", 10);
+
 export const config = {
-  port: parseInt(process.env.PORT ?? "4000", 10),
+  port,
   nodeEnv: process.env.NODE_ENV ?? "development",
+  apiBaseUrl: process.env.API_BASE_URL ?? `http://localhost:${port}`,
   corsOrigin: requiredEnv("CORS_ORIGIN"),
   database: {
     url: requiredEnv("DATABASE_URL"),
@@ -24,6 +27,9 @@ export const config = {
   },
   geniusPay: {
     webhookSecret: requiredEnv("GENIUSPAY_WEBHOOK_SECRET"),
+    apiKey: requiredEnv("GENIUSPAY_API_KEY"),
+    apiSecret: requiredEnv("GENIUSPAY_API_SECRET"),
+    baseUrl: requiredEnv("GENIUSPAY_BASE_URL"),
   },
   adminEmails: (process.env.ADMIN_EMAILS ?? "")
     .split(",")

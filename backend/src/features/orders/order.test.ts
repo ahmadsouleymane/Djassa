@@ -1,5 +1,14 @@
-import { describe, it, expect, afterAll } from "vitest";
+import { describe, it, expect, afterAll, vi } from "vitest";
 import request from "supertest";
+
+vi.mock("../../services/geniusPay.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../services/geniusPay.js")>();
+  return {
+    ...actual,
+    createPaymentSession: vi.fn().mockResolvedValue({ paymentUrl: "https://checkout.geniuspay.mock/test" }),
+  };
+});
+
 import { app } from "../../app.js";
 import { OrderService } from "./order.service.js";
 import { signWebhookPayload } from "../../services/geniusPay.js";

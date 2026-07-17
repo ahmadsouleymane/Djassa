@@ -19,6 +19,8 @@ export type Order = {
 
 export const ordersApi = {
   create: (chatMessageId: string) => apiClient.post<{ order: Order }>("/api/orders", { chatMessageId }),
+  createDirect: (productIds: string[]) =>
+    apiClient.post<{ orders: Order[]; checkoutUrl: string; reference: string }>("/api/orders/direct", { productIds }),
   listMine: () => apiClient.get<{ orders: Order[] }>("/api/orders/mine"),
   checkout: (orderId: string) => apiClient.post<{ checkoutUrl: string; reference: string }>(`/api/orders/${orderId}/checkout`, {}),
   ship: (orderId: string) => apiClient.post<{ order: Order }>(`/api/orders/${orderId}/ship`, {}),

@@ -1,15 +1,18 @@
 import { useEffect, useState } from "react";
-import { verificationApi, type PendingVendor } from "../../api/verification";
-import { usePageTitle } from "../../hooks/usePageTitle";
-import "./AdminVerifications.css";
+import { Check, X, ShieldCheck } from "lucide-react";
+import { toast } from "sonner";
+import { verificationApi, type PendingVendor } from "@/api/verification";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export function AdminVerifications() {
-  usePageTitle("Vérifications — Admin");
+  usePageTitle("Vérifications admin");
   const [pending, setPending] = useState<PendingVendor[]>([]);
   const [reasons, setReasons] = useState<Record<string, string>>({});
 
   function reload() {
-    verificationApi.listPending().then((res) => setPending(res.users));
+    verificationApi.listPending().then((res) => setPending(res.users)).catch(() => {});
   }
 
   useEffect(() => {
@@ -17,42 +20,90 @@ export function AdminVerifications() {
   }, []);
 
   async function handleApprove(userId: string) {
-    await verificationApi.approve(userId);
-    reload();
+    try {
+      await verificationApi.approve(userId);
+      toast.success("Vendeur approuvé");
+      reload();
+    } catch {
+      toast.error("Action impossible.");
+    }
   }
 
   async function handleReject(userId: string) {
     const reason = reasons[userId];
-    if (!reason?.trim()) return;
-    await verificationApi.reject(userId, reason);
-    reload();
+    if (!reason?.trim()) {
+      toast.error("Indique un motif de rejet.");
+      return;
+    }
+    try {
+      await verificationApi.reject(userId, reason);
+      toast.success("Dossier rejeté");
+      reload();
+    } catch {
+      toast.error("Action impossible.");
+    }
   }
 
   return (
-    <div>
-      <div className="page-header">
-        <h1>Vérifications en attente</h1>
-      </div>
+    <div className="flex flex-col gap-6">
+      <header>
+        <h1 className="text-3xl font-semibold md:text-4xl">Vérifications en attente</h1>
+        <p className="mt-1 text-muted-foreground">
+          Examine chaque pièce d'identité avant d'approuver ou de rejeter le
+          vendeur.
+        </p>
+      </header>
+
       {pending.length === 0 ? (
-        <div className="empty-state">Aucune vérification en attente.</div>
+        <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border bg-card py-16 text-center">
+          <span className="grid size-14 place-items-center rounded-full bg-accent text-primary">
+            <ShieldCheck className="size-7" />
+          </span>
+          <p className="text-muted-foreground">Aucune vérification en attente.</p>
+        </div>
       ) : (
-        <ul className="card-list">
-          {pending.map((u, i) => (
-            <li key={u.id} className="card verif-row animate-in" style={{ ["--i" as string]: i }}>
-              {u.documentUrl && <img src={u.documentUrl} alt="Pièce d'identité" />}
-              <span className="email">{u.email}</span>
-              <button className="btn btn-primary btn-sm" onClick={() => handleApprove(u.id)}>
-                Approuver
-              </button>
-              <input
-                className="input"
-                value={reasons[u.id] ?? ""}
-                onChange={(e) => setReasons({ ...reasons, [u.id]: e.target.value })}
-                placeholder="Motif de rejet"
-              />
-              <button className="btn btn-danger btn-sm" onClick={() => handleReject(u.id)}>
-                Rejeter
-              </button>
+        <ul className="flex flex-col gap-4">
+          {pending.map((u) => (
+            <li
+              key={u.id}
+              className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-xs)] md:flex-row md:items-center"
+            >
+              {u.documentUrl && (
+                <a
+                  href={u.documentUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block size-24 shrink-0 overflow-hidden rounded-xl border border-border"
+                >
+                  <img
+                    src={u.documentUrl}
+                    alt="Pièce d'identité"
+                    className="size-full object-cover"
+                  />
+                </a>
+              )}
+              <span className="flex-1 font-medium break-all">{u.email}</span>
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <Button size="sm" onClick={() => handleApprove(u.id)}>
+                  <Check className="size-4" /> Approuver
+                </Button>
+                <div className="flex gap-2">
+                  <Input
+                    value={reasons[u.id] ?? ""}
+                    onChange={(e) => setReasons({ ...reasons, [u.id]: e.target.value })}
+                    placeholder="Motif de rejet"
+                    className="h-9 w-44"
+                  />
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="border-destructive/30 text-destructive hover:bg-destructive/10"
+                    onClick={() => handleReject(u.id)}
+                  >
+                    <X className="size-4" /> Rejeter
+                  </Button>
+                </div>
+              </div>
             </li>
           ))}
         </ul>

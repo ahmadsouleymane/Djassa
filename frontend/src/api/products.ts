@@ -17,11 +17,25 @@ export const productsApi = {
   listMine: () => apiClient.get<{ products: Product[] }>("/api/products/mine"),
   create: (data: Omit<Product, "id" | "vendorId" | "createdAt">) =>
     apiClient.post<{ product: Product }>("/api/products", data),
+  update: (id: string, data: Partial<Omit<Product, "id" | "vendorId" | "createdAt">>) =>
+    apiClient.patch<{ product: Product }>(`/api/products/${id}`, data),
+  remove: (id: string) => apiClient.delete<void>(`/api/products/${id}`),
   signUpload: () => apiClient.post<SignedUpload>("/api/uploads/sign", {}),
 };
 
+export type ProductListParams = { category?: string; search?: string; vendorId?: string; limit?: number };
+
 export const publicProductsApi = {
   get: (id: string) => apiClient.get<{ product: Product }>(`/api/public/products/${id}`),
+  list: (params: ProductListParams = {}) => {
+    const qs = new URLSearchParams();
+    if (params.category) qs.set("category", params.category);
+    if (params.search) qs.set("search", params.search);
+    if (params.vendorId) qs.set("vendorId", params.vendorId);
+    if (params.limit) qs.set("limit", String(params.limit));
+    const query = qs.toString();
+    return apiClient.get<{ products: Product[] }>(`/api/public/products${query ? `?${query}` : ""}`);
+  },
 };
 
 export async function uploadPhoto(file: File): Promise<string> {

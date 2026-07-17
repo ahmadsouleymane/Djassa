@@ -1,0 +1,14 @@
+# Jassa — marché en ligne ivoirien
+# Remplace https://www.jassa.ci par le domaine réel avant mise en production.
+User-agent: *
+Allow: /
+Disallow: /connexion
+Disallow: /inscription
+Disallow: /messagerie
+Disallow: /commandes
+Disallow: /catalogue
+Disallow: /verification
+Disallow: /abonnement
+Disallow: /admin
+
+Sitemap: https://www.jassa.ci/sitemap.xml

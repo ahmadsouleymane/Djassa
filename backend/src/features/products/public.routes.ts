@@ -25,8 +25,10 @@ publicProductRouter.get("/", async (req, res, next) => {
     const limit = Math.min(Number(req.query.limit) || 20, 50);
     const category = parseCategory(req.query.category);
     const cursor = typeof req.query.cursor === "string" ? req.query.cursor : undefined;
+    const search = typeof req.query.search === "string" && req.query.search.trim() ? req.query.search.trim() : undefined;
+    const vendorId = typeof req.query.vendorId === "string" ? req.query.vendorId : undefined;
 
-    const products = await productRepo.findPublic({ category, cursor, limit });
+    const products = await productRepo.findPublic({ category, cursor, limit, search, vendorId });
     res.json({ products });
   } catch (err) {
     next(err);

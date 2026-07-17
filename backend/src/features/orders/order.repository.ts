@@ -5,7 +5,8 @@ type CreateInput = {
   buyerId: string;
   vendorId: string;
   productId: string;
-  chatMessageId: string;
+  chatMessageId?: string;
+  checkoutRef: string;
   price: number;
   commissionAmount: number;
   netAmount: number;
@@ -28,6 +29,14 @@ export class OrderRepository {
 
   findByReference(paymentReference: string): Promise<Order | null> {
     return prisma.order.findUnique({ where: { paymentReference } });
+  }
+
+  findByCheckoutRef(checkoutRef: string): Promise<Order[]> {
+    return prisma.order.findMany({ where: { checkoutRef } });
+  }
+
+  updateManyByCheckoutRef(checkoutRef: string, data: Prisma.OrderUpdateManyMutationInput): Promise<Prisma.BatchPayload> {
+    return prisma.order.updateMany({ where: { checkoutRef, status: "en_attente_paiement" }, data });
   }
 
   findByParticipant(userId: string): Promise<Order[]> {

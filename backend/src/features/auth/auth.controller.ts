@@ -3,6 +3,7 @@ import { AuthService } from "./auth.service.js";
 import { registerSchema, loginSchema } from "./auth.schema.js";
 import { ValidationError, UnauthorizedError } from "../../shared/errors/index.js";
 import { UserRepository } from "../users/user.repository.js";
+import { config } from "../../shared/config/index.js";
 
 const userRepo = new UserRepository();
 
@@ -15,7 +16,12 @@ const REFRESH_COOKIE_OPTIONS = {
 };
 
 function toPublicUser(user: { id: string; email: string; accountType: string }) {
-  return { id: user.id, email: user.email, accountType: user.accountType };
+  return {
+    id: user.id,
+    email: user.email,
+    accountType: user.accountType,
+    isAdmin: config.adminEmails.includes(user.email.toLowerCase()),
+  };
 }
 
 function fieldErrors(error: { flatten: () => { fieldErrors: Record<string, string[] | undefined> } }) {

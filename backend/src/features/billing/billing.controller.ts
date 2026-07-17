@@ -28,9 +28,9 @@ export async function webhook(req: Request, res: Response) {
     return res.status(200).json({ received: true });
   }
 
-  const order = await orderRepo.findByReference(payload.reference);
-  if (order) {
-    await OrderService.markPaid(order.id);
+  const orders = await orderRepo.findByCheckoutRef(payload.reference);
+  if (orders.length > 0) {
+    await OrderService.markPaidByCheckoutRef(payload.reference);
     return res.status(200).json({ received: true });
   }
 

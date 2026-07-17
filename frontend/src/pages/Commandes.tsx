@@ -1,9 +1,15 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "../context/AuthContext";
-import { ordersApi, type Order } from "../api/orders";
-import { ReviewForm } from "../components/ReviewForm";
-import { usePageTitle } from "../hooks/usePageTitle";
-import "./Commandes.css";
+import { PackageOpen, Truck, CircleCheck, AlertTriangle, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { useAuth } from "@/context/AuthContext";
+import { ordersApi, type Order } from "@/api/orders";
+import { ReviewForm } from "@/components/ReviewForm";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
+import { usePageTitle } from "@/hooks/usePageTitle";
+import { formatFcfa } from "@/lib/utils";
 
 const STATUS_LABELS: Record<Order["status"], string> = {
   en_attente_paiement: "En attente de paiement",
@@ -14,13 +20,13 @@ const STATUS_LABELS: Record<Order["status"], string> = {
   rembourse: "Remboursée",
 };
 
-const STATUS_TONE: Record<Order["status"], string> = {
-  en_attente_paiement: "pill-warning",
-  paye: "pill-neutral",
-  expedie: "pill-neutral",
-  confirme: "pill-success",
-  en_litige: "pill-danger",
-  rembourse: "pill-danger",
+const STATUS_VARIANT: Record<Order["status"], React.ComponentProps<typeof Badge>["variant"]> = {
+  en_attente_paiement: "warning",
+  paye: "secondary",
+  expedie: "ink",
+  confirme: "success",
+  en_litige: "destructive",
+  rembourse: "destructive",
 };
 
 const STEP_INDEX: Record<Order["status"], number> = {
@@ -32,22 +38,45 @@ const STEP_INDEX: Record<Order["status"], number> = {
   rembourse: 1,
 };
 
+const RAIL = ["En attente", "Payée", "Expédiée", "Confirmée"];
+
 function OrderRail({ status }: { status: Order["status"] }) {
   const step = STEP_INDEX[status];
   const isDispute = status === "en_litige" || status === "rembourse";
-  const dots = [0, 1, 2, 3];
   return (
-    <div className="rail">
-      {dots.map((i) => (
-        <div className="rail-step" key={i}>
-          <div
-            className={`rail-dot ${
-              isDispute && i === step ? "is-danger" : i < step ? "is-done" : i === step ? "is-current" : ""
-            }`}
-          />
-          {i < 3 && <div className={`rail-line ${i < step ? "is-done" : ""}`} />}
-        </div>
-      ))}
+    <div className="flex items-start">
+      {RAIL.map((label, i) => {
+        const done = i < step;
+        const current = i === step;
+        return (
+          <div key={label} className="flex flex-1 items-start last:flex-none">
+            <div className="flex flex-col items-center gap-1.5">
+              <span
+                className={
+                  "grid size-6 place-items-center rounded-full text-white transition-colors " +
+                  (isDispute && current
+                    ? "bg-destructive"
+                    : done
+                      ? "bg-primary"
+                      : current
+                        ? "bg-primary/20 ring-2 ring-primary"
+                        : "bg-secondary")
+                }
+              >
+                {done && (
+                  <svg viewBox="0 0 24 24" className="size-3.5" fill="none">
+                    <path d="M5 12.5 10 17 19 7" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                )}
+              </span>
+              <span className="text-[0.65rem] font-medium text-muted-foreground">{label}</span>
+            </div>
+            {i < RAIL.length - 1 && (
+              <span className={"mx-1 mt-3 h-0.5 flex-1 rounded-full " + (done ? "bg-primary" : "bg-secondary")} />
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -56,97 +85,139 @@ function OrderRow({
   order,
   currentUserId,
   onChange,
-  index = 0,
 }: {
   order: Order;
   currentUserId: string;
   onChange: () => void;
-  index?: number;
 }) {
   const [disputeReason, setDisputeReason] = useState("");
   const [showDisputeForm, setShowDisputeForm] = useState(false);
-  const [checkoutInfo, setCheckoutInfo] = useState<string | null>(null);
+  const [busy, setBusy] = useState<string | null>(null);
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
 
   const isBuyer = order.buyerId === currentUserId;
   const isVendor = order.vendorId === currentUserId;
 
+  async function run(action: string, fn: () => Promise<unknown>, err: string) {
+    setBusy(action);
+    try {
+      await fn();
+      onChange();
+    } catch {
+      toast.error(err);
+    } finally {
+      setBusy(null);
+    }
+  }
+
   async function handleCheckout() {
-    const { checkoutUrl } = await ordersApi.checkout(order.id);
-    setCheckoutInfo(checkoutUrl);
-    onChange();
-  }
-
-  async function handleShip() {
-    await ordersApi.ship(order.id);
-    onChange();
-  }
-
-  async function handleConfirm() {
-    await ordersApi.confirm(order.id);
-    onChange();
+    setBusy("pay");
+    try {
+      const { checkoutUrl } = await ordersApi.checkout(order.id);
+      window.location.href = checkoutUrl;
+    } catch {
+      toast.error("Le paiement n'a pas pu être initié.");
+      setBusy(null);
+    }
   }
 
   async function handleDispute() {
     if (!disputeReason.trim()) return;
-    await ordersApi.dispute(order.id, disputeReason);
+    await run("dispute", () => ordersApi.dispute(order.id, disputeReason), "Le litige n'a pas pu être envoyé.");
     setDisputeReason("");
     setShowDisputeForm(false);
-    onChange();
   }
 
+  const canDispute =
+    (isBuyer || isVendor) && (order.status === "paye" || order.status === "expedie");
+
   return (
-    <li className="card order-card animate-in" style={{ ["--i" as string]: index }}>
-      <div className="order-card-top">
-        <span className="price">{order.price.toLocaleString("fr-FR")} FCFA</span>
-        <span className={`pill ${STATUS_TONE[order.status]}`}>{STATUS_LABELS[order.status]}</span>
+    <li className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-xs)] md:p-6">
+      <div className="flex items-center justify-between gap-3">
+        <span className="font-display text-xl font-semibold tabular">
+          {formatFcfa(order.price)}
+        </span>
+        <Badge variant={STATUS_VARIANT[order.status]}>{STATUS_LABELS[order.status]}</Badge>
       </div>
-      <OrderRail status={order.status} />
+
+      <div className="mt-5">
+        <OrderRail status={order.status} />
+      </div>
+
       {isBuyer && order.confirmationCode && (
-        <p>
-          Code de confirmation : <span className="code-chip">{order.confirmationCode}</span>
-        </p>
-      )}
-      {checkoutInfo && <p className="code-chip">Paiement simulé — référence : {checkoutInfo}</p>}
-      <div className="order-actions">
-        {isBuyer && order.status === "en_attente_paiement" && (
-          <button className="btn btn-primary btn-sm" onClick={handleCheckout}>
-            Payer
-          </button>
-        )}
-        {isVendor && order.status === "paye" && (
-          <button className="btn btn-primary btn-sm" onClick={handleShip}>
-            Expédier
-          </button>
-        )}
-        {isBuyer && order.status === "expedie" && (
-          <button className="btn btn-primary btn-sm" onClick={handleConfirm}>
-            Confirmer la réception
-          </button>
-        )}
-        {(isBuyer || isVendor) && (order.status === "paye" || order.status === "expedie") && !showDisputeForm && (
-          <button className="btn btn-danger btn-sm" onClick={() => setShowDisputeForm(true)}>
-            Signaler un litige
-          </button>
-        )}
-      </div>
-      {showDisputeForm && (
-        <div className="dispute-form">
-          <input
-            className="input"
-            value={disputeReason}
-            onChange={(e) => setDisputeReason(e.target.value)}
-            placeholder="Ex : colis jamais reçu, produit différent de l'annonce..."
-          />
-          <button className="btn btn-danger btn-sm" onClick={handleDispute}>
-            Envoyer le litige
-          </button>
+        <div className="mt-5 flex items-center justify-between gap-3 rounded-xl bg-secondary/70 px-4 py-3">
+          <span className="text-sm text-muted-foreground">Code de confirmation</span>
+          <span className="font-mono text-lg font-bold tracking-[0.25em] tabular">
+            {order.confirmationCode}
+          </span>
         </div>
       )}
-      {isBuyer && order.status === "confirme" && !reviewSubmitted && (
-        <ReviewForm orderId={order.id} onSubmitted={() => setReviewSubmitted(true)} />
+
+      <div className="mt-5 flex flex-wrap gap-2.5">
+        {isBuyer && order.status === "en_attente_paiement" && (
+          <Button size="sm" onClick={handleCheckout} disabled={busy === "pay"}>
+            {busy === "pay" ? <Loader2 className="size-4 animate-spin" /> : null}
+            Payer maintenant
+          </Button>
+        )}
+        {isVendor && order.status === "paye" && (
+          <Button
+            size="sm"
+            onClick={() => run("ship", () => ordersApi.ship(order.id), "Action impossible.")}
+            disabled={busy === "ship"}
+          >
+            <Truck className="size-4" /> Marquer expédiée
+          </Button>
+        )}
+        {isBuyer && order.status === "expedie" && (
+          <Button
+            size="sm"
+            onClick={() => run("confirm", () => ordersApi.confirm(order.id), "Action impossible.")}
+            disabled={busy === "confirm"}
+          >
+            <CircleCheck className="size-4" /> Confirmer la réception
+          </Button>
+        )}
+        {canDispute && !showDisputeForm && (
+          <Button
+            size="sm"
+            variant="outline"
+            className="border-destructive/30 text-destructive hover:bg-destructive/10"
+            onClick={() => setShowDisputeForm(true)}
+          >
+            <AlertTriangle className="size-4" /> Signaler un litige
+          </Button>
+        )}
+      </div>
+
+      {showDisputeForm && (
+        <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+          <Input
+            value={disputeReason}
+            onChange={(e) => setDisputeReason(e.target.value)}
+            placeholder="Ex : colis jamais reçu, produit différent de l'annonce…"
+          />
+          <Button
+            variant="destructive"
+            onClick={handleDispute}
+            disabled={busy === "dispute"}
+            className="shrink-0"
+          >
+            Envoyer
+          </Button>
+        </div>
       )}
-      {reviewSubmitted && <p className="pill pill-success">Merci pour ton avis</p>}
+
+      {isBuyer && order.status === "confirme" && !reviewSubmitted && (
+        <div className="mt-5 border-t border-border pt-5">
+          <ReviewForm orderId={order.id} onSubmitted={() => setReviewSubmitted(true)} />
+        </div>
+      )}
+      {reviewSubmitted && (
+        <Badge variant="success" className="mt-4">
+          Merci pour ton avis
+        </Badge>
+      )}
     </li>
   );
 }
@@ -158,28 +229,46 @@ export function Commandes() {
   const [isLoading, setIsLoading] = useState(true);
 
   function reload() {
-    ordersApi.listMine().then((res) => setOrders(res.orders));
+    ordersApi
+      .listMine()
+      .then((res) => setOrders(res.orders))
+      .catch(() => {})
+      .finally(() => setIsLoading(false));
   }
 
   useEffect(() => {
     reload();
-    setIsLoading(false);
   }, []);
 
   return (
-    <div>
-      <div className="page-header">
-        <h1>Mes commandes</h1>
-        <p>Les fonds restent bloqués sur Jassa jusqu'à confirmation de réception.</p>
-      </div>
+    <div className="flex flex-col gap-6">
+      <header>
+        <h1 className="text-3xl font-semibold md:text-4xl">Mes commandes</h1>
+        <p className="mt-1 text-muted-foreground">
+          Les fonds restent bloqués sur Jassa jusqu'à confirmation de réception.
+        </p>
+      </header>
+
       {isLoading ? (
-        <div className="empty-state">Chargement...</div>
+        <div className="flex flex-col gap-4">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton key={i} className="h-40 rounded-2xl" />
+          ))}
+        </div>
       ) : orders.length === 0 ? (
-        <div className="empty-state">Aucune commande pour l'instant. Direction le Marché pour trouver ta prochaine trouvaille.</div>
+        <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border bg-card py-16 text-center">
+          <span className="grid size-14 place-items-center rounded-full bg-secondary text-muted-foreground">
+            <PackageOpen className="size-7" />
+          </span>
+          <p className="max-w-sm text-muted-foreground">
+            Aucune commande pour l'instant. Direction le marché pour trouver ta
+            prochaine trouvaille.
+          </p>
+        </div>
       ) : (
-        <ul className="card-list">
-          {orders.map((o, i) => (
-            <OrderRow key={o.id} order={o} currentUserId={user!.id} onChange={reload} index={i} />
+        <ul className="flex flex-col gap-4">
+          {orders.map((o) => (
+            <OrderRow key={o.id} order={o} currentUserId={user!.id} onChange={reload} />
           ))}
         </ul>
       )}

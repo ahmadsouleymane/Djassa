@@ -1,16 +1,12 @@
 import { useState, type FormEvent } from "react";
-import "./MessageComposer.css";
+import { Send, Tag } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-function IconSend() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="m3 20 18-8L3 4l2 7-2 9Z" />
-      <path d="M5 11h6" />
-    </svg>
-  );
-}
-
-export function MessageComposer({ onSend }: { onSend: (text: string, offerPrice?: number) => Promise<void> }) {
+export function MessageComposer({
+  onSend,
+}: {
+  onSend: (text: string, offerPrice?: number) => Promise<void>;
+}) {
   const [text, setText] = useState("");
   const [offerPrice, setOfferPrice] = useState("");
   const [showOffer, setShowOffer] = useState(false);
@@ -31,35 +27,51 @@ export function MessageComposer({ onSend }: { onSend: (text: string, offerPrice?
   }
 
   return (
-    <form className="composer" onSubmit={handleSubmit}>
+    <form
+      onSubmit={handleSubmit}
+      className="flex flex-col gap-2 border-t border-border bg-card p-3"
+    >
       {showOffer && (
         <input
-          className="composer-offer"
           type="number"
+          inputMode="numeric"
           value={offerPrice}
           onChange={(e) => setOfferPrice(e.target.value)}
-          placeholder="Prix FCFA"
+          placeholder="Ton offre en FCFA"
+          className="h-10 rounded-lg border border-input bg-white px-3.5 text-sm outline-none focus-visible:border-brand-400 focus-visible:ring-[3.5px] focus-visible:ring-accent"
         />
       )}
-      <button
-        type="button"
-        className={`composer-offer-toggle ${showOffer ? "is-active" : ""}`}
-        onClick={() => setShowOffer((v) => !v)}
-        aria-label="Ajouter une offre de prix"
-        title="Ajouter une offre de prix"
-      >
-        FCFA
-      </button>
-      <input
-        className="composer-input"
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder="Écris ton message..."
-        required
-      />
-      <button className="composer-send" type="submit" disabled={isSending} aria-label="Envoyer">
-        <IconSend />
-      </button>
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setShowOffer((v) => !v)}
+          aria-label="Proposer un prix"
+          aria-pressed={showOffer}
+          className={cn(
+            "grid size-10 shrink-0 place-items-center rounded-full border transition-colors",
+            showOffer
+              ? "border-primary bg-accent text-primary"
+              : "border-border text-muted-foreground hover:bg-secondary",
+          )}
+        >
+          <Tag className="size-[18px]" />
+        </button>
+        <input
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Écris ton message…"
+          required
+          className="h-10 w-full rounded-full border border-input bg-white px-4 text-sm outline-none focus-visible:border-brand-400 focus-visible:ring-[3.5px] focus-visible:ring-accent"
+        />
+        <button
+          type="submit"
+          disabled={isSending}
+          aria-label="Envoyer"
+          className="grid size-10 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground shadow-[var(--shadow-brand)] transition-colors hover:bg-brand-600 disabled:opacity-50"
+        >
+          <Send className="size-[18px]" />
+        </button>
+      </div>
     </form>
   );
 }

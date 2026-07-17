@@ -1,2 +1,202 @@
-@import "./styles/tokens.css";
-@import "./styles/components.css";
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* ------------------------------------------------------------------ *
+ * Jassa design system — vert emeraude, encre profonde, fintech clair *
+ * ------------------------------------------------------------------ */
+
+:root {
+  --radius: 0.875rem;
+
+  /* Surfaces */
+  --background: #f7faf8;
+  --foreground: #0b120e;
+  --card: #ffffff;
+  --card-foreground: #0b120e;
+  --popover: #ffffff;
+  --popover-foreground: #0b120e;
+
+  /* Brand */
+  --primary: #00b25d;
+  --primary-foreground: #ffffff;
+  --secondary: #eef3f0;
+  --secondary-foreground: #0b120e;
+  --muted: #eef3f0;
+  --muted-foreground: #5c655f;
+  --accent: #e3faee;
+  --accent-foreground: #00693a;
+  --destructive: #d62828;
+  --destructive-foreground: #ffffff;
+
+  /* Lines & controls */
+  --border: #e3e9e5;
+  --input: #d7ded9;
+  --ring: #00b25d;
+
+  /* Raw brand ramp (for gradients / accents) */
+  --brand-50: #e9fbf1;
+  --brand-100: #c9f4dd;
+  --brand-200: #93e9bd;
+  --brand-300: #52d998;
+  --brand-400: #17c377;
+  --brand-500: #00b25d;
+  --brand-600: #00994f;
+  --brand-700: #007a40;
+  --brand-800: #075f34;
+  --brand-900: #094e2d;
+  --ink: #0b120e;
+  --ink-soft: #1b241f;
+
+  /* Charts (accessible, brand-led) */
+  --chart-1: #00b25d;
+  --chart-2: #0b120e;
+  --chart-3: #17c377;
+  --chart-4: #b9770e;
+  --chart-5: #5c655f;
+
+  /* Elevation — soft layered, never hard offset */
+  --shadow-xs: 0 1px 2px rgba(6, 36, 22, 0.06);
+  --shadow-sm: 0 1px 2px rgba(6, 36, 22, 0.06), 0 2px 6px rgba(6, 36, 22, 0.06);
+  --shadow-md: 0 2px 4px rgba(6, 36, 22, 0.05), 0 10px 24px rgba(6, 36, 22, 0.09);
+  --shadow-lg: 0 6px 12px rgba(6, 36, 22, 0.07), 0 24px 56px rgba(6, 36, 22, 0.14);
+  --shadow-brand: 0 1px 2px rgba(0, 92, 48, 0.16), 0 10px 24px rgba(0, 168, 85, 0.26);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-brand-50: var(--brand-50);
+  --color-brand-100: var(--brand-100);
+  --color-brand-200: var(--brand-200);
+  --color-brand-300: var(--brand-300);
+  --color-brand-400: var(--brand-400);
+  --color-brand-500: var(--brand-500);
+  --color-brand-600: var(--brand-600);
+  --color-brand-700: var(--brand-700);
+  --color-brand-800: var(--brand-800);
+  --color-brand-900: var(--brand-900);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 6px);
+  --radius-2xl: calc(var(--radius) + 14px);
+
+  --font-sans: "General Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Clash Display", "General Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-brand: var(--shadow-brand);
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv01";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+  }
+
+  ::selection {
+    background: var(--primary);
+    color: var(--primary-foreground);
+  }
+
+  /* Tabular figures for prices, codes, timers */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@theme {
+  --animate-accordion-down: accordion-down 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-accordion-up: accordion-up 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-marquee: marquee 34s linear infinite;
+  --animate-shimmer: shimmer 2s linear infinite;
+}
+
+@keyframes accordion-down {
+  from { height: 0; }
+  to { height: var(--radix-accordion-content-height); }
+}
+@keyframes accordion-up {
+  from { height: var(--radix-accordion-content-height); }
+  to { height: 0; }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to { background-position: 200% 0; }
+}

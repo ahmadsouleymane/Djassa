@@ -31,10 +31,18 @@ export class ProductRepository {
     });
   }
 
-  findPublic(options: { category?: ProductCategory; cursor?: string; limit: number }): Promise<Product[]> {
+  findPublic(options: {
+    category?: ProductCategory;
+    cursor?: string;
+    limit: number;
+    search?: string;
+    vendorId?: string;
+  }): Promise<Product[]> {
     const where: Prisma.ProductWhereInput = {
       vendor: { sellerVerificationStatus: "approuvee" },
       ...(options.category ? { category: options.category } : {}),
+      ...(options.vendorId ? { vendorId: options.vendorId } : {}),
+      ...(options.search ? { title: { contains: options.search, mode: "insensitive" } } : {}),
     };
     return prisma.product.findMany({
       where,

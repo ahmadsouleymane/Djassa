@@ -16,6 +16,7 @@ import { orderRouter } from "./features/orders/order.routes.js";
 import { webhookRouter, billingRouter } from "./features/billing/billing.routes.js";
 import { verificationRouter } from "./features/verification/verification.routes.js";
 import { reviewRouter, publicReviewRouter, publicTrustScoreRouter } from "./features/reviews/review.routes.js";
+import { publicVendorRouter } from "./features/users/public.routes.js";
 
 export const app = express();
 
@@ -48,5 +49,6 @@ app.use("/api/verification", verificationRouter);
 app.use("/api/reviews", reviewRouter);
 app.use("/api/public/vendors/:vendorId/reviews", publicReviewRouter);
 app.use("/api/public/vendors/:vendorId/trust-score", publicTrustScoreRouter);
+app.use("/api/public/vendors/:vendorId", publicVendorRouter);
 
 app.use(errorHandler);

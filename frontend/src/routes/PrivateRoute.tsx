@@ -5,7 +5,12 @@ import { Layout } from "../components/Layout";
 
 export function PrivateRoute({ children }: { children: ReactNode }) {
   const { user, isLoading } = useAuth();
-  if (isLoading) return <div className="empty-state">Chargement...</div>;
+  if (isLoading)
+    return (
+      <div className="grid min-h-[100dvh] place-items-center">
+        <div className="size-8 animate-spin rounded-full border-[3px] border-secondary border-t-primary" />
+      </div>
+    );
   if (!user) return <Navigate to="/connexion" replace />;
   return <Layout>{children}</Layout>;
 }
