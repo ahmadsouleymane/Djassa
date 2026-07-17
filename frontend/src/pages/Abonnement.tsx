@@ -27,7 +27,7 @@ export function Abonnement() {
       <div className="page-header">
         <h1>Abonnement</h1>
       </div>
-      <div className="card section">
+      <div className="card section animate-in">
         {status && (
           <p>
             Palier actuel : <span className={`pill ${isPro ? "pill-success" : "pill-neutral"}`}>{isPro ? "Pro" : "Standard"}</span>

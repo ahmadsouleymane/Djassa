@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { productsApi, type Product } from "../api/products";
 import { ProductForm } from "../components/ProductForm";
 import { usePageTitle } from "../hooks/usePageTitle";
+import "./Catalogue.css";
 
 export function Catalogue() {
   usePageTitle("Mon catalogue");
@@ -28,9 +29,15 @@ export function Catalogue() {
         <div className="empty-state">Aucun produit publié pour l'instant.</div>
       ) : (
         <ul className="card-list">
-          {products.map((p) => (
-            <li key={p.id} className="card">
-              <strong>{p.title}</strong> <span className="price">{p.price.toLocaleString("fr-FR")} FCFA</span>
+          {products.map((p, i) => (
+            <li key={p.id} className="card catalogue-row animate-in" style={{ ["--i" as string]: i }}>
+              <div className="catalogue-row-thumb">
+                {p.photos[0] ? <img src={p.photos[0]} alt={p.title} /> : null}
+              </div>
+              <div className="catalogue-row-body">
+                <strong>{p.title}</strong>
+                <span className="price">{p.price.toLocaleString("fr-FR")} FCFA</span>
+              </div>
             </li>
           ))}
         </ul>

@@ -44,6 +44,12 @@ export function Marche() {
         <p>Achète en toute confiance — les fonds restent bloqués jusqu'à ta confirmation de réception.</p>
       </div>
 
+      <div className="marche-trust">
+        <span className="marche-trust-item">Paiement protégé</span>
+        <span className="marche-trust-item">Vendeurs vérifiés</span>
+        <span className="marche-trust-item">Livraison suivie</span>
+      </div>
+
       <input
         className="input marche-search"
         type="search"
@@ -71,8 +77,8 @@ export function Marche() {
         <div className="empty-state">Aucun produit ici pour l'instant. Reviens bientôt ou essaie une autre catégorie.</div>
       ) : (
         <div className="marche-grid">
-          {visibleProducts.map((p) => (
-            <ProductCard key={p.id} product={p} />
+          {visibleProducts.map((p, i) => (
+            <ProductCard key={p.id} product={p} index={i} />
           ))}
         </div>
       )}

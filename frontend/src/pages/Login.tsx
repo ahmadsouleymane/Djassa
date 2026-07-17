@@ -29,39 +29,53 @@ export function Login() {
 
   return (
     <div className="auth-shell">
-      <form className="auth-card" onSubmit={handleSubmit}>
-        <h1>Jassa</h1>
-        <p style={{ color: "var(--text2)", marginBottom: "1.5rem" }}>Connecte-toi à ton compte</p>
-        {error && <p className="error-text" role="alert">{error}</p>}
-        <div className="field">
-          <label>Email</label>
-          <input
-            className="input"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="toi@exemple.com"
-            required
-          />
+      <div className="auth-brand">
+        <div>
+          <div className="auth-brand-word">Jassa</div>
+          <p className="auth-brand-tag">Le marché en ligne ivoirien où l'argent reste bloqué jusqu'à ta confirmation de réception.</p>
         </div>
-        <div className="field">
-          <label>Mot de passe</label>
-          <input
-            className="input"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••"
-            required
-          />
-        </div>
-        <button className="btn btn-primary" type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Connexion..." : "Se connecter"}
-        </button>
-        <p className="auth-switch">
-          Pas de compte ? <Link to="/inscription">Créer un compte</Link>
-        </p>
-      </form>
+        <ul className="auth-brand-list">
+          <li>Séquestre automatique sur chaque commande</li>
+          <li>Vendeurs vérifiés par pièce d'identité</li>
+          <li>Messagerie et négociation intégrées</li>
+        </ul>
+      </div>
+      <div className="auth-form-side">
+        <form className="auth-card animate-in" onSubmit={handleSubmit}>
+          <span className="auth-kicker">Connexion</span>
+          <h1>Content de te revoir</h1>
+          <p style={{ color: "var(--ink-2)", marginBottom: "1.5rem" }}>Connecte-toi à ton compte</p>
+          {error && <p className="error-text" role="alert">{error}</p>}
+          <div className="field">
+            <label>Email</label>
+            <input
+              className="input"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="toi@exemple.com"
+              required
+            />
+          </div>
+          <div className="field">
+            <label>Mot de passe</label>
+            <input
+              className="input"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              required
+            />
+          </div>
+          <button className="btn btn-primary" type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Connexion..." : "Se connecter"}
+          </button>
+          <p className="auth-switch">
+            Pas de compte ? <Link to="/inscription">Créer un compte</Link>
+          </p>
+        </form>
+      </div>
     </div>
   );
 }

@@ -46,7 +46,7 @@ export function Verification() {
         <h1>Vérification vendeur</h1>
         <p>Tes produits ne sont visibles publiquement qu'une fois ton identité vérifiée.</p>
       </div>
-      <div className="card section">
+      <div className="card section animate-in">
         {status && (
           <p>
             Statut : <span className={`pill ${STATUS_TONE[status.status]}`}>{STATUS_LABELS[status.status]}</span>

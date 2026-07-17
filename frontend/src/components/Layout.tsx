@@ -60,7 +60,7 @@ export function Layout({ children }: { children: ReactNode }) {
       <header className="nav">
         <div className="container nav-inner">
           <Link to={user ? "/tableau-de-bord" : "/marche"} className="nav-logo">
-            Jassa
+            Jassa<span className="nav-logo-dot" aria-hidden="true" />
           </Link>
           <nav className="nav-links">
             <Link to="/marche">Marché</Link>

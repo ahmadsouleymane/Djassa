@@ -37,8 +37,8 @@ export function AdminVerifications() {
         <div className="empty-state">Aucune vérification en attente.</div>
       ) : (
         <ul className="card-list">
-          {pending.map((u) => (
-            <li key={u.id} className="card verif-row">
+          {pending.map((u, i) => (
+            <li key={u.id} className="card verif-row animate-in" style={{ ["--i" as string]: i }}>
               {u.documentUrl && <img src={u.documentUrl} alt="Pièce d'identité" />}
               <span className="email">{u.email}</span>
               <button className="btn btn-primary btn-sm" onClick={() => handleApprove(u.id)}>

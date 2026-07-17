@@ -52,7 +52,17 @@ function OrderRail({ status }: { status: Order["status"] }) {
   );
 }
 
-function OrderRow({ order, currentUserId, onChange }: { order: Order; currentUserId: string; onChange: () => void }) {
+function OrderRow({
+  order,
+  currentUserId,
+  onChange,
+  index = 0,
+}: {
+  order: Order;
+  currentUserId: string;
+  onChange: () => void;
+  index?: number;
+}) {
   const [disputeReason, setDisputeReason] = useState("");
   const [showDisputeForm, setShowDisputeForm] = useState(false);
   const [checkoutInfo, setCheckoutInfo] = useState<string | null>(null);
@@ -86,7 +96,7 @@ function OrderRow({ order, currentUserId, onChange }: { order: Order; currentUse
   }
 
   return (
-    <li className="card order-card">
+    <li className="card order-card animate-in" style={{ ["--i" as string]: index }}>
       <div className="order-card-top">
         <span className="price">{order.price.toLocaleString("fr-FR")} FCFA</span>
         <span className={`pill ${STATUS_TONE[order.status]}`}>{STATUS_LABELS[order.status]}</span>
@@ -168,8 +178,8 @@ export function Commandes() {
         <div className="empty-state">Aucune commande pour l'instant. Direction le Marché pour trouver ta prochaine trouvaille.</div>
       ) : (
         <ul className="card-list">
-          {orders.map((o) => (
-            <OrderRow key={o.id} order={o} currentUserId={user!.id} onChange={reload} />
+          {orders.map((o, i) => (
+            <OrderRow key={o.id} order={o} currentUserId={user!.id} onChange={reload} index={i} />
           ))}
         </ul>
       )}
