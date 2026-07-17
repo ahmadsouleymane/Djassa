@@ -29,7 +29,7 @@ export function usePageTitle(title: string, options: PageMetaOptions = {}) {
   const { description, image } = options;
 
   useEffect(() => {
-    const fullTitle = `${title} | Jassa`;
+    const fullTitle = `${title} | Djassa`;
     document.title = fullTitle;
     upsertMeta("property", "og:title", fullTitle);
     upsertCanonical(window.location.href);

@@ -37,10 +37,10 @@ export function SiteFooter() {
 
   function handleNewsletter(e: FormEvent) {
     e.preventDefault();
-    const mailto = `mailto:support@jassa.ci?subject=${encodeURIComponent(
-      "Inscription newsletter Jassa",
+    const mailto = `mailto:support@djassa.ci?subject=${encodeURIComponent(
+      "Inscription newsletter Djassa",
     )}&body=${encodeURIComponent(
-      `Merci de m'ajouter à la newsletter Jassa.\n\nMon email : ${email}`,
+      `Merci de m'ajouter à la newsletter Djassa.\n\nMon email : ${email}`,
     )}`;
     window.location.href = mailto;
   }
@@ -134,7 +134,7 @@ export function SiteFooter() {
 
       <div className="border-t border-white/10">
         <div className="mx-auto max-w-[1280px] px-4 py-6 text-sm text-white/50">
-          © {new Date().getFullYear()} Jassa. Fait avec confiance en Côte d'Ivoire.
+          © {new Date().getFullYear()} Djassa. Fait avec confiance en Côte d'Ivoire.
         </div>
       </div>
     </footer>

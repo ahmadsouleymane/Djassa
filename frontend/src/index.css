@@ -2,7 +2,7 @@
 @import "tw-animate-css";
 
 /* ------------------------------------------------------------------ *
- * Jassa design system — vert emeraude, encre profonde, fintech clair *
+ * Djassa design system — vert emeraude, encre profonde, fintech clair *
  * ------------------------------------------------------------------ */
 
 :root {
@@ -255,6 +255,10 @@
 @keyframes marquee-reverse {
   from { transform: translateX(-50%); }
   to { transform: translateX(0); }
+}
+@keyframes fadeStep {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {

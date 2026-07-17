@@ -5,7 +5,7 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 export function MentionsLegales() {
   usePageTitle("Mentions légales", {
     description:
-      "Mentions légales du site Jassa : éditeur, hébergement et propriété intellectuelle.",
+      "Mentions légales du site Djassa : éditeur, hébergement et propriété intellectuelle.",
   });
 
   return (
@@ -20,7 +20,7 @@ export function MentionsLegales() {
       <Prose>
         <h2>Éditeur du site</h2>
         <p>
-          Le site Jassa est édité par <strong>Jassa</strong>.
+          Le site Djassa est édité par <strong>Djassa</strong>.
         </p>
         <ul>
           <li>
@@ -34,7 +34,7 @@ export function MentionsLegales() {
             Numéro de contribuable : <Badge variant="warning">à compléter</Badge>
           </li>
           <li>
-            Email : support@jassa.ci <Badge variant="warning">à compléter</Badge>
+            Email : support@djassa.ci <Badge variant="warning">à compléter</Badge>
           </li>
           <li>
             Directeur de la publication : <Badge variant="warning">à compléter</Badge>
@@ -51,16 +51,16 @@ export function MentionsLegales() {
 
         <h2>Propriété intellectuelle</h2>
         <p>
-          La marque Jassa, le logo, la charte graphique et l'ensemble des contenus
+          La marque Djassa, le logo, la charte graphique et l'ensemble des contenus
           du site (textes, structure, code) sont la propriété de l'éditeur, sauf
           mention contraire. Toute reproduction non autorisée est interdite.
         </p>
 
         <h2>Responsabilité</h2>
         <p>
-          Jassa est un intermédiaire technique entre acheteurs et vendeurs. Les
+          Djassa est un intermédiaire technique entre acheteurs et vendeurs. Les
           descriptions, photos et prix des produits sont fournis par les vendeurs
-          sous leur seule responsabilité. Jassa vérifie l'identité des vendeurs
+          sous leur seule responsabilité. Djassa vérifie l'identité des vendeurs
           mais ne contrôle pas physiquement les produits vendus avant expédition.
         </p>
       </Prose>

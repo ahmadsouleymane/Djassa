@@ -46,7 +46,7 @@ export function Abonnement() {
       <header className="text-center">
         <h1 className="text-3xl font-semibold md:text-4xl">Choisis ton palier vendeur</h1>
         <p className="mx-auto mt-2 max-w-xl text-muted-foreground">
-          La commission que Jassa prélève sur tes ventes dépend de ton palier.
+          La commission que Djassa prélève sur tes ventes dépend de ton palier.
           Passe Pro pour vendre moins cher et gagner en visibilité.
         </p>
         {status && (

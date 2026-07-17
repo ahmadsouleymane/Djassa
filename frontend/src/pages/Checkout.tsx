@@ -30,7 +30,7 @@ function CheckoutShell({ children }: { children: React.ReactNode }) {
 
 export function Checkout() {
   usePageTitle("Paiement", {
-    description: "Finalise ton paiement sécurisé Jassa pour les articles de ton panier.",
+    description: "Finalise ton paiement sécurisé Djassa pour les articles de ton panier.",
   });
   const { items, total, clear } = useCart();
   const { user } = useAuth();
@@ -144,7 +144,7 @@ export function Checkout() {
 
         <p className="mt-4 flex items-start gap-2 text-xs text-muted-foreground">
           <ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" />
-          Paiement sécurisé via GeniusPay. L'argent reste séquestré par Jassa
+          Paiement sécurisé via GeniusPay. L'argent reste séquestré par Djassa
           jusqu'à réception confirmée.
         </p>
       </div>

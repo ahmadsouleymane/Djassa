@@ -1,4 +1,4 @@
-import type { ReactElement } from "react";
+import { useEffect, type ReactElement } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
@@ -33,13 +33,22 @@ import { NotFound } from "./pages/NotFound";
 
 function Home() {
   const { user, isLoading } = useAuth();
+  // First visit → show the buyer Landing. Returning visitors go straight to the
+  // Marché (products). The flag is set once the Landing is actually shown.
+  const seenLanding =
+    typeof window !== "undefined" && localStorage.getItem("djassa_seen_landing") === "1";
+
+  useEffect(() => {
+    if (!user && !isLoading) localStorage.setItem("djassa_seen_landing", "1");
+  }, [user, isLoading]);
+
   if (isLoading)
     return (
       <div className="grid min-h-[100dvh] place-items-center">
         <div className="size-8 animate-spin rounded-full border-[3px] border-secondary border-t-primary" />
       </div>
     );
-  if (user) return <Navigate to="/marche" replace />;
+  if (user || seenLanding) return <Navigate to="/marche" replace />;
   return (
     <Layout contained={false}>
       <Landing />

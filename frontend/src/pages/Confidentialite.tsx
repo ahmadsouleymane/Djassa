@@ -6,7 +6,7 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 export function Confidentialite() {
   usePageTitle("Politique de confidentialité", {
     description:
-      "Comment Jassa collecte, utilise et protège les données personnelles des acheteurs et vendeurs.",
+      "Comment Djassa collecte, utilise et protège les données personnelles des acheteurs et vendeurs.",
   });
 
   return (
@@ -22,7 +22,7 @@ export function Confidentialite() {
 
       <Prose>
         <h2>Données collectées</h2>
-        <p>Jassa collecte les données nécessaires au fonctionnement du marché :</p>
+        <p>Djassa collecte les données nécessaires au fonctionnement du marché :</p>
         <ul>
           <li>Email et mot de passe (chiffré) à l'inscription</li>
           <li>Type de compte (acheteur ou vendeur)</li>
@@ -66,7 +66,7 @@ export function Confidentialite() {
         <h2>Tes droits</h2>
         <p>
           Tu peux demander l'accès, la correction ou la suppression de tes données
-          personnelles en écrivant à support@jassa.ci{" "}
+          personnelles en écrivant à support@djassa.ci{" "}
           <Badge variant="warning">à compléter</Badge>, ou via la page{" "}
           <Link to="/contact">Contact</Link>.
         </p>

@@ -198,7 +198,7 @@ export function ProductDetail() {
             ) : (
               <div className="grid size-full place-items-center bg-[radial-gradient(circle_at_30%_20%,var(--brand-100),var(--secondary))]">
                 <span className="font-display text-2xl font-semibold text-brand-600/50">
-                  Jassa
+                  Djassa
                 </span>
               </div>
             )}
@@ -287,7 +287,7 @@ export function ProductDetail() {
             <ShieldCheck className="size-5 shrink-0 text-primary" />
             <div className="text-sm">
               <p className="font-semibold text-accent-foreground">
-                Achat protégé par le séquestre Jassa
+                Achat protégé par le séquestre Djassa
               </p>
               <p className="mt-0.5 text-muted-foreground">
                 Ton paiement reste bloqué jusqu'à ta confirmation de réception.

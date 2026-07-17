@@ -45,7 +45,7 @@ export function Login() {
         Connexion
       </span>
       <h1 className="mt-2 text-3xl font-semibold">Content de te revoir</h1>
-      <p className="mt-1.5 text-muted-foreground">Connecte-toi à ton compte Jassa.</p>
+      <p className="mt-1.5 text-muted-foreground">Connecte-toi à ton compte Djassa.</p>
 
       <form className="mt-7 flex flex-col gap-4" onSubmit={handleSubmit}>
         {error && (

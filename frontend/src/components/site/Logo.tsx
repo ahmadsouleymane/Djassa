@@ -7,12 +7,12 @@ type LogoProps = {
   to?: string;
 };
 
-/** Jassa wordmark: a green seal with an escrow checkmark. */
+/** Djassa wordmark: a green seal with an escrow checkmark. */
 export function Logo({ className, variant = "default", to = "/" }: LogoProps) {
   return (
     <Link
       to={to}
-      aria-label="Jassa, accueil"
+      aria-label="Djassa, accueil"
       className={cn("inline-flex items-center gap-2.5 no-underline", className)}
     >
       <span className="grid size-9 shrink-0 place-items-center rounded-[11px] bg-primary shadow-[var(--shadow-brand)]">
@@ -32,7 +32,7 @@ export function Logo({ className, variant = "default", to = "/" }: LogoProps) {
           variant === "light" ? "text-white" : "text-ink",
         )}
       >
-        Jassa
+        Djassa
       </span>
     </Link>
   );

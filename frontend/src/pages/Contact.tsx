@@ -25,7 +25,7 @@ const SUBJECT_LABELS: Record<string, string> = {
 export function Contact() {
   usePageTitle("Contact", {
     description:
-      "Contacte l'équipe Jassa pour une question sur une commande, un litige, un compte vendeur ou un partenariat.",
+      "Contacte l'équipe Djassa pour une question sur une commande, un litige, un compte vendeur ou un partenariat.",
   });
 
   const [email, setEmail] = useState("");
@@ -35,8 +35,8 @@ export function Contact() {
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     const body = `${message}\n\nRépondre à : ${email}`;
-    const mailto = `mailto:support@jassa.ci?subject=${encodeURIComponent(
-      `[Jassa] ${SUBJECT_LABELS[subject]}`,
+    const mailto = `mailto:support@djassa.ci?subject=${encodeURIComponent(
+      `[Djassa] ${SUBJECT_LABELS[subject]}`,
     )}&body=${encodeURIComponent(body)}`;
     window.location.href = mailto;
   }
@@ -61,7 +61,7 @@ export function Contact() {
             Commande, remboursement ou litige.
           </p>
           <p className="mt-2 flex flex-wrap items-center gap-1.5 font-mono text-sm">
-            support@jassa.ci
+            support@djassa.ci
             <Badge variant="warning">à compléter</Badge>
           </p>
         </div>

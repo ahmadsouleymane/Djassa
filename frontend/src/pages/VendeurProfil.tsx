@@ -41,7 +41,7 @@ export function VendeurProfil() {
 
   usePageTitle(vendor ? "Profil vendeur" : "Vendeur", {
     description:
-      "Retrouve les produits, avis et score de confiance de ce vendeur vérifié sur Jassa.",
+      "Retrouve les produits, avis et score de confiance de ce vendeur vérifié sur Djassa.",
   });
 
   useEffect(() => {

@@ -62,7 +62,7 @@ const SELLER = [
   {
     icon: Percent,
     title: "Commission standard : 5%",
-    body: "Sur chaque commande livrée et confirmée, Jassa prélève 5%. Le reste est versé au vendeur dès la confirmation.",
+    body: "Sur chaque commande livrée et confirmée, Djassa prélève 5%. Le reste est versé au vendeur dès la confirmation.",
   },
   {
     icon: Sparkles,
@@ -81,9 +81,9 @@ const SELLER = [
 ];
 
 export function CommentCaMarche() {
-  usePageTitle("Comment ça marche : le séquestre Jassa expliqué", {
+  usePageTitle("Comment ça marche : le séquestre Djassa expliqué", {
     description:
-      "Comment fonctionne l'achat et la vente sur Jassa : négociation par messagerie, paiement séquestré, 72h de livraison et 7 jours pour confirmer la réception.",
+      "Comment fonctionne l'achat et la vente sur Djassa : négociation par messagerie, paiement séquestré, 72h de livraison et 7 jours pour confirmer la réception.",
   });
   const rootRef = useRef<HTMLDivElement>(null);
   useLandingMotion(rootRef);
@@ -93,7 +93,7 @@ export function CommentCaMarche() {
       <header>
         <h1 className="text-3xl font-semibold md:text-4xl">Comment ça marche</h1>
         <p className="mt-2 max-w-2xl text-muted-foreground">
-          Sur Jassa, aucun paiement n'arrive directement dans la poche du
+          Sur Djassa, aucun paiement n'arrive directement dans la poche du
           vendeur. L'argent de l'acheteur reste séquestré par la plateforme
           jusqu'à ce que la commande soit confirmée reçue, ou remboursé
           automatiquement si quelque chose se passe mal.
@@ -192,7 +192,7 @@ export function CommentCaMarche() {
         />
         <div className="relative">
           <h2 className="text-2xl font-semibold text-white md:text-3xl">
-            Prêt à essayer Jassa ?
+            Prêt à essayer Djassa ?
           </h2>
           <p className="mx-auto mt-3 max-w-lg text-white/70">
             Que tu viennes acheter ou vendre, ton argent (ou celui de ton client)

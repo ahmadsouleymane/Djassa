@@ -48,7 +48,7 @@ export function Catalogue() {
       <header>
         <h1 className="text-3xl font-semibold md:text-4xl">Mon catalogue</h1>
         <p className="mt-1 text-muted-foreground">
-          Gère les articles que tu vends sur Jassa.
+          Gère les articles que tu vends sur Djassa.
         </p>
       </header>
 
@@ -103,7 +103,7 @@ export function Catalogue() {
                     <img src={p.photos[0]} alt="" className="size-full object-cover" />
                   ) : (
                     <div className="grid size-full place-items-center bg-[radial-gradient(circle_at_30%_20%,var(--brand-100),var(--secondary))] text-xs font-semibold text-brand-600/50">
-                      Jassa
+                      Djassa
                     </div>
                   )}
                 </div>

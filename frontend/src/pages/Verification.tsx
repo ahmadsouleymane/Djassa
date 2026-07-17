@@ -29,7 +29,7 @@ const INFO = [
   {
     icon: ShieldCheck,
     title: "Pourquoi c'est obligatoire",
-    body: "C'est ce qui permet aux acheteurs de commander sans te connaître : chaque vendeur visible sur Jassa a été identifié au préalable.",
+    body: "C'est ce qui permet aux acheteurs de commander sans te connaître : chaque vendeur visible sur Djassa a été identifié au préalable.",
   },
   {
     icon: FileCheck2,

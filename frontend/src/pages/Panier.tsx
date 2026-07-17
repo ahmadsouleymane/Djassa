@@ -77,7 +77,7 @@ export function Panier() {
                         />
                       ) : (
                         <div className="grid size-full place-items-center bg-[radial-gradient(circle_at_30%_20%,var(--brand-100),var(--secondary))] text-xs font-semibold text-brand-600/50">
-                          Jassa
+                          Djassa
                         </div>
                       )}
                     </div>
@@ -149,7 +149,7 @@ export function Panier() {
 
           <p className="mt-4 flex items-start gap-2 text-xs text-muted-foreground">
             <ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" />
-            L'argent reste séquestré par Jassa jusqu'à ta confirmation de
+            L'argent reste séquestré par Djassa jusqu'à ta confirmation de
             réception.
           </p>
         </aside>

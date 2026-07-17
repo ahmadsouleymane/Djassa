@@ -40,7 +40,7 @@ export function AuthLayout({ children, tagline, bullets }: AuthLayoutProps) {
           </ul>
         </div>
         <div className="relative text-sm text-white/45">
-          © {new Date().getFullYear()} Jassa. Confiance en Côte d'Ivoire.
+          © {new Date().getFullYear()} Djassa. Confiance en Côte d'Ivoire.
         </div>
       </aside>
 

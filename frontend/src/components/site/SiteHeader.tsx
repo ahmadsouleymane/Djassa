@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Search,
@@ -35,19 +35,18 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
-const NAV_LINKS = [
-  { to: "/marche", label: "Marché" },
-  { to: "/comment-ca-marche", label: "Comment ça marche" },
-];
+const NAV_LINKS = [{ to: "/marche", label: "Marché" }];
 
 function SearchField({
   onSubmit,
   className,
   autoFocus,
+  onDark,
 }: {
   onSubmit: (q: string) => void;
   className?: string;
   autoFocus?: boolean;
+  onDark?: boolean;
 }) {
   const [value, setValue] = useState("");
   return (
@@ -58,11 +57,14 @@ function SearchField({
         onSubmit(value.trim());
       }}
       className={cn(
-        "group flex h-11 items-center gap-2.5 rounded-full border border-border bg-secondary/70 px-4 transition-colors focus-within:border-brand-400 focus-within:bg-white focus-within:ring-[3.5px] focus-within:ring-accent",
+        "group flex h-11 items-center gap-2.5 rounded-full border px-4 transition-colors",
+        onDark
+          ? "border-white/15 bg-white/10 focus-within:border-white/40 focus-within:bg-white/15 focus-within:ring-[3.5px] focus-within:ring-white/10"
+          : "border-border bg-secondary/70 focus-within:border-brand-400 focus-within:bg-white focus-within:ring-[3.5px] focus-within:ring-accent",
         className,
       )}
     >
-      <Search className="size-[18px] shrink-0 text-muted-foreground" />
+      <Search className={cn("size-[18px] shrink-0", onDark ? "text-white/60" : "text-muted-foreground")} />
       <input
         // eslint-disable-next-line jsx-a11y/no-autofocus
         autoFocus={autoFocus}
@@ -70,8 +72,11 @@ function SearchField({
         value={value}
         onChange={(e) => setValue(e.target.value)}
         placeholder="Rechercher un article, une marque…"
-        aria-label="Rechercher sur Jassa"
-        className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground/80"
+        aria-label="Rechercher sur Djassa"
+        className={cn(
+          "w-full bg-transparent text-sm outline-none",
+          onDark ? "text-white placeholder:text-white/50" : "placeholder:text-muted-foreground/80",
+        )}
       />
     </form>
   );
@@ -84,6 +89,19 @@ export function SiteHeader() {
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Pages with a dark immersive hero: header stays transparent (light text) at
+  // the top, then turns into a frosted light bar once the user scrolls past it.
+  const darkHeroPage = location.pathname === "/" || location.pathname === "/vendre";
+  const dark = darkHeroPage && !scrolled;
 
   function runSearch(q: string) {
     setMobileSearchOpen(false);
@@ -105,19 +123,29 @@ export function SiteHeader() {
   const emailInitial = user?.email?.[0]?.toUpperCase() ?? "?";
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/80 bg-background/85 backdrop-blur-lg">
+    <header
+      className={cn(
+        "sticky top-0 z-40 border-b transition-colors duration-300",
+        dark
+          ? "border-transparent bg-transparent"
+          : "border-border/70 bg-background/80 backdrop-blur-xl",
+      )}
+    >
       <div className="mx-auto flex h-16 max-w-[1280px] items-center gap-3 px-4 md:h-[4.5rem] md:gap-5">
         {/* Mobile: menu button */}
         <button
           type="button"
           onClick={() => setMenuOpen(true)}
           aria-label="Ouvrir le menu"
-          className="grid size-10 shrink-0 place-items-center rounded-full text-foreground hover:bg-secondary md:hidden"
+          className={cn(
+            "grid size-10 shrink-0 place-items-center rounded-full md:hidden",
+            dark ? "text-white hover:bg-white/10" : "text-foreground hover:bg-secondary",
+          )}
         >
           <Menu className="size-6" />
         </button>
 
-        <Logo to={user ? "/marche" : "/"} className="shrink-0" />
+        <Logo to={user ? "/marche" : "/"} variant={dark ? "light" : "default"} className="shrink-0" />
 
         {/* Desktop nav links */}
         <nav className="ml-1 hidden items-center gap-1 lg:flex">
@@ -128,8 +156,12 @@ export function SiteHeader() {
               className={cn(
                 "rounded-full px-3.5 py-2 text-sm font-medium no-underline transition-colors",
                 isActive(link.to)
-                  ? "bg-secondary text-foreground"
-                  : "text-muted-foreground hover:bg-secondary/70 hover:text-foreground",
+                  ? dark
+                    ? "bg-white/10 text-white"
+                    : "bg-secondary text-foreground"
+                  : dark
+                    ? "text-white/75 hover:bg-white/10 hover:text-white"
+                    : "text-muted-foreground hover:bg-secondary/70 hover:text-foreground",
               )}
             >
               {link.label}
@@ -140,6 +172,7 @@ export function SiteHeader() {
         {/* Desktop search */}
         <SearchField
           onSubmit={runSearch}
+          onDark={dark}
           className="mx-auto hidden w-full max-w-md md:flex"
         />
 
@@ -150,7 +183,10 @@ export function SiteHeader() {
             onClick={() => setMobileSearchOpen((v) => !v)}
             aria-label="Rechercher"
             aria-expanded={mobileSearchOpen}
-            className="grid size-10 place-items-center rounded-full text-foreground hover:bg-secondary md:hidden"
+            className={cn(
+              "grid size-10 place-items-center rounded-full md:hidden",
+              dark ? "text-white hover:bg-white/10" : "text-foreground hover:bg-secondary",
+            )}
           >
             <Search className="size-[22px]" />
           </button>
@@ -159,9 +195,12 @@ export function SiteHeader() {
           {user?.accountType === "vendeur" ? (
             <Button
               asChild
-              variant="soft"
+              variant={dark ? "outline" : "soft"}
               size="sm"
-              className="hidden md:inline-flex"
+              className={cn(
+                "hidden md:inline-flex",
+                dark && "border-white/25 bg-white/5 text-white hover:border-white/40 hover:bg-white/10",
+              )}
             >
               <Link to="/catalogue">
                 <LayoutGrid className="size-4" />
@@ -171,9 +210,12 @@ export function SiteHeader() {
           ) : (
             <Button
               asChild
-              variant="soft"
+              variant={dark ? "outline" : "soft"}
               size="sm"
-              className="hidden md:inline-flex"
+              className={cn(
+                "hidden md:inline-flex",
+                dark && "border-white/25 bg-white/5 text-white hover:border-white/40 hover:bg-white/10",
+              )}
             >
               <Link to="/vendre">
                 <Store className="size-4" />
@@ -186,7 +228,10 @@ export function SiteHeader() {
           <Link
             to="/panier"
             aria-label={`Panier, ${count} article${count > 1 ? "s" : ""}`}
-            className="relative grid size-10 place-items-center rounded-full text-foreground hover:bg-secondary"
+            className={cn(
+              "relative grid size-10 place-items-center rounded-full",
+              dark ? "text-white hover:bg-white/10" : "text-foreground hover:bg-secondary",
+            )}
           >
             <ShoppingBag className="size-[22px]" />
             {count > 0 && (
@@ -204,7 +249,7 @@ export function SiteHeader() {
                   aria-label="Mon compte"
                   className="hidden rounded-full outline-none focus-visible:ring-[3px] focus-visible:ring-ring/35 md:block"
                 >
-                  <Avatar className="size-10 border border-border">
+                  <Avatar className={cn("size-10 border", dark ? "border-white/30" : "border-border")}>
                     <AvatarFallback>{emailInitial}</AvatarFallback>
                   </Avatar>
                 </button>
@@ -267,7 +312,12 @@ export function SiteHeader() {
             </DropdownMenu>
           ) : (
             <div className="hidden items-center gap-2 md:flex">
-              <Button asChild variant="ghost" size="sm">
+              <Button
+                asChild
+                variant="ghost"
+                size="sm"
+                className={cn(dark && "text-white hover:bg-white/10 hover:text-white")}
+              >
                 <Link to="/connexion">Connexion</Link>
               </Button>
               <Button asChild size="sm">
@@ -293,7 +343,7 @@ export function SiteHeader() {
               <Logo to={user ? "/marche" : "/"} />
             </SheetTitle>
             <SheetDescription className="sr-only">
-              Menu principal Jassa
+              Menu principal Djassa
             </SheetDescription>
           </SheetHeader>
 
@@ -314,7 +364,7 @@ export function SiteHeader() {
               className="flex items-center gap-2 rounded-lg px-3 py-3 text-[0.95rem] font-medium text-foreground no-underline hover:bg-secondary"
             >
               <Store className="size-5 text-primary" />
-              {user?.accountType === "vendeur" ? "Mon catalogue" : "Vendre sur Jassa"}
+              {user?.accountType === "vendeur" ? "Mon catalogue" : "Vendre sur Djassa"}
             </Link>
 
             {user ? (

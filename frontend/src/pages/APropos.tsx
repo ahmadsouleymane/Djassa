@@ -3,15 +3,15 @@ import { Prose } from "@/components/site/Prose";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 export function APropos() {
-  usePageTitle("À propos de Jassa", {
+  usePageTitle("À propos de Djassa", {
     description:
-      "Jassa est un marché en ligne pensé pour la Côte d'Ivoire, où chaque commande est protégée par un paiement séquestré jusqu'à confirmation de réception.",
+      "Djassa est un marché en ligne pensé pour la Côte d'Ivoire, où chaque commande est protégée par un paiement séquestré jusqu'à confirmation de réception.",
   });
 
   return (
     <div className="mx-auto max-w-2xl">
       <header className="mb-8">
-        <h1 className="text-3xl font-semibold md:text-4xl">À propos de Jassa</h1>
+        <h1 className="text-3xl font-semibold md:text-4xl">À propos de Djassa</h1>
         <p className="mt-1 text-muted-foreground">
           Un marché en ligne pensé pour un problème très concret : la confiance
           entre acheteurs et vendeurs.
@@ -19,19 +19,19 @@ export function APropos() {
       </header>
 
       <Prose>
-        <h2>Pourquoi Jassa existe</h2>
+        <h2>Pourquoi Djassa existe</h2>
         <p>
           Acheter en ligne en Côte d'Ivoire passe encore très souvent par des
           messages WhatsApp, des virements avant livraison et beaucoup d'espoir
           que tout se passe bien. Quand un vendeur ne livre pas, ou qu'un
           acheteur ne paie jamais après avoir négocié, il n'y a en général aucun
-          recours. Jassa a été construit pour retirer ce risque : l'argent ne
+          recours. Djassa a été construit pour retirer ce risque : l'argent ne
           change de mains qu'après que la commande soit réellement arrivée.
         </p>
 
         <h2>Comment ça fonctionne concrètement</h2>
         <p>
-          Chaque commande passée sur Jassa suit le même chemin : l'acheteur
+          Chaque commande passée sur Djassa suit le même chemin : l'acheteur
           négocie avec le vendeur dans la messagerie, l'offre acceptée déclenche
           un paiement séquestré, le vendeur a 72 heures pour expédier, puis
           l'acheteur a 7 jours pour confirmer la réception. C'est cette
@@ -51,7 +51,7 @@ export function APropos() {
 
         <h2>Où on en est</h2>
         <p>
-          Jassa est en développement actif à partir d'Abidjan, avec une priorité
+          Djassa est en développement actif à partir d'Abidjan, avec une priorité
           claire : d'abord un flux d'achat fiable, ensuite tout le reste. Les
           retours des premiers acheteurs et vendeurs orientent directement ce qui
           est construit ensuite.

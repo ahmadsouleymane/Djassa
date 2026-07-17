@@ -15,22 +15,10 @@ import { publicProductsApi, type Product } from "@/api/products";
 import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { AmbientBackground } from "@/components/visual/AmbientBackground";
+import { EscrowFlowCard } from "@/components/visual/EscrowFlowCard";
 import { Marquee } from "@/components/visual/Marquee";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useLandingMotion } from "@/hooks/useLandingMotion";
-
-const CATEGORIES = [
-  "Mode",
-  "Téléphones",
-  "Électronique",
-  "Beauté",
-  "Maison",
-  "Chaussures",
-  "Accessoires",
-  "Enfants",
-  "Sport",
-  "Épicerie",
-];
 
 const PROOF = [
   "Paiement séquestré",
@@ -52,7 +40,7 @@ const STEPS = [
     icon: CreditCard,
     n: "02",
     title: "Paie, c'est carré",
-    body: "Ton djai part chez Jassa, pas chez le vendeur. Il reste bloqué le temps que ton colis arrive.",
+    body: "Ton djai part chez Djassa, pas chez le vendeur. Il reste bloqué le temps que ton colis arrive.",
   },
   {
     icon: PackageCheck,
@@ -76,86 +64,14 @@ const FEATURES = [
   {
     icon: MessageSquareText,
     title: "Négociation intégrée",
-    body: "Discute, envoie ton offre, tombez d'accord sur le prix : tout se passe dans la messagerie Jassa, sans quitter la plateforme.",
+    body: "Discute, envoie ton offre, tombez d'accord sur le prix : tout se passe dans la messagerie Djassa, sans quitter la plateforme.",
   },
 ];
-
-function HeroCard({ cardRef }: { cardRef: React.RefObject<HTMLDivElement | null> }) {
-  const rail = [
-    { label: "Payé", done: true },
-    { label: "Expédié", done: true },
-    { label: "Reçu", done: false, current: true },
-    { label: "Confirmé", done: false },
-  ];
-  return (
-    <div className="[perspective:1000px]" data-parallax="-0.1">
-      <div className="animate-float motion-reduce:animate-none">
-        <div
-          ref={cardRef}
-          className="w-[19rem] rounded-2xl border border-white/10 bg-card p-5 shadow-[0_30px_80px_-24px_rgba(0,0,0,0.7),var(--shadow-glow)] will-change-transform sm:w-[21rem]"
-        >
-        <div className="flex items-center gap-3">
-          <div className="grid size-11 place-items-center rounded-xl bg-[radial-gradient(circle_at_30%_20%,var(--brand-100),var(--secondary))] font-display text-sm font-semibold text-brand-600/70">
-            J
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold">Sac à main cuir</p>
-            <p className="text-xs text-muted-foreground">Commande #A48213</p>
-          </div>
-          <span className="inline-flex items-center gap-1 rounded-full bg-brand-100 px-2.5 py-1 text-[0.7rem] font-bold text-brand-700">
-            <span className="size-1.5 rounded-full bg-brand-500" />
-            Expédiée
-          </span>
-        </div>
-
-        <div className="mt-5 flex items-center justify-between">
-          {rail.map((step, i) => (
-            <div key={step.label} className="flex flex-1 items-center last:flex-none">
-              <div className="flex flex-col items-center gap-1.5">
-                <span
-                  className={
-                    "grid size-6 place-items-center rounded-full text-white transition-colors " +
-                    (step.done
-                      ? "bg-primary"
-                      : step.current
-                        ? "bg-primary/25 ring-2 ring-primary"
-                        : "bg-secondary")
-                  }
-                >
-                  {step.done ? (
-                    <svg viewBox="0 0 24 24" className="size-3.5" fill="none">
-                      <path d="M5 12.5 10 17 19 7" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  ) : null}
-                </span>
-                <span className="text-[0.6rem] font-medium text-muted-foreground">{step.label}</span>
-              </div>
-              {i < rail.length - 1 && (
-                <span className={"mx-1 -mt-4 h-0.5 flex-1 rounded-full " + (step.done ? "bg-primary" : "bg-secondary")} />
-              )}
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-5 rounded-xl bg-secondary/70 p-3.5">
-          <p className="text-[0.7rem] font-medium text-muted-foreground">Code de confirmation</p>
-          <p className="mt-1 font-mono text-2xl font-bold tracking-[0.3em] text-foreground tabular">482913</p>
-        </div>
-
-          <div className="mt-4 flex items-center gap-2 text-xs font-medium text-primary">
-            <ShieldCheck className="size-4" />
-            22 000 FCFA protégés jusqu'à ta confirmation
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export function Landing() {
   usePageTitle("Achète en toute confiance", {
     description:
-      "Jassa protège chaque achat en Côte d'Ivoire : ton paiement reste bloqué jusqu'à ta confirmation de réception. Zéro arnaque.",
+      "Djassa protège chaque achat en Côte d'Ivoire : ton paiement reste bloqué jusqu'à ta confirmation de réception. Zéro arnaque.",
   });
   const [featured, setFeatured] = useState<Product[]>([]);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -173,36 +89,27 @@ export function Landing() {
   return (
     <div ref={rootRef}>
       {/* ---------------- Hero ---------------- */}
-      <section className="grain relative overflow-hidden bg-surface-1 text-white">
+      {/* Pulled up under the transparent sticky header (-mt), with compensating top padding. */}
+      <section className="grain relative -mt-16 overflow-hidden bg-surface-1 text-white md:-mt-[4.5rem]">
         <AmbientBackground />
-        <div className="relative mx-auto grid max-w-[1200px] items-center gap-12 px-4 py-16 md:py-24 lg:grid-cols-[1.1fr_0.9fr]">
+        <div className="relative mx-auto grid max-w-[1200px] items-center gap-12 px-4 pt-28 pb-16 md:pt-36 md:pb-24 lg:grid-cols-[1.1fr_0.9fr]">
           <div>
-            <span
-              data-hero
-              className="glass inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs font-semibold text-brand-300"
-            >
-              <span className="relative flex size-1.5">
-                <span className="absolute inline-flex size-full animate-ping rounded-full bg-brand-300 opacity-75 motion-reduce:hidden" />
-                <span className="relative inline-flex size-1.5 rounded-full bg-brand-300" />
-              </span>
-              Le djassa* en ligne d'Abidjan
-            </span>
             <h1
               data-hero
-              className="mt-5 text-4xl leading-[1.02] font-semibold tracking-tight text-white sm:text-5xl md:text-6xl"
+              className="text-4xl leading-[1.02] font-semibold tracking-tight text-white sm:text-5xl md:text-6xl"
             >
               Achète sans être gaou.
               <br />
               <span className="text-brand-300">Ton djai reste bloqué.</span>
             </h1>
             <p data-hero className="mt-5 max-w-lg text-base leading-relaxed text-white/70 md:text-lg">
-              Sur Jassa, ton djai reste bloqué en séquestre jusqu'à ce que ton
+              Sur Djassa, ton djai reste bloqué en séquestre jusqu'à ce que ton
               colis arrive. Y'a pas drap, zéro arnaque.
             </p>
             <div data-hero className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button asChild size="lg">
                 <Link to="/marche">
-                  Je vois le djassa <ArrowRight className="size-4" />
+                  Voir le Djassa <ArrowRight className="size-4" />
                 </Link>
               </Button>
               <Button
@@ -214,26 +121,7 @@ export function Landing() {
                 <Link to="/inscription">Créer un compte gratuit</Link>
               </Button>
             </div>
-            <dl data-hero className="mt-10 flex flex-wrap gap-x-10 gap-y-4">
-              {[
-                { n: 100, suffix: "%", label: "Séquestré" },
-                { n: 72, suffix: "h", label: "Pour expédier ou remboursé" },
-                { n: 0, suffix: "", label: "Frais côté acheteur" },
-              ].map((s) => (
-                <div key={s.label}>
-                  <dt
-                    data-count={s.n}
-                    data-count-suffix={s.suffix}
-                    className="font-display text-2xl font-semibold text-white tabular"
-                  >
-                    {s.n}
-                    {s.suffix}
-                  </dt>
-                  <dd className="text-sm text-white/60">{s.label}</dd>
-                </div>
-              ))}
-            </dl>
-            <p data-hero className="mt-6 text-xs text-white/40">
+            <p data-hero className="mt-8 text-xs text-white/40">
               <span className="text-white/55">gaou*</span> = celui qui se fait
               avoir · <span className="text-white/55">djai*</span> = l'argent ·{" "}
               <span className="text-white/55">djassa*</span> = le marché
@@ -241,19 +129,8 @@ export function Landing() {
           </div>
 
           <div data-hero className="flex justify-center lg:justify-end">
-            <HeroCard cardRef={cardRef} />
+            <EscrowFlowCard cardRef={cardRef} />
           </div>
-        </div>
-
-        {/* Category marquee — full-bleed, glassy chips */}
-        <div className="relative border-t border-white/5 py-5">
-          <Marquee
-            items={CATEGORIES.map((c) => (
-              <span key={c} className="glass rounded-full px-4 py-1.5 text-sm font-medium text-white/75">
-                {c}
-              </span>
-            ))}
-          />
         </div>
       </section>
 
@@ -281,7 +158,7 @@ export function Landing() {
             Trois étapes, zéro gaou
           </h2>
           <p className="mt-3 text-muted-foreground">
-            Le séquestre Jassa te couvre à chaque commande, du paiement à la
+            Le séquestre Djassa te couvre à chaque commande, du paiement à la
             réception.
           </p>
         </div>
@@ -348,13 +225,13 @@ export function Landing() {
         <div className="grid items-center gap-10 lg:grid-cols-2">
           <div data-reveal>
             <span className="text-sm font-semibold tracking-wide text-primary uppercase">
-              Le séquestre Jassa
+              Le séquestre Djassa
             </span>
             <h2 className="mt-2 text-3xl font-semibold md:text-4xl">
               Ton djai bouge pas tant que tu n'as pas reçu
             </h2>
             <p className="mt-4 text-[1.05rem] leading-relaxed text-muted-foreground">
-              Quand tu paies, ton djai est gardé par Jassa, pas par le vendeur.
+              Quand tu paies, ton djai est gardé par Djassa, pas par le vendeur.
               Il n'est libéré qu'une fois que tu confirmes avoir reçu ta
               commande. Le vendeur est motivé à bien livrer, toi tu es couvert de
               bout en bout.
@@ -382,10 +259,10 @@ export function Landing() {
             <div className="rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-lg)] md:p-8">
               <ol className="relative space-y-6 before:absolute before:top-2 before:bottom-2 before:left-[15px] before:w-0.5 before:bg-border">
                 {[
-                  { t: "L'acheteur paie", d: "L'argent arrive en séquestre chez Jassa.", done: true },
+                  { t: "L'acheteur paie", d: "L'argent arrive en séquestre chez Djassa.", done: true },
                   { t: "Le vendeur expédie", d: "Sous 72h, avec suivi de la commande.", done: true },
                   { t: "L'acheteur confirme", d: "À la réception, en 1 clic.", done: false },
-                  { t: "Le vendeur est payé", d: "Jassa libère les fonds, moins la commission.", done: false },
+                  { t: "Le vendeur est payé", d: "Djassa libère les fonds, moins la commission.", done: false },
                 ].map((s) => (
                   <li key={s.t} className="relative flex gap-4 pl-0">
                     <span
@@ -449,7 +326,7 @@ export function Landing() {
               <Store className="size-6" />
             </span>
             <div>
-              <h3 className="text-xl font-semibold md:text-2xl">Tu veux vendre sur Jassa ?</h3>
+              <h3 className="text-xl font-semibold md:text-2xl">Tu veux vendre sur Djassa ?</h3>
               <p className="mt-1 max-w-xl text-muted-foreground">
                 Commission de 5% par vente, 3% avec l'abonnement Pro. Ton djai
                 est garanti dès que l'acheteur confirme.

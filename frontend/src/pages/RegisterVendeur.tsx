@@ -3,16 +3,16 @@ import { usePageTitle } from "../hooks/usePageTitle";
 
 export function RegisterVendeur() {
   usePageTitle("Créer un compte vendeur", {
-    description: "Vends sur Jassa et reçois tes paiements en toute sécurité, sans risque d'impayé grâce au séquestre.",
+    description: "Vends sur Djassa et reçois tes paiements en toute sécurité, sans risque d'impayé grâce au séquestre.",
   });
 
   return (
     <RegisterForm
       accountType="vendeur"
       kicker="Inscription vendeur"
-      title="Vends sur Jassa"
+      title="Vends sur Djassa"
       lead="Crée ton compte vendeur en une minute"
-      brandTag="Publie tes produits, discute avec tes acheteurs et sois payé sans risque : le séquestre Jassa garantit ton paiement."
+      brandTag="Publie tes produits, discute avec tes acheteurs et sois payé sans risque : le séquestre Djassa garantit ton paiement."
       brandBullets={[
         "Paiement garanti dès la commande passée",
         "5% de commission, ou 3% avec le palier Pro",

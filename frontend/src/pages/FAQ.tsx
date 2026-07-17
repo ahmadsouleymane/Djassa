@@ -51,7 +51,7 @@ const FAQS: FaqEntry[] = [
     ),
   },
   {
-    question: "Combien coûte la vente sur Jassa ?",
+    question: "Combien coûte la vente sur Djassa ?",
     answer: (
       <>
         Une commission de 5% est prélevée sur chaque commande livrée et
@@ -101,7 +101,7 @@ const FAQS: FaqEntry[] = [
 export function FAQ() {
   usePageTitle("Questions fréquentes", {
     description:
-      "Réponses aux questions les plus courantes sur les commandes, le séquestre, les remboursements et la vérification vendeur sur Jassa.",
+      "Réponses aux questions les plus courantes sur les commandes, le séquestre, les remboursements et la vérification vendeur sur Djassa.",
   });
 
   return (
@@ -110,7 +110,7 @@ export function FAQ() {
         <h1 className="text-3xl font-semibold md:text-4xl">Questions fréquentes</h1>
         <p className="mt-1 text-muted-foreground">
           Tout ce qu'on nous demande le plus souvent sur les commandes, les
-          remboursements et la vente sur Jassa.
+          remboursements et la vente sur Djassa.
         </p>
       </header>
 

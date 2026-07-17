@@ -11,6 +11,7 @@ import {
   Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { AmbientBackground } from "@/components/visual/AmbientBackground";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useLandingMotion } from "@/hooks/useLandingMotion";
 
@@ -18,7 +19,7 @@ const WHY = [
   {
     icon: HandCoins,
     title: "Paiement garanti",
-    body: "L'acheteur paie avant l'expédition. Le djai est bloqué chez Jassa, pas entre ses mains. Impossible qu'il disparaisse sans payer.",
+    body: "L'acheteur paie avant l'expédition. Le djai est bloqué chez Djassa, pas entre ses mains. Impossible qu'il disparaisse sans payer.",
   },
   {
     icon: BadgeCheck,
@@ -54,31 +55,24 @@ const STEPS = [
 ];
 
 export function LandingVendeur() {
-  usePageTitle("Vendre sur Jassa", {
+  usePageTitle("Vendre sur Djassa", {
     description:
-      "Publie tes produits sur Jassa et sois payé sans risque : le paiement de l'acheteur est bloqué jusqu'à la livraison.",
+      "Publie tes produits sur Djassa et sois payé sans risque : le paiement de l'acheteur est bloqué jusqu'à la livraison.",
   });
   const rootRef = useRef<HTMLDivElement>(null);
   useLandingMotion(rootRef);
 
   return (
     <div ref={rootRef}>
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-ink text-white">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(55rem 30rem at 15% 10%, rgba(0,178,93,0.30), transparent 55%), radial-gradient(45rem 30rem at 90% 95%, rgba(23,195,119,0.18), transparent 50%)",
-          }}
-        />
-        <div className="relative mx-auto max-w-[900px] px-4 py-20 text-center md:py-28">
+      {/* Hero — pulled under the transparent sticky header */}
+      <section className="grain relative -mt-16 overflow-hidden bg-surface-1 text-white md:-mt-[4.5rem]">
+        <AmbientBackground />
+        <div className="relative mx-auto max-w-[900px] px-4 pt-32 pb-20 text-center md:pt-40 md:pb-28">
           <span
             data-hero
             className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 py-1.5 text-xs font-semibold text-brand-300"
           >
-            <span className="size-1.5 rounded-full bg-brand-300" /> Vendre sur Jassa
+            <span className="size-1.5 rounded-full bg-brand-300" /> Vendre sur Djassa
           </span>
           <h1
             data-hero
@@ -88,7 +82,7 @@ export function LandingVendeur() {
           </h1>
           <p data-hero className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-white/70 md:text-lg">
             Sur les réseaux, tu risques l'acheteur qui disparaît après réception.
-            Sur Jassa, ton djai est bloqué en séquestre dès la commande, et il
+            Sur Djassa, ton djai est bloqué en séquestre dès la commande, et il
             t'est versé dès que le client confirme la réception.
           </p>
           <div data-hero className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
@@ -116,7 +110,7 @@ export function LandingVendeur() {
             Pourquoi vendre ici
           </span>
           <h2 className="mt-2 text-3xl font-semibold md:text-4xl">
-            Ce que Jassa change pour toi
+            Ce que Djassa change pour toi
           </h2>
         </div>
         <div className="mt-12 grid gap-5 md:grid-cols-3">

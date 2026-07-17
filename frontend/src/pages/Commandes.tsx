@@ -245,7 +245,7 @@ export function Commandes() {
       <header>
         <h1 className="text-3xl font-semibold md:text-4xl">Mes commandes</h1>
         <p className="mt-1 text-muted-foreground">
-          Les fonds restent bloqués sur Jassa jusqu'à confirmation de réception.
+          Les fonds restent bloqués sur Djassa jusqu'à confirmation de réception.
         </p>
       </header>
 

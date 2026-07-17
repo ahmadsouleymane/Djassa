@@ -61,7 +61,7 @@ export function ProductCard({
         ) : (
           <div className="grid size-full place-items-center bg-[radial-gradient(circle_at_30%_20%,var(--brand-100),var(--secondary))]">
             <span className="font-display text-lg font-semibold text-brand-600/60">
-              Jassa
+              Djassa
             </span>
           </div>
         )}
