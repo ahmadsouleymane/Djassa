@@ -2,8 +2,10 @@ import { useState, type FormEvent } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { ApiError } from "../api/client";
+import { usePageTitle } from "../hooks/usePageTitle";
 
 export function Login() {
+  usePageTitle("Connexion");
   const { login } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");

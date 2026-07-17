@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { PrivateRoute } from "./routes/PrivateRoute";
+import { Layout } from "./components/Layout";
 import { Login } from "./pages/Login";
 import { Register } from "./pages/Register";
 import { Dashboard } from "./pages/Dashboard";
@@ -20,7 +21,14 @@ export function App() {
           <Route path="/" element={<Navigate to="/connexion" replace />} />
           <Route path="/connexion" element={<Login />} />
           <Route path="/inscription" element={<Register />} />
-          <Route path="/marche" element={<Marche />} />
+          <Route
+            path="/marche"
+            element={
+              <Layout>
+                <Marche />
+              </Layout>
+            }
+          />
           <Route
             path="/tableau-de-bord"
             element={
