@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { AmbientBackground } from "@/components/visual/AmbientBackground";
 import { EscrowFlowCard } from "@/components/visual/EscrowFlowCard";
 import { Marquee } from "@/components/visual/Marquee";
+import { Testimonials } from "@/components/visual/Testimonials";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useLandingMotion } from "@/hooks/useLandingMotion";
 
@@ -312,6 +313,25 @@ export function Landing() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ---------------- Testimonials ---------------- */}
+      <section className="overflow-hidden py-16 md:py-24">
+        <div className="mx-auto mb-10 max-w-2xl px-4 text-center" data-reveal>
+          <span className="text-sm font-semibold tracking-wide text-primary uppercase">
+            Ils sont sur Djassa
+          </span>
+          <h2 className="mt-2 text-3xl font-semibold md:text-4xl">
+            Ils achètent sans être gaou
+          </h2>
+          <p className="mt-3 text-muted-foreground">
+            Acheteurs et vendeurs partout en Côte d'Ivoire. Voilà ce qu'ils en
+            disent.
+          </p>
+        </div>
+        <div data-reveal>
+          <Testimonials />
         </div>
       </section>
 
