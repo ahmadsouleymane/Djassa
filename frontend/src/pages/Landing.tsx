@@ -14,8 +14,32 @@ import {
 import { publicProductsApi, type Product } from "@/api/products";
 import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
+import { AmbientBackground } from "@/components/visual/AmbientBackground";
+import { Marquee } from "@/components/visual/Marquee";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useLandingMotion } from "@/hooks/useLandingMotion";
+
+const CATEGORIES = [
+  "Mode",
+  "Téléphones",
+  "Électronique",
+  "Beauté",
+  "Maison",
+  "Chaussures",
+  "Accessoires",
+  "Enfants",
+  "Sport",
+  "Épicerie",
+];
+
+const PROOF = [
+  "Paiement séquestré",
+  "Vendeurs vérifiés",
+  "0 frais acheteur",
+  "72h ou remboursé",
+  "Litige protégé",
+  "Support Côte d'Ivoire",
+];
 
 const STEPS = [
   {
@@ -68,7 +92,7 @@ function HeroCard({ cardRef }: { cardRef: React.RefObject<HTMLDivElement | null>
       <div className="animate-float motion-reduce:animate-none">
         <div
           ref={cardRef}
-          className="w-[19rem] rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-lg)] will-change-transform sm:w-[21rem]"
+          className="w-[19rem] rounded-2xl border border-white/10 bg-card p-5 shadow-[0_30px_80px_-24px_rgba(0,0,0,0.7),var(--shadow-glow)] will-change-transform sm:w-[21rem]"
         >
         <div className="flex items-center gap-3">
           <div className="grid size-11 place-items-center rounded-xl bg-[radial-gradient(circle_at_30%_20%,var(--brand-100),var(--secondary))] font-display text-sm font-semibold text-brand-600/70">
@@ -78,7 +102,8 @@ function HeroCard({ cardRef }: { cardRef: React.RefObject<HTMLDivElement | null>
             <p className="truncate text-sm font-semibold">Sac à main cuir</p>
             <p className="text-xs text-muted-foreground">Commande #A48213</p>
           </div>
-          <span className="rounded-full bg-[#fbf0dc] px-2.5 py-1 text-[0.7rem] font-bold text-[#8a5a0b]">
+          <span className="inline-flex items-center gap-1 rounded-full bg-brand-100 px-2.5 py-1 text-[0.7rem] font-bold text-brand-700">
+            <span className="size-1.5 rounded-full bg-brand-500" />
             Expédiée
           </span>
         </div>
@@ -148,23 +173,19 @@ export function Landing() {
   return (
     <div ref={rootRef}>
       {/* ---------------- Hero ---------------- */}
-      <section className="relative overflow-hidden bg-ink text-white">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-90"
-          style={{
-            background:
-              "radial-gradient(60rem 30rem at 12% 8%, rgba(0,178,93,0.30), transparent 55%), radial-gradient(50rem 30rem at 92% 90%, rgba(23,195,119,0.20), transparent 50%)",
-          }}
-        />
+      <section className="grain relative overflow-hidden bg-surface-1 text-white">
+        <AmbientBackground />
         <div className="relative mx-auto grid max-w-[1200px] items-center gap-12 px-4 py-16 md:py-24 lg:grid-cols-[1.1fr_0.9fr]">
           <div>
             <span
               data-hero
-              className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 py-1.5 text-xs font-semibold text-brand-300"
+              className="glass inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs font-semibold text-brand-300"
             >
-              <span className="size-1.5 rounded-full bg-brand-300" />
-              Le djassa en ligne d'Abidjan
+              <span className="relative flex size-1.5">
+                <span className="absolute inline-flex size-full animate-ping rounded-full bg-brand-300 opacity-75 motion-reduce:hidden" />
+                <span className="relative inline-flex size-1.5 rounded-full bg-brand-300" />
+              </span>
+              Le djassa* en ligne d'Abidjan
             </span>
             <h1
               data-hero
@@ -212,13 +233,43 @@ export function Landing() {
                 </div>
               ))}
             </dl>
+            <p data-hero className="mt-6 text-xs text-white/40">
+              <span className="text-white/55">gaou*</span> = celui qui se fait
+              avoir · <span className="text-white/55">djai*</span> = l'argent ·{" "}
+              <span className="text-white/55">djassa*</span> = le marché
+            </p>
           </div>
 
           <div data-hero className="flex justify-center lg:justify-end">
             <HeroCard cardRef={cardRef} />
           </div>
         </div>
+
+        {/* Category marquee — full-bleed, glassy chips */}
+        <div className="relative border-t border-white/5 py-5">
+          <Marquee
+            items={CATEGORIES.map((c) => (
+              <span key={c} className="glass rounded-full px-4 py-1.5 text-sm font-medium text-white/75">
+                {c}
+              </span>
+            ))}
+          />
+        </div>
       </section>
+
+      {/* ---------------- Proof ticker ---------------- */}
+      <div className="border-b border-border bg-card">
+        <div className="mx-auto max-w-[1200px] px-4 py-3.5">
+          <Marquee
+            items={PROOF.map((p) => (
+              <span key={p} className="inline-flex items-center gap-2 px-4 text-sm font-semibold text-foreground/70">
+                <ShieldCheck className="size-4 text-primary" />
+                {p}
+              </span>
+            ))}
+          />
+        </div>
+      </div>
 
       {/* ---------------- How it works ---------------- */}
       <section className="mx-auto max-w-[1200px] px-4 py-16 md:py-24">
@@ -414,15 +465,8 @@ export function Landing() {
       </section>
 
       {/* ---------------- Final CTA ---------------- */}
-      <section className="relative overflow-hidden bg-ink text-white">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(40rem 20rem at 50% 0%, rgba(0,178,93,0.25), transparent 60%)",
-          }}
-        />
+      <section className="grain relative overflow-hidden bg-surface-1 text-white">
+        <AmbientBackground />
         <div className="relative mx-auto max-w-[900px] px-4 py-20 text-center" data-reveal>
           <h2 className="text-3xl font-semibold text-white md:text-5xl">
             Prêt à faire ton djassa ?

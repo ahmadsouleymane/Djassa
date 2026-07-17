@@ -60,6 +60,25 @@
   --shadow-md: 0 2px 4px rgba(6, 36, 22, 0.05), 0 10px 24px rgba(6, 36, 22, 0.09);
   --shadow-lg: 0 6px 12px rgba(6, 36, 22, 0.07), 0 24px 56px rgba(6, 36, 22, 0.14);
   --shadow-brand: 0 1px 2px rgba(0, 92, 48, 0.16), 0 10px 24px rgba(0, 168, 85, 0.26);
+
+  /* Immersive dark surfaces — deep green-black, never pure #000 (OLED smear) */
+  --surface-1: #06110b;
+  --surface-2: #0a1a12;
+  --surface-3: #10281b;
+
+  /* Glass + hairlines (frosted, functional) */
+  --glass: rgba(255, 255, 255, 0.055);
+  --glass-strong: rgba(255, 255, 255, 0.09);
+  --glass-border: rgba(255, 255, 255, 0.10);
+  --hairline: rgba(255, 255, 255, 0.06);
+  --hairline-ink: rgba(11, 18, 14, 0.06);
+
+  /* Ambient aurora (green, sober — no purple/pink AI gradient) */
+  --aurora-1: rgba(23, 195, 119, 0.30);
+  --aurora-2: rgba(0, 178, 93, 0.22);
+  --aurora-3: rgba(9, 78, 45, 0.55);
+
+  --shadow-glow: 0 0 0 1px rgba(23, 195, 119, 0.16), 0 8px 40px rgba(0, 178, 93, 0.24);
 }
 
 @theme inline {
@@ -95,6 +114,9 @@
   --color-brand-900: var(--brand-900);
   --color-ink: var(--ink);
   --color-ink-soft: var(--ink-soft);
+  --color-surface-1: var(--surface-1);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
 
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
@@ -158,6 +180,83 @@
   }
 }
 
+@layer components {
+  /* Frosted glass — functional (sticky nav, sheets, floating cards) */
+  .glass {
+    background: var(--glass);
+    backdrop-filter: blur(18px) saturate(150%);
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+    border: 1px solid var(--glass-border);
+  }
+  .glass-strong {
+    background: var(--glass-strong);
+    backdrop-filter: blur(24px) saturate(160%);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    border: 1px solid var(--glass-border);
+  }
+  /* Light frosted card for light sections */
+  .glass-light {
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+  }
+
+  /* Blueprint hairline grid — reads as "calculated / engineered", builds trust */
+  .grid-lines {
+    background-image:
+      linear-gradient(var(--hairline) 1px, transparent 1px),
+      linear-gradient(90deg, var(--hairline) 1px, transparent 1px);
+    background-size: 46px 46px;
+    background-position: center;
+  }
+  .grid-lines-ink {
+    background-image:
+      linear-gradient(var(--hairline-ink) 1px, transparent 1px),
+      linear-gradient(90deg, var(--hairline-ink) 1px, transparent 1px);
+    background-size: 46px 46px;
+    background-position: center;
+  }
+
+  /* Fine film grain — kills the flat "AI render" look */
+  .grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.5;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  }
+
+  /* Ambient aurora blob (green, slow, sober) */
+  .aurora-blob {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(70px);
+    will-change: transform;
+    animation: aurora-drift 18s var(--ease-out-expo) infinite alternate;
+  }
+
+  /* Press feedback for tappable surfaces (native-app feel) */
+  .press {
+    transition: transform 0.16s var(--ease-out-expo);
+  }
+  .press:active {
+    transform: scale(0.97);
+  }
+}
+
+@keyframes aurora-drift {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  100% { transform: translate3d(5%, -4%, 0) scale(1.18); }
+}
+@keyframes marquee-reverse {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -177,6 +276,7 @@
   --animate-accordion-up: accordion-up 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   --animate-float: float 6s ease-in-out infinite;
   --animate-marquee: marquee 34s linear infinite;
+  --animate-marquee-reverse: marquee-reverse 40s linear infinite;
   --animate-shimmer: shimmer 2s linear infinite;
 }
 

@@ -27,11 +27,10 @@ export function useLandingMotion(
       if (heroEls.length) {
         gsap.from(heroEls, {
           opacity: 0,
-          y: 26,
-          duration: 0.8,
+          y: 20,
+          duration: 0.55,
           ease: "power3.out",
-          stagger: 0.09,
-          delay: 0.05,
+          stagger: 0.05,
         });
       }
 
