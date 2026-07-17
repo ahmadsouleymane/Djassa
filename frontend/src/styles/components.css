@@ -1,18 +1,32 @@
 /* Layout */
 .container {
   width: 100%;
-  max-width: 960px;
+  max-width: 1120px;
   margin: 0 auto;
-  padding: 0 1.5rem;
+  padding: 0 1rem;
 }
 
 .page {
   flex: 1;
-  padding: 2.5rem 0 4rem;
+  padding: 1.25rem 0 2.5rem;
 }
 
 .page-header {
-  margin-bottom: 2rem;
+  margin-bottom: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding: 0 1.5rem;
+  }
+
+  .page {
+    padding: 2.5rem 0 4rem;
+  }
+
+  .page-header {
+    margin-bottom: 2rem;
+  }
 }
 
 .page-header p {
@@ -123,7 +137,7 @@ textarea.input:focus,
 select.input:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(124, 140, 193, 0.3);
+  box-shadow: 0 0 0 3px rgba(52, 67, 123, 0.2);
 }
 
 textarea.input {

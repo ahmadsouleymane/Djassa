@@ -3,21 +3,21 @@
   background: var(--surface1);
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 20;
 }
 
 .nav-inner {
   display: flex;
   align-items: center;
   gap: 2rem;
-  height: 4rem;
+  height: 3.75rem;
 }
 
 .nav-logo {
   font-family: var(--font-display);
   font-weight: 800;
   font-size: 1.25rem;
-  color: var(--text1);
+  color: var(--accent);
   letter-spacing: -0.02em;
 }
 
@@ -53,22 +53,116 @@
   font-size: 0.875rem;
 }
 
-@media (max-width: 640px) {
+/* Mobile-first : nav secondaire + compte passent dans la barre basse / le tiroir */
+@media (max-width: 767px) {
   .nav-inner {
-    flex-wrap: wrap;
-    height: auto;
-    padding: 0.75rem 0;
-    gap: 0.75rem;
+    height: 3.5rem;
   }
 
-  .nav-links {
-    order: 3;
-    width: 100%;
-    gap: 1rem;
-    flex-wrap: wrap;
-  }
-
-  .nav-user {
+  .nav-links,
+  .nav-actions {
     display: none;
   }
+
+  .page {
+    padding-bottom: calc(4.75rem + env(safe-area-inset-bottom));
+  }
+}
+
+/* Barre de navigation basse (mobile uniquement) */
+.bottom-nav {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 30;
+    background: var(--surface1);
+    border-top: 1px solid var(--border);
+    padding: 0.35rem 0.5rem calc(0.35rem + env(safe-area-inset-bottom));
+  }
+}
+
+.bottom-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.35rem 0.25rem;
+  color: var(--text3);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.bottom-nav-item svg {
+  width: 22px;
+  height: 22px;
+}
+
+.bottom-nav-item:hover {
+  text-decoration: none;
+  color: var(--text2);
+}
+
+.bottom-nav-item.is-active {
+  color: var(--accent);
+}
+
+/* Tiroir compte */
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(16, 20, 28, 0.35);
+  z-index: 40;
+  display: flex;
+  align-items: flex-end;
+}
+
+.account-sheet {
+  width: 100%;
+  background: var(--surface1);
+  border-radius: 1.25rem 1.25rem 0 0;
+  padding: 0.75rem 1.5rem calc(1.5rem + env(safe-area-inset-bottom));
+  box-shadow: var(--shadow-3);
+}
+
+.account-sheet-handle {
+  width: 2.5rem;
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--border-visible);
+  margin: 0 auto 1rem;
+}
+
+.account-sheet-email {
+  color: var(--text2);
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.account-sheet-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.account-sheet-links a {
+  color: var(--text1);
+  font-weight: 600;
+}
+
+.account-sheet-auth {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
