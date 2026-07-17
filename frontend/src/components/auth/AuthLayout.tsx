@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Check, ArrowLeft } from "lucide-react";
 import { Logo } from "@/components/site/Logo";
+import { AmbientBackground } from "@/components/visual/AmbientBackground";
 
 type AuthLayoutProps = {
   children: React.ReactNode;
@@ -12,15 +13,8 @@ export function AuthLayout({ children, tagline, bullets }: AuthLayoutProps) {
   return (
     <div className="grid min-h-[100dvh] lg:grid-cols-2">
       {/* Brand side */}
-      <aside className="relative hidden overflow-hidden bg-ink p-12 text-white lg:flex lg:flex-col lg:justify-between">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(45rem 30rem at 10% 10%, rgba(0,178,93,0.32), transparent 55%), radial-gradient(40rem 30rem at 100% 100%, rgba(23,195,119,0.18), transparent 50%)",
-          }}
-        />
+      <aside className="grain relative hidden overflow-hidden bg-surface-1 p-12 text-white lg:flex lg:flex-col lg:justify-between">
+        <AmbientBackground />
         <div className="relative">
           <Logo variant="light" />
         </div>
