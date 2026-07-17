@@ -9,7 +9,6 @@ import {
   Search,
   CreditCard,
   PackageCheck,
-  Store,
 } from "lucide-react";
 import { publicProductsApi, type Product } from "@/api/products";
 import { ProductCard } from "@/components/ProductCard";
@@ -24,7 +23,7 @@ import { useLandingMotion } from "@/hooks/useLandingMotion";
 const PROOF = [
   "Paiement séquestré",
   "Vendeurs vérifiés",
-  "0 frais acheteur",
+  "0 frais",
   "72h ou remboursé",
   "Litige protégé",
   "Support Côte d'Ivoire",
@@ -40,14 +39,14 @@ const STEPS = [
   {
     icon: CreditCard,
     n: "02",
-    title: "Paie, c'est carré",
+    title: "Paie en toute confiance",
     body: "Ton djai part chez Djassa, pas chez le vendeur. Il reste bloqué le temps que ton colis arrive.",
   },
   {
     icon: PackageCheck,
     n: "03",
     title: "Reçois et valide",
-    body: "Colis en main, tu confirmes, le vendeur est payé. Un souci ? Tu ouvres un litige et tu es remboursé. On est ensemble.",
+    body: "Colis en main, tu confirmes, le vendeur est payé. Un souci ? Tu ouvres un litige et tu es remboursé.",
   },
 ];
 
@@ -55,12 +54,12 @@ const FEATURES = [
   {
     icon: Lock,
     title: "Séquestre automatique",
-    body: "Chaque commande bloque le paiement jusqu'à ta confirmation. Le vendeur a 72h pour expédier, sinon tu es remboursé, y'a pas drap.",
+    body: "Chaque commande bloque le paiement jusqu'à ta confirmation. Le vendeur a 72h pour expédier, sinon tu es remboursé.",
   },
   {
     icon: BadgeCheck,
     title: "Vendeurs vérifiés",
-    body: "Chaque mogo passe une vérification d'identité avant de vendre. Tu sais toujours à qui tu as affaire.",
+    body: "Chaque Djassaman passe une vérification d'identité avant de vendre. Tu sais toujours à qui tu as affaire.",
   },
   {
     icon: MessageSquareText,
@@ -72,7 +71,7 @@ const FEATURES = [
 export function Landing() {
   usePageTitle("Achète en toute confiance", {
     description:
-      "Djassa protège chaque achat en Côte d'Ivoire : ton paiement reste bloqué jusqu'à ta confirmation de réception. Zéro arnaque.",
+      "Djassa protège chaque achat en Côte d'Ivoire : ton paiement reste bloqué jusqu'à ta confirmation de réception.",
   });
   const [featured, setFeatured] = useState<Product[]>([]);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -101,11 +100,11 @@ export function Landing() {
             >
               Achète sans être gaou.
               <br />
-              <span className="text-brand-300">Ton djai reste bloqué.</span>
+              <span className="text-brand-300">Ton djai est sécurisé.</span>
             </h1>
             <p data-hero className="mt-5 max-w-lg text-base leading-relaxed text-white/70 md:text-lg">
-              Sur Djassa, ton djai reste bloqué en séquestre jusqu'à ce que ton
-              colis arrive. Y'a pas drap, zéro arnaque.
+              Sur Djassa, ton djai reste bloqué jusqu'à ce que ton
+              colis arrive.
             </p>
             <div data-hero className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button asChild size="lg">
@@ -214,7 +213,7 @@ export function Landing() {
             </div>
             <div className="mt-8 text-center sm:hidden">
               <Button asChild variant="secondary">
-                <Link to="/marche">Voir tout le marché</Link>
+                <Link to="/marche">Voir le djassa</Link>
               </Button>
             </div>
           </div>
@@ -262,8 +261,8 @@ export function Landing() {
                 {[
                   { t: "L'acheteur paie", d: "L'argent arrive en séquestre chez Djassa.", done: true },
                   { t: "Le vendeur expédie", d: "Sous 72h, avec suivi de la commande.", done: true },
-                  { t: "L'acheteur confirme", d: "À la réception, en 1 clic.", done: false },
-                  { t: "Le vendeur est payé", d: "Djassa libère les fonds, moins la commission.", done: false },
+                  { t: "L'acheteur confirme", d: "À la réception, en 1 clic.", done: true },
+                  { t: "Le vendeur est payé", d: "Djassa libère les fonds.", done: true },
                 ].map((s) => (
                   <li key={s.t} className="relative flex gap-4 pl-0">
                     <span
@@ -326,7 +325,7 @@ export function Landing() {
             Ils achètent sans être gaou
           </h2>
           <p className="mt-3 text-muted-foreground">
-            Acheteurs et vendeurs partout en Côte d'Ivoire. Voilà ce qu'ils en
+            Acheteurs partout en Côte d'Ivoire. Voilà ce qu'ils
             disent.
           </p>
         </div>
@@ -335,31 +334,6 @@ export function Landing() {
         </div>
       </section>
 
-      {/* ---------------- Seller strip ---------------- */}
-      <section className="mx-auto max-w-[1200px] px-4 py-16 md:py-20">
-        <div
-          data-reveal
-          className="flex flex-col items-start gap-6 rounded-3xl border border-border bg-card p-8 shadow-[var(--shadow-sm)] md:flex-row md:items-center md:justify-between md:p-10"
-        >
-          <div className="flex items-start gap-4">
-            <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-accent text-primary">
-              <Store className="size-6" />
-            </span>
-            <div>
-              <h3 className="text-xl font-semibold md:text-2xl">Tu veux vendre sur Djassa ?</h3>
-              <p className="mt-1 max-w-xl text-muted-foreground">
-                Commission de 5% par vente, 3% avec l'abonnement Pro. Ton djai
-                est garanti dès que l'acheteur confirme.
-              </p>
-            </div>
-          </div>
-          <Button asChild size="lg" variant="ink" className="w-full shrink-0 md:w-auto">
-            <Link to="/vendre">
-              Devenir vendeur <ArrowRight className="size-4" />
-            </Link>
-          </Button>
-        </div>
-      </section>
 
       {/* ---------------- Final CTA ---------------- */}
       <section className="grain relative overflow-hidden bg-surface-1 text-white">
@@ -369,8 +343,7 @@ export function Landing() {
             Prêt à faire ton djassa ?
           </h2>
           <p className="mx-auto mt-4 max-w-lg text-white/70">
-            Rejoins les mogos qui achètent et vendent sans se faire avoir. On est
-            ensemble.
+            Rejoins les mogos qui achètent sans se faire avoir.
           </p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <Button asChild size="lg">

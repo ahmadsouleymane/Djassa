@@ -68,15 +68,9 @@ export function LandingVendeur() {
       <section className="grain relative -mt-16 overflow-hidden bg-surface-1 text-white md:-mt-[4.5rem]">
         <AmbientBackground />
         <div className="relative mx-auto max-w-[900px] px-4 pt-32 pb-20 text-center md:pt-40 md:pb-28">
-          <span
-            data-hero
-            className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 py-1.5 text-xs font-semibold text-brand-300"
-          >
-            <span className="size-1.5 rounded-full bg-brand-300" /> Vendre sur Djassa
-          </span>
           <h1
             data-hero
-            className="mt-5 text-4xl leading-[1.03] font-semibold tracking-tight text-white sm:text-5xl md:text-6xl"
+            className="text-4xl leading-[1.03] font-semibold tracking-tight text-white sm:text-5xl md:text-6xl"
           >
             Vends, encaisse, <span className="text-brand-300">sans te faire avoir.</span>
           </h1>
@@ -212,15 +206,8 @@ export function LandingVendeur() {
       </section>
 
       {/* CTA */}
-      <section className="relative overflow-hidden bg-ink text-white">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(40rem 20rem at 50% 0%, rgba(0,178,93,0.25), transparent 60%)",
-          }}
-        />
+      <section className="grain relative overflow-hidden bg-surface-1 text-white">
+        <AmbientBackground />
         <div className="relative mx-auto max-w-[900px] px-4 py-20 text-center" data-reveal>
           <h2 className="text-3xl font-semibold text-white md:text-5xl">
             Prêt à vendre sans risque ?

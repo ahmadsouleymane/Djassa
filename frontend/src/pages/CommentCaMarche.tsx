@@ -11,6 +11,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { AmbientBackground } from "@/components/visual/AmbientBackground";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useLandingMotion } from "@/hooks/useLandingMotion";
 
@@ -180,16 +181,9 @@ export function CommentCaMarche() {
 
       <section
         data-reveal
-        className="relative overflow-hidden rounded-3xl bg-ink px-6 py-14 text-center text-white"
+        className="grain relative overflow-hidden rounded-3xl bg-surface-1 px-6 py-14 text-center text-white"
       >
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(30rem 16rem at 50% 0%, rgba(0,178,93,0.28), transparent 60%)",
-          }}
-        />
+        <AmbientBackground />
         <div className="relative">
           <h2 className="text-2xl font-semibold text-white md:text-3xl">
             Prêt à essayer Djassa ?
