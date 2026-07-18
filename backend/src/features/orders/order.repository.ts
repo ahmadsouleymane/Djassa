@@ -81,4 +81,74 @@ export class OrderRepository {
       where: { status: { in: ["paye", "expedie"] as OrderStatus[] }, confirmBy: { lt: now } },
     });
   }
+
+  findDisputes() {
+    return prisma.order.findMany({
+      where: { status: "en_litige" },
+      include: {
+        product: { select: { title: true, photos: true } },
+        buyer: { select: { id: true, email: true } },
+        vendor: { select: { id: true, email: true } },
+      },
+      orderBy: { updatedAt: "desc" },
+    });
+  }
+
+  countByStatus() {
+    return prisma.order.groupBy({ by: ["status"], _count: { _all: true } });
+  }
+
+  async sumCommission(since: Date): Promise<number> {
+    const result = await prisma.order.aggregate({
+      _sum: { commissionAmount: true },
+      where: { status: { in: ["paye", "expedie", "confirme"] as OrderStatus[] }, createdAt: { gte: since } },
+    });
+    return result._sum.commissionAmount ?? 0;
+  }
+
+  countByStatusForVendor(vendorId: string) {
+    return prisma.order.groupBy({ by: ["status"], where: { vendorId }, _count: { _all: true } });
+  }
+
+  async revenueSeriesForVendor(vendorId: string, since: Date): Promise<{ day: Date; revenue: bigint; orders: bigint }[]> {
+    return prisma.$queryRaw`
+      SELECT date_trunc('day', "createdAt") AS day,
+             COALESCE(SUM("netAmount"), 0)::bigint AS revenue,
+             COUNT(*)::bigint AS orders
+      FROM "Order"
+      WHERE "vendorId" = ${vendorId}
+        AND "createdAt" >= ${since}
+        AND status IN ('paye', 'expedie', 'confirme')
+      GROUP BY day
+      ORDER BY day ASC
+    `;
+  }
+
+  async topProductsForVendor(vendorId: string, limit: number) {
+    const rows = await prisma.order.groupBy({
+      by: ["productId"],
+      where: { vendorId, status: { in: ["paye", "expedie", "confirme"] as OrderStatus[] } },
+      _sum: { netAmount: true, quantity: true },
+      _count: { _all: true },
+      orderBy: { _sum: { netAmount: "desc" } },
+      take: limit,
+    });
+    return rows;
+  }
+
+  pendingShipmentsForVendor(vendorId: string) {
+    return prisma.order.findMany({
+      where: { vendorId, status: "paye" },
+      include: { product: { select: { title: true, photos: true } } },
+      orderBy: { shipBy: "asc" },
+    });
+  }
+
+  async averageOrderValueForVendor(vendorId: string): Promise<number> {
+    const result = await prisma.order.aggregate({
+      _avg: { netAmount: true },
+      where: { vendorId, status: { in: ["paye", "expedie", "confirme"] as OrderStatus[] } },
+    });
+    return Math.round(result._avg.netAmount ?? 0);
+  }
 }

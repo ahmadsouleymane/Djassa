@@ -1,5 +1,4 @@
-# Jassa — marché en ligne ivoirien
-# Remplace https://www.jassa.ci par le domaine réel avant mise en production.
+# Djassa — marché en ligne ivoirien
 User-agent: *
 Allow: /
 Disallow: /connexion
@@ -11,4 +10,7 @@ Disallow: /verification
 Disallow: /abonnement
 Disallow: /admin
 
-Sitemap: https://www.jassa.ci/sitemap.xml
+Sitemap: https://djassa.net/sitemap.xml
+# Sitemap dynamique (produits + vendeurs), généré par l'API — remplace par le
+# domaine réel de l'API en production si différent de djassa.net.
+Sitemap: https://api.djassa.net/sitemap-products.xml

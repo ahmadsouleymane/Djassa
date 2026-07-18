@@ -16,7 +16,7 @@ describe("GET /api/public/products", () => {
   it("hides products from an unverified vendor", async () => {
     const regRes = await request(app)
       .post("/api/auth/register")
-      .send({ email, password: "password123", accountType: "vendeur" });
+      .send({ email, phone: "0700000000", password: "password123", accountType: "vendeur" });
 
     const createRes = await request(app)
       .post("/api/products")
@@ -26,7 +26,11 @@ describe("GET /api/public/products", () => {
         description: "Sac à main en cuir, plusieurs coloris disponibles",
         price: 18000,
         category: "mode_beaute",
-        photos: ["https://res.cloudinary.com/demo/image/upload/sac.jpg"],
+        photos: [
+          "https://res.cloudinary.com/demo/image/upload/sac-1.jpg",
+          "https://res.cloudinary.com/demo/image/upload/sac-2.jpg",
+          "https://res.cloudinary.com/demo/image/upload/sac-3.jpg",
+        ],
       });
     productId = createRes.body.product.id;
 

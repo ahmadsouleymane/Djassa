@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { requireAuth, requireAdmin } from "../auth/auth.middleware.js";
-import { create, createDirect, checkoutSummary, payDirect, listMine, checkout, ship, confirm, dispute, resolveDispute } from "./order.controller.js";
+import { requireAuth, requireAdmin, requireVendor } from "../auth/auth.middleware.js";
+import { create, createDirect, checkoutSummary, payDirect, listMine, checkout, ship, confirm, dispute, resolveDispute, vendorStats } from "./order.controller.js";
 
 export const orderRouter = Router();
 
@@ -10,6 +10,7 @@ orderRouter.post("/direct", createDirect);
 orderRouter.get("/checkout/:reference", checkoutSummary);
 orderRouter.post("/pay", payDirect);
 orderRouter.get("/mine", listMine);
+orderRouter.get("/stats/vendor", requireVendor, vendorStats);
 orderRouter.post("/:id/checkout", checkout);
 orderRouter.post("/:id/ship", ship);
 orderRouter.post("/:id/confirm", confirm);

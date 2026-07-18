@@ -23,12 +23,12 @@ describe("Conversations", () => {
   it("sets up a buyer, a vendor and a product", async () => {
     const buyerRes = await request(app)
       .post("/api/auth/register")
-      .send({ email: buyerEmail, password: "password123", accountType: "client" });
+      .send({ email: buyerEmail, phone: "0700000000", password: "password123", accountType: "client" });
     buyerToken = buyerRes.body.accessToken;
 
     const vendorRes = await request(app)
       .post("/api/auth/register")
-      .send({ email: vendorEmail, password: "password123", accountType: "vendeur" });
+      .send({ email: vendorEmail, phone: "0700000000", password: "password123", accountType: "vendeur" });
     vendorToken = vendorRes.body.accessToken;
     vendorId = vendorRes.body.user.id;
 
@@ -40,7 +40,11 @@ describe("Conversations", () => {
         description: "Casque bluetooth, autonomie 20h",
         price: 12000,
         category: "electronique",
-        photos: ["https://res.cloudinary.com/demo/image/upload/casque.jpg"],
+        photos: [
+          "https://res.cloudinary.com/demo/image/upload/casque-1.jpg",
+          "https://res.cloudinary.com/demo/image/upload/casque-2.jpg",
+          "https://res.cloudinary.com/demo/image/upload/casque-3.jpg",
+        ],
       });
     productId = productRes.body.product.id;
 
@@ -98,7 +102,7 @@ describe("Conversations", () => {
   it("rejects a third party from reading the conversation", async () => {
     const outsiderRes = await request(app)
       .post("/api/auth/register")
-      .send({ email: "chat-outsider@djassa.test", password: "password123", accountType: "client" });
+      .send({ email: "chat-outsider@djassa.test", phone: "0700000000", password: "password123", accountType: "client" });
 
     const res = await request(app)
       .get(`/api/conversations/${conversationId}/messages`)

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Check, X, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { verificationApi, type PendingVendor } from "@/api/verification";
+import { AdminShell } from "@/components/admin/AdminShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { usePageTitle } from "@/hooks/usePageTitle";
@@ -45,9 +46,9 @@ export function AdminVerifications() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <AdminShell>
       <header>
-        <h1 className="text-3xl font-semibold md:text-4xl">Vérifications en attente</h1>
+        <h2 className="text-xl font-semibold">Vérifications en attente</h2>
         <p className="mt-1 text-muted-foreground">
           Examine chaque pièce d'identité avant d'approuver ou de rejeter le
           vendeur.
@@ -108,6 +109,6 @@ export function AdminVerifications() {
           ))}
         </ul>
       )}
-    </div>
+    </AdminShell>
   );
 }

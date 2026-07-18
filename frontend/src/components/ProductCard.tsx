@@ -7,6 +7,7 @@ import { useCart } from "@/context/CartContext";
 import { TrustBadge } from "./TrustBadge";
 import { formatFcfa, cn } from "@/lib/utils";
 import { productUnitPrice, hasDiscount } from "@/lib/pricing";
+import { trackClick } from "@/lib/analytics";
 
 const CATEGORY_LABELS: Record<string, string> = {
   mode_beaute: "Mode & Beauté",
@@ -20,10 +21,13 @@ const CATEGORY_LABELS: Record<string, string> = {
 export function ProductCard({
   product,
   className,
+  readOnly = false,
 }: {
   product: Product;
   index?: number;
   className?: string;
+  /** Masque l'action "ajouter au panier" (ex: vue recherche vendeur). */
+  readOnly?: boolean;
 }) {
   const { addItem, isInCart } = useCart();
   const inCart = isInCart(product.id);
@@ -49,6 +53,7 @@ export function ProductCard({
   return (
     <Link
       to={`/produit/${product.id}`}
+      onClick={() => trackClick(product.id, { title: product.title })}
       className={cn(
         "group flex flex-col overflow-hidden rounded-xl border border-border bg-card no-underline shadow-[var(--shadow-xs)] transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1 hover:border-brand-200 hover:shadow-[var(--shadow-md)]",
         className,
@@ -75,19 +80,21 @@ export function ProductCard({
           </div>
         )}
 
-        <button
-          type="button"
-          onClick={handleAdd}
-          aria-label={inCart ? "Déjà dans le panier" : "Ajouter au panier"}
-          className={cn(
-            "absolute right-2.5 bottom-2.5 grid size-10 place-items-center rounded-full shadow-[var(--shadow-md)] transition-all active:scale-90",
-            inCart
-              ? "bg-white text-primary"
-              : "bg-primary text-primary-foreground hover:bg-brand-600",
-          )}
-        >
-          {inCart ? <Check className="size-5" /> : <Plus className="size-5" />}
-        </button>
+        {!readOnly && (
+          <button
+            type="button"
+            onClick={handleAdd}
+            aria-label={inCart ? "Déjà dans le panier" : "Ajouter au panier"}
+            className={cn(
+              "absolute right-2.5 bottom-2.5 grid size-10 place-items-center rounded-full shadow-[var(--shadow-md)] transition-all active:scale-90",
+              inCart
+                ? "bg-white text-primary"
+                : "bg-primary text-primary-foreground hover:bg-brand-600",
+            )}
+          >
+            {inCart ? <Check className="size-5" /> : <Plus className="size-5" />}
+          </button>
+        )}
       </div>
 
       <div className="flex flex-1 flex-col gap-1.5 p-3.5">

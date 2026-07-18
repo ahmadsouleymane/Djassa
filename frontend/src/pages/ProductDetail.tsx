@@ -30,9 +30,10 @@ import { productUnitPrice, productTotalPrice, hasDiscount } from "@/lib/pricing"
 function useProductJsonLd(product: Product | null) {
   useEffect(() => {
     if (!product) return;
-    const script = document.createElement("script");
-    script.type = "application/ld+json";
-    script.text = JSON.stringify({
+    const origin = window.location.origin;
+    const productScript = document.createElement("script");
+    productScript.type = "application/ld+json";
+    productScript.text = JSON.stringify({
       "@context": "https://schema.org",
       "@type": "Product",
       name: product.title,
@@ -46,9 +47,30 @@ function useProductJsonLd(product: Product | null) {
         url: window.location.href,
       },
     });
-    document.head.appendChild(script);
+    document.head.appendChild(productScript);
+
+    const breadcrumbScript = document.createElement("script");
+    breadcrumbScript.type = "application/ld+json";
+    breadcrumbScript.text = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Accueil", item: `${origin}/` },
+        { "@type": "ListItem", position: 2, name: "Marché", item: `${origin}/marche` },
+        {
+          "@type": "ListItem",
+          position: 3,
+          name: CATEGORY_LABELS[product.category] ?? product.category,
+          item: `${origin}/marche?category=${product.category}`,
+        },
+        { "@type": "ListItem", position: 4, name: product.title, item: window.location.href },
+      ],
+    });
+    document.head.appendChild(breadcrumbScript);
+
     return () => {
-      document.head.removeChild(script);
+      document.head.removeChild(productScript);
+      document.head.removeChild(breadcrumbScript);
     };
   }, [product]);
 }
@@ -189,14 +211,15 @@ export function ProductDetail() {
   const totalPrice = productTotalPrice(product);
   const avgRating =
     reviews.length > 0 ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : null;
+  const isVendorViewer = user?.accountType === "vendeur";
 
   return (
     <div className="flex flex-col gap-10">
       <Link
-        to="/marche"
+        to={isVendorViewer ? "/vendeur/recherche" : "/marche"}
         className="inline-flex w-fit items-center gap-1.5 text-sm font-medium text-muted-foreground no-underline transition-colors hover:text-foreground"
       >
-        <ArrowLeft className="size-4" /> Retour au marché
+        <ArrowLeft className="size-4" /> {isVendorViewer ? "Retour à la recherche" : "Retour au marché"}
       </Link>
 
       <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
@@ -229,7 +252,7 @@ export function ProductDetail() {
                     i === activePhoto ? "border-primary" : "border-transparent hover:border-border",
                   )}
                 >
-                  <img src={src} alt="" className="size-full object-cover" />
+                  <img src={src} alt={`${product.title} — photo ${i + 1}`} className="size-full object-cover" />
                 </button>
               ))}
             </div>
@@ -304,54 +327,63 @@ export function ProductDetail() {
             </div>
           )}
 
-          {!inCart && (
-            <div className="mt-6 flex items-center gap-4">
-              <span className="text-sm font-medium text-muted-foreground">Quantité</span>
-              <QuantityStepper value={quantity} onChange={setQuantity} />
-              {quantity > 1 && (
-                <span className="text-sm text-muted-foreground">
-                  soit{" "}
-                  <strong className="text-foreground tabular">
-                    {formatFcfa(unitPrice * quantity + product.shippingFee)}
-                  </strong>
-                </span>
-              )}
+          {isVendorViewer ? (
+            <div className="mt-6 flex items-center gap-2.5 rounded-xl border border-border bg-secondary/50 px-4 py-3 text-sm text-muted-foreground">
+              <Store className="size-4 shrink-0" />
+              Vue vendeur — l'achat n'est pas disponible pour un compte vendeur.
             </div>
-          )}
-
-          <div className="mt-4 flex flex-col gap-3 sm:flex-row">
-            <Button
-              size="lg"
-              className="flex-1"
-              onClick={handleAddToCart}
-              disabled={inCart}
-            >
-              {inCart ? (
-                <>
-                  <Check className="size-5" /> Dans le panier
-                </>
-              ) : (
-                <>
-                  <ShoppingBag className="size-5" /> Ajouter au panier
-                </>
+          ) : (
+            <>
+              {!inCart && (
+                <div className="mt-6 flex items-center gap-4">
+                  <span className="text-sm font-medium text-muted-foreground">Quantité</span>
+                  <QuantityStepper value={quantity} onChange={setQuantity} />
+                  {quantity > 1 && (
+                    <span className="text-sm text-muted-foreground">
+                      soit{" "}
+                      <strong className="text-foreground tabular">
+                        {formatFcfa(unitPrice * quantity + product.shippingFee)}
+                      </strong>
+                    </span>
+                  )}
+                </div>
               )}
-            </Button>
-            <Button
-              size="lg"
-              variant="secondary"
-              className="flex-1"
-              onClick={handleMessage}
-              disabled={isActing !== null}
-            >
-              <MessageSquareText className="size-5" />
-              {isActing === "message" ? "Un instant…" : "Négocier le prix"}
-            </Button>
-          </div>
 
-          {inCart && (
-            <Button asChild variant="link" className="mt-2 px-0">
-              <Link to="/panier">Voir mon panier</Link>
-            </Button>
+              <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+                <Button
+                  size="lg"
+                  className="flex-1"
+                  onClick={handleAddToCart}
+                  disabled={inCart}
+                >
+                  {inCart ? (
+                    <>
+                      <Check className="size-5" /> Dans le panier
+                    </>
+                  ) : (
+                    <>
+                      <ShoppingBag className="size-5" /> Ajouter au panier
+                    </>
+                  )}
+                </Button>
+                <Button
+                  size="lg"
+                  variant="secondary"
+                  className="flex-1"
+                  onClick={handleMessage}
+                  disabled={isActing !== null}
+                >
+                  <MessageSquareText className="size-5" />
+                  {isActing === "message" ? "Un instant…" : "Négocier le prix"}
+                </Button>
+              </div>
+
+              {inCart && (
+                <Button asChild variant="link" className="mt-2 px-0">
+                  <Link to="/panier">Voir mon panier</Link>
+                </Button>
+              )}
+            </>
           )}
 
           {/* Escrow reassurance */}

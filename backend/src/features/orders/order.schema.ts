@@ -19,6 +19,11 @@ export const payDirectSchema = z.object({
   reference: z.string().uuid(),
 });
 
+export const shipSchema = z.object({
+  trackingNumber: z.string().trim().min(1).max(100).optional(),
+  carrier: z.string().trim().min(1).max(100).optional(),
+});
+
 export const disputeSchema = z.object({
   reason: z.string().min(10).max(1000),
 });

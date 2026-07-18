@@ -69,7 +69,12 @@ export function Login() {
           />
         </div>
         <div className="flex flex-col gap-2">
-          <Label htmlFor="login-password">Mot de passe</Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="login-password">Mot de passe</Label>
+            <Link to="/mot-de-passe-oublie" className="text-sm font-medium text-primary">
+              Mot de passe oublié ?
+            </Link>
+          </div>
           <PasswordInput
             id="login-password"
             autoComplete="current-password"

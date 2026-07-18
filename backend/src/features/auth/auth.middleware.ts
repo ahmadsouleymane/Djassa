@@ -32,6 +32,23 @@ export function requireAuth(req: Request, _res: Response, next: NextFunction) {
   }
 }
 
+export function optionalAuth(req: Request, _res: Response, next: NextFunction) {
+  const header = req.headers.authorization;
+  if (!header?.startsWith("Bearer ")) return next();
+
+  try {
+    const payload = jwt.verify(header.slice(7), config.jwt.accessSecret) as {
+      userId: string;
+      accountType: string;
+    };
+    req.userId = payload.userId;
+    req.accountType = payload.accountType;
+  } catch {
+    // Jeton absent/invalide : on continue en visiteur anonyme.
+  }
+  next();
+}
+
 export function requireVendor(req: Request, _res: Response, next: NextFunction) {
   if (req.accountType !== "vendeur") return next(new UnauthorizedError("Réservé aux comptes vendeur"));
   next();

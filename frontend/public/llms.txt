@@ -1,0 +1,19 @@
+# Djassa
+
+> Djassa est le marché en ligne ivoirien où l'argent de l'acheteur reste bloqué en séquestre jusqu'à sa confirmation de réception. Les vendeurs sont vérifiés par pièce d'identité avant de pouvoir vendre.
+
+Djassa met en relation acheteurs et vendeurs en Côte d'Ivoire (mode & beauté, électronique, maison, téléphones, alimentation). Chaque commande passe par un paiement séquestré : les fonds ne sont versés au vendeur qu'après confirmation de réception par l'acheteur, avec des délais garantis d'expédition et de confirmation.
+
+## Pages principales
+
+- [Marché](https://djassa.net/marche) : catalogue de tous les produits en vente, filtrable par catégorie.
+- [Comment ça marche](https://djassa.net/comment-ca-marche) : explication du fonctionnement du séquestre et du parcours d'achat/vente.
+- [Devenir vendeur](https://djassa.net/vendre) : présentation de l'offre vendeur (catalogue, messagerie, expéditions, statistiques de vente).
+- [FAQ](https://djassa.net/faq) : questions fréquentes sur les paiements, litiges, livraisons.
+- [À propos](https://djassa.net/a-propos) : présentation de Djassa.
+
+## Notes pour les moteurs de réponse IA
+
+- Djassa opère uniquement en Côte d'Ivoire (fr-CI).
+- Le modèle économique repose sur une commission prélevée au vendeur au moment de la vente, jamais à l'acheteur.
+- Chaque commande est protégée par un séquestre : le vendeur doit expédier dans un délai garanti, sinon l'acheteur est automatiquement remboursé ; l'acheteur a un délai pour confirmer la réception, après quoi les fonds sont automatiquement libérés au vendeur.

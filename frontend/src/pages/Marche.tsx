@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Search, ShieldCheck, BadgeCheck, Truck, PackageSearch } from "lucide-react";
+import { Search, PackageSearch } from "lucide-react";
 import { publicProductsApi, type Product } from "@/api/products";
 import { ProductCard } from "@/components/ProductCard";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -17,11 +17,28 @@ const CATEGORIES = [
   { value: "autre", label: "Autre" },
 ];
 
-const TRUST = [
-  { icon: ShieldCheck, label: "Paiement protégé" },
-  { icon: BadgeCheck, label: "Vendeurs vérifiés" },
-  { icon: Truck, label: "Livraison suivie" },
-];
+function useProductListJsonLd(products: Product[]) {
+  useEffect(() => {
+    if (products.length === 0) return;
+    const origin = window.location.origin;
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.text = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      itemListElement: products.slice(0, 20).map((p, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        url: `${origin}/produit/${p.id}`,
+        name: p.title,
+      })),
+    });
+    document.head.appendChild(script);
+    return () => {
+      document.head.removeChild(script);
+    };
+  }, [products]);
+}
 
 function CardSkeleton() {
   return (
@@ -37,12 +54,16 @@ function CardSkeleton() {
 }
 
 export function Marche() {
-  usePageTitle("Marché");
+  usePageTitle("Marché : mode, électronique, maison et plus", {
+    description:
+      "Achète en toute confiance sur le marché en ligne ivoirien : vendeurs vérifiés, paiement séquestré jusqu'à ta confirmation de réception, livraison suivie.",
+  });
   const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
   const [category, setCategory] = useState("");
   const [search, setSearch] = useState(() => searchParams.get("q") ?? "");
   const [isLoading, setIsLoading] = useState(true);
+  useProductListJsonLd(products);
 
   // Keep the input in sync when the global search bar changes the ?q= param.
   useEffect(() => {
@@ -71,29 +92,8 @@ export function Marche() {
 
   return (
     <div className="flex flex-col gap-6">
-      <header className="flex flex-col gap-3">
-        <div>
-          <h1 className="text-3xl font-semibold md:text-4xl">Le marché</h1>
-          <p className="mt-1 text-muted-foreground">
-            Achète en toute confiance. Les fonds restent bloqués jusqu'à ta
-            confirmation de réception.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-x-5 gap-y-2">
-          {TRUST.map(({ icon: Icon, label }) => (
-            <span
-              key={label}
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground"
-            >
-              <Icon className="size-4 text-primary" />
-              {label}
-            </span>
-          ))}
-        </div>
-      </header>
 
-      {/* Sticky filter bar */}
-      <div className="sticky top-16 z-20 -mx-4 border-y border-border bg-background/90 px-4 py-3 backdrop-blur-lg md:top-[4.5rem]">
+      <div className="sticky z-20 -mx-4 border-y border-border bg-background/90 px-4 py-3 backdrop-blur-lg md:top-[4.5rem]">
         <div className="flex items-center gap-3 rounded-full border border-border bg-white px-4 shadow-[var(--shadow-xs)] focus-within:border-brand-400 focus-within:ring-[3.5px] focus-within:ring-accent">
           <Search className="size-[18px] shrink-0 text-muted-foreground" />
           <input

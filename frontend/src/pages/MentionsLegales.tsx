@@ -34,7 +34,7 @@ export function MentionsLegales() {
             Numéro de contribuable : <Badge variant="warning">à compléter</Badge>
           </li>
           <li>
-            Email : support@djassa.ci <Badge variant="warning">à compléter</Badge>
+            Email : support@djassa.net <Badge variant="warning">à compléter</Badge>
           </li>
           <li>
             Directeur de la publication : <Badge variant="warning">à compléter</Badge>

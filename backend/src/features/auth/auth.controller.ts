@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import { AuthService } from "./auth.service.js";
-import { registerSchema, loginSchema } from "./auth.schema.js";
+import { registerSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema } from "./auth.schema.js";
 import { ValidationError, UnauthorizedError } from "../../shared/errors/index.js";
 import { UserRepository } from "../users/user.repository.js";
 import { config } from "../../shared/config/index.js";
@@ -74,6 +74,30 @@ export async function refresh(req: Request, res: Response, next: NextFunction) {
     if (!token) throw new UnauthorizedError("Aucune session à renouveler");
     const accessToken = await AuthService.refreshAccessToken(token);
     res.json({ accessToken });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function forgotPassword(req: Request, res: Response, next: NextFunction) {
+  const parsed = forgotPasswordSchema.safeParse(req.body);
+  if (!parsed.success) return next(new ValidationError(fieldErrors(parsed.error)));
+
+  try {
+    await AuthService.forgotPassword(parsed.data.email);
+    res.json({ message: "Si ce compte existe, un email de réinitialisation a été envoyé." });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function resetPassword(req: Request, res: Response, next: NextFunction) {
+  const parsed = resetPasswordSchema.safeParse(req.body);
+  if (!parsed.success) return next(new ValidationError(fieldErrors(parsed.error)));
+
+  try {
+    await AuthService.resetPassword(parsed.data.token, parsed.data.password);
+    res.json({ message: "Mot de passe réinitialisé avec succès." });
   } catch (err) {
     next(err);
   }

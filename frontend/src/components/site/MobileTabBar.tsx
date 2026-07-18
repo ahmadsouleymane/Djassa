@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, ShoppingBag, MessageCircle, Package, User } from "lucide-react";
+import { Home, ShoppingBag, MessageCircle, Package, User, LayoutDashboard, PackageSearch } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { cn } from "@/lib/utils";
@@ -8,16 +8,21 @@ export function MobileTabBar() {
   const { user } = useAuth();
   const { count } = useCart();
   const location = useLocation();
+  const isVendorAccount = user?.accountType === "vendeur";
 
   const items = [
-    { to: "/marche", label: "Marché", icon: Home, match: (p: string) => p === "/marche" },
-    {
-      to: "/panier",
-      label: "Panier",
-      icon: ShoppingBag,
-      badge: count,
-      match: (p: string) => p === "/panier",
-    },
+    isVendorAccount
+      ? { to: "/vendeur/dashboard", label: "Dashboard", icon: LayoutDashboard, match: (p: string) => p === "/vendeur/dashboard" }
+      : { to: "/marche", label: "Marché", icon: Home, match: (p: string) => p === "/marche" },
+    isVendorAccount
+      ? { to: "/vendeur/recherche", label: "Recherche", icon: PackageSearch, match: (p: string) => p === "/vendeur/recherche" }
+      : {
+          to: "/panier",
+          label: "Panier",
+          icon: ShoppingBag,
+          badge: count,
+          match: (p: string) => p === "/panier",
+        },
     user && {
       to: "/messagerie",
       label: "Messages",

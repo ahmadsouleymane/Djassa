@@ -19,7 +19,7 @@ describe("POST /api/uploads/sign", () => {
   it("returns a signed payload for an authenticated vendor", async () => {
     const registerRes = await request(app)
       .post("/api/auth/register")
-      .send({ email, password: "password123", accountType: "vendeur" });
+      .send({ email, phone: "0700000000", password: "password123", accountType: "vendeur" });
 
     const res = await request(app)
       .post("/api/uploads/sign")
