@@ -2,7 +2,12 @@ import { prisma } from "../../shared/db/client.js";
 import type { User, AccountType, Prisma, SellerVerificationStatus } from "@prisma/client";
 
 export class UserRepository {
-  create(data: { email: string; passwordHash: string; accountType: AccountType }): Promise<User> {
+  create(data: {
+    email: string;
+    phone: string;
+    passwordHash: string;
+    accountType: AccountType;
+  }): Promise<User> {
     return prisma.user.create({ data });
   }
 

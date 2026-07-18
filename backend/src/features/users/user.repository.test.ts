@@ -13,6 +13,7 @@ describe("UserRepository", () => {
   it("creates and finds a user by email", async () => {
     const created = await repo.create({
       email: "repo-test@djassa.test",
+      phone: "0700000000",
       passwordHash: "hashed",
       accountType: "client",
     });

@@ -2,7 +2,10 @@ import { z } from "zod";
 
 export const registerSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(8, "Le mot de passe doit contenir au moins 8 caractères"),
+  phone: z
+    .string()
+    .regex(/^0\d{9}$/, "Le numéro doit commencer par 0 et contenir exactement 10 chiffres"),
+  password: z.string().min(1, "Le mot de passe est requis"),
   accountType: z.enum(["vendeur", "client"]).default("vendeur"),
 });
 

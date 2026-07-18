@@ -36,16 +36,31 @@ export function RegisterForm({
   const { register } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const phoneValid = /^0\d{9}$/.test(phone);
+  const passwordsMatch = password === confirmPassword;
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
+
+    if (!phoneValid) {
+      setError("Le numéro doit commencer par 0 et contenir exactement 10 chiffres.");
+      return;
+    }
+    if (!passwordsMatch) {
+      setError("Les mots de passe ne correspondent pas.");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      await register(email, password, accountType);
+      await register(email, phone, password, accountType);
       navigate(redirectTo);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Erreur d'inscription");
@@ -84,16 +99,55 @@ export function RegisterForm({
           />
         </div>
         <div className="flex flex-col gap-2">
+          <Label htmlFor="reg-phone">Numéro de téléphone</Label>
+          <div className="flex items-stretch overflow-hidden rounded-md border border-input focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50">
+            <span className="flex shrink-0 items-center gap-1.5 border-r border-input bg-muted px-3 text-sm font-medium text-muted-foreground select-none">
+              <span aria-hidden>🇨🇮</span> +225
+            </span>
+            <Input
+              id="reg-phone"
+              type="tel"
+              inputMode="numeric"
+              autoComplete="tel-national"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+              placeholder="0700000000"
+              aria-invalid={phone.length > 0 && !phoneValid}
+              className="border-0 focus-visible:ring-0"
+              required
+            />
+          </div>
+          {phone.length > 0 && !phoneValid && (
+            <p className="text-xs text-destructive">
+              Le numéro doit commencer par 0 et faire exactement 10 chiffres.
+            </p>
+          )}
+        </div>
+        <div className="flex flex-col gap-2">
           <Label htmlFor="reg-password">Mot de passe</Label>
           <PasswordInput
             id="reg-password"
             autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="8 caractères minimum"
-            minLength={8}
+            placeholder="Choisis ton mot de passe"
             required
           />
+        </div>
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="reg-password-confirm">Confirme le mot de passe</Label>
+          <PasswordInput
+            id="reg-password-confirm"
+            autoComplete="new-password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="Retape ton mot de passe"
+            aria-invalid={confirmPassword.length > 0 && !passwordsMatch}
+            required
+          />
+          {confirmPassword.length > 0 && !passwordsMatch && (
+            <p className="text-xs text-destructive">Les mots de passe ne correspondent pas.</p>
+          )}
         </div>
         <Button type="submit" size="lg" className="mt-1" disabled={isSubmitting}>
           {isSubmitting ? "Création…" : "Créer mon compte"}

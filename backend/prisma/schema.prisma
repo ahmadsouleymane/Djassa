@@ -27,6 +27,7 @@ enum PlanTier {
 model User {
   id                       String                    @id @default(uuid())
   email                    String                    @unique
+  phone                    String?
   passwordHash             String
   accountType              AccountType               @default(vendeur)
   createdAt                DateTime                  @default(now())

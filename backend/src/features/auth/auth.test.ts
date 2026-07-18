@@ -14,7 +14,7 @@ describe("POST /api/auth/register + /api/auth/login", () => {
   it("registers a new user and returns an access token", async () => {
     const res = await request(app)
       .post("/api/auth/register")
-      .send({ email, password: "password123", accountType: "client" });
+      .send({ email, phone: "0700000000", password: "password123", accountType: "client" });
 
     expect(res.status).toBe(201);
     expect(res.body.accessToken).toBeDefined();
@@ -24,7 +24,7 @@ describe("POST /api/auth/register + /api/auth/login", () => {
   it("rejects duplicate registration", async () => {
     const res = await request(app)
       .post("/api/auth/register")
-      .send({ email, password: "password123", accountType: "client" });
+      .send({ email, phone: "0700000000", password: "password123", accountType: "client" });
 
     expect(res.status).toBe(409);
   });
@@ -57,7 +57,7 @@ describe("GET /api/auth/me + POST /api/auth/refresh", () => {
   it("returns the current user for a valid access token", async () => {
     const registerRes = await request(app)
       .post("/api/auth/register")
-      .send({ email, password: "password123", accountType: "vendeur" });
+      .send({ email, phone: "0700000000", password: "password123", accountType: "vendeur" });
 
     const meRes = await request(app)
       .get("/api/auth/me")
@@ -70,7 +70,7 @@ describe("GET /api/auth/me + POST /api/auth/refresh", () => {
   it("issues a new access token from the refresh cookie", async () => {
     const registerRes = await request(app)
       .post("/api/auth/register")
-      .send({ email: "auth-refresh-test@djassa.test", password: "password123", accountType: "client" });
+      .send({ email: "auth-refresh-test@djassa.test", phone: "0700000000", password: "password123", accountType: "client" });
 
     const cookie = registerRes.headers["set-cookie"];
     const refreshRes = await request(app).post("/api/auth/refresh").set("Cookie", cookie);

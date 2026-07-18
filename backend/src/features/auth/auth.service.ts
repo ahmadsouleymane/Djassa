@@ -25,6 +25,7 @@ export const AuthService = {
     const passwordHash = await bcrypt.hash(input.password, 10);
     const user = await userRepo.create({
       email: input.email,
+      phone: input.phone,
       passwordHash,
       accountType: input.accountType,
     });
