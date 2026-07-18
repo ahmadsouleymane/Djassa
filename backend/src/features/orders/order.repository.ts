@@ -5,6 +5,7 @@ type CreateInput = {
   buyerId: string;
   vendorId: string;
   productId: string;
+  quantity?: number;
   chatMessageId?: string;
   checkoutRef: string;
   price: number;
@@ -35,8 +36,23 @@ export class OrderRepository {
     return prisma.order.findMany({ where: { checkoutRef } });
   }
 
+  findPendingByCheckoutRefForBuyer(checkoutRef: string, buyerId: string) {
+    return prisma.order.findMany({
+      where: { checkoutRef, buyerId, status: "en_attente_paiement" },
+      include: { product: { select: { title: true, photos: true, price: true } } },
+      orderBy: { createdAt: "asc" },
+    });
+  }
+
   updateManyByCheckoutRef(checkoutRef: string, data: Prisma.OrderUpdateManyMutationInput): Promise<Prisma.BatchPayload> {
     return prisma.order.updateMany({ where: { checkoutRef, status: "en_attente_paiement" }, data });
+  }
+
+  markPaidByCheckoutRefForBuyer(checkoutRef: string, buyerId: string, data: Prisma.OrderUpdateManyMutationInput): Promise<Prisma.BatchPayload> {
+    return prisma.order.updateMany({
+      where: { checkoutRef, buyerId, status: "en_attente_paiement" },
+      data,
+    });
   }
 
   findByParticipant(userId: string): Promise<Order[]> {

@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
-import { ShoppingBag, Trash2, ShieldCheck, Store, ArrowRight } from "lucide-react";
+import { ShoppingBag, Trash2, ShieldCheck, Store, ArrowRight, Lock } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { QuantityStepper } from "@/components/QuantityStepper";
 import { Button } from "@/components/ui/button";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { formatFcfa } from "@/lib/utils";
@@ -10,7 +11,7 @@ export function Panier() {
     description:
       "Passe commande directement au prix affiché, sans négocier avec le vendeur.",
   });
-  const { items, total, removeItem } = useCart();
+  const { items, count, total, removeItem, setQuantity } = useCart();
   const navigate = useNavigate();
 
   const byVendor = items.reduce<Record<string, typeof items>>((acc, item) => {
@@ -67,8 +68,11 @@ export function Panier() {
               </Link>
               <ul className="divide-y divide-border">
                 {vendorItems.map((item) => (
-                  <li key={item.productId} className="flex items-center gap-4 p-4">
-                    <div className="size-18 shrink-0 overflow-hidden rounded-xl bg-secondary">
+                  <li key={item.productId} className="flex gap-4 p-4">
+                    <Link
+                      to={`/produit/${item.productId}`}
+                      className="size-20 shrink-0 overflow-hidden rounded-xl bg-secondary"
+                    >
                       {item.photo ? (
                         <img
                           src={item.photo}
@@ -80,26 +84,42 @@ export function Panier() {
                           Djassa
                         </div>
                       )}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <Link
-                        to={`/produit/${item.productId}`}
-                        className="line-clamp-2 font-medium text-foreground no-underline hover:underline"
-                      >
-                        {item.title}
-                      </Link>
-                      <p className="mt-1 font-display text-lg font-semibold tabular">
-                        {formatFcfa(item.price)}
+                    </Link>
+
+                    <div className="flex min-w-0 flex-1 flex-col">
+                      <div className="flex items-start justify-between gap-3">
+                        <Link
+                          to={`/produit/${item.productId}`}
+                          className="line-clamp-2 font-medium text-foreground no-underline hover:underline"
+                        >
+                          {item.title}
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() => removeItem(item.productId)}
+                          aria-label={`Retirer ${item.title}`}
+                          className="press grid size-9 shrink-0 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                        >
+                          <Trash2 className="size-4.5" />
+                        </button>
+                      </div>
+
+                      <p className="mt-0.5 text-sm text-muted-foreground tabular">
+                        {formatFcfa(item.price)} l'unité
                       </p>
+
+                      <div className="mt-auto flex items-center justify-between gap-3 pt-3">
+                        <QuantityStepper
+                          value={item.quantity}
+                          onChange={(q) => setQuantity(item.productId, q)}
+                          size="sm"
+                          ariaLabel={`Quantité pour ${item.title}`}
+                        />
+                        <span className="font-display text-lg font-semibold tabular">
+                          {formatFcfa(item.price * item.quantity)}
+                        </span>
+                      </div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => removeItem(item.productId)}
-                      aria-label={`Retirer ${item.title}`}
-                      className="grid size-10 shrink-0 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                    >
-                      <Trash2 className="size-5" />
-                    </button>
                   </li>
                 ))}
               </ul>
@@ -113,14 +133,14 @@ export function Panier() {
           <dl className="mt-4 space-y-2.5 text-sm">
             <div className="flex justify-between">
               <dt className="text-muted-foreground">
-                Sous-total ({items.length} article{items.length > 1 ? "s" : ""})
+                Sous-total ({count} article{count > 1 ? "s" : ""})
               </dt>
               <dd className="font-medium tabular">{formatFcfa(total)}</dd>
             </div>
             {vendorCount > 1 && (
               <div className="flex justify-between">
-                <dt className="text-muted-foreground">Commandes</dt>
-                <dd className="font-medium">{vendorCount} vendeurs</dd>
+                <dt className="text-muted-foreground">Vendeurs</dt>
+                <dd className="font-medium">{vendorCount}</dd>
               </div>
             )}
           </dl>
@@ -151,6 +171,9 @@ export function Panier() {
             <ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" />
             L'argent reste séquestré par Djassa jusqu'à ta confirmation de
             réception.
+          </p>
+          <p className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
+            <Lock className="size-3.5" /> Paiement sécurisé via GeniusPay
           </p>
         </aside>
       </div>

@@ -48,9 +48,11 @@ export function Checkout() {
     setIsPaying(true);
     setError(null);
     try {
-      const { checkoutUrl } = await ordersApi.createDirect(items.map((i) => i.productId));
+      const { reference } = await ordersApi.createDirect(
+        items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
+      );
       clear();
-      window.location.href = checkoutUrl;
+      navigate(`/paiement/${reference}`);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Le paiement n'a pas pu être initié.");
       setIsPaying(false);
@@ -62,7 +64,7 @@ export function Checkout() {
       <CheckoutShell>
         <div className="flex flex-col items-center gap-4 py-16 text-center">
           <Loader2 className="size-8 animate-spin text-primary" />
-          <p className="font-medium">Redirection vers le paiement sécurisé GeniusPay…</p>
+          <p className="font-medium">Ouverture du paiement sécurisé…</p>
           <p className="text-sm text-muted-foreground">Ne ferme pas cette page.</p>
         </div>
       </CheckoutShell>
@@ -107,9 +109,12 @@ export function Checkout() {
               </div>
               <span className="min-w-0 flex-1 truncate text-sm font-medium">
                 {item.title}
+                {item.quantity > 1 && (
+                  <span className="ml-1.5 text-muted-foreground">×{item.quantity}</span>
+                )}
               </span>
               <span className="text-sm font-semibold tabular">
-                {formatFcfa(item.price)}
+                {formatFcfa(item.price * item.quantity)}
               </span>
             </li>
           ))}

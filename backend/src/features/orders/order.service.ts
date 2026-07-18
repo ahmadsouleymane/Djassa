@@ -6,10 +6,7 @@ import { UserRepository } from "../users/user.repository.js";
 import { ProductRepository } from "../products/product.repository.js";
 import { NotFoundError, UnauthorizedError, ValidationError, ConflictError } from "../../shared/errors/index.js";
 import { computeCommission, MARKETPLACE_SHIP_DEADLINE_HOURS, MARKETPLACE_CONFIRM_DEADLINE_DAYS } from "../../config/marketplace.js";
-import { createPaymentSession } from "../../services/geniusPay.js";
 import { config } from "../../shared/config/index.js";
-
-const GENIUSPAY_CALLBACK_URL = `${config.apiBaseUrl}/api/billing/webhook/geniuspay`;
 
 const orderRepo = new OrderRepository();
 const messageRepo = new MessageRepository();
@@ -74,13 +71,14 @@ export const OrderService = {
     }
   },
 
-  async createDirectBatch(buyerId: string, productIds: string[]) {
-    if (productIds.length === 0) throw new ValidationError({ items: "Le panier est vide" });
+  async createDirectBatch(buyerId: string, items: { productId: string; quantity: number }[]) {
+    if (items.length === 0) throw new ValidationError({ items: "Le panier est vide" });
 
     const checkoutRef = randomUUID();
     const orders = [];
-    for (const productId of productIds) {
-      const product = await productRepo.findPublicById(productId);
+    for (const item of items) {
+      const quantity = Math.max(1, Math.min(99, item.quantity));
+      const product = await productRepo.findPublicById(item.productId);
       if (!product) throw new NotFoundError("Produit");
 
       const vendor = await userRepo.findById(product.vendorId);
@@ -89,15 +87,17 @@ export const OrderService = {
         throw new ValidationError({ vendorId: "Ce vendeur n'est pas encore vérifié" });
       }
 
+      const linePrice = product.price * quantity;
       const isPro = vendor.planTier === "pro" && !!vendor.planPeriodEnd && vendor.planPeriodEnd > new Date();
-      const { commissionAmount, netAmount } = computeCommission(product.price, isPro ? "pro" : "standard");
+      const { commissionAmount, netAmount } = computeCommission(linePrice, isPro ? "pro" : "standard");
 
       const order = await orderRepo.create({
         buyerId,
         vendorId: product.vendorId,
         productId: product.id,
+        quantity,
         checkoutRef,
-        price: product.price,
+        price: linePrice,
         commissionAmount,
         netAmount,
         paymentReference: randomUUID(),
@@ -106,15 +106,34 @@ export const OrderService = {
       orders.push(order);
     }
 
-    const totalAmount = orders.reduce((sum, o) => sum + o.price, 0);
-    const { paymentUrl } = await createPaymentSession({
-      amount: totalAmount,
-      reference: checkoutRef,
-      callbackUrl: GENIUSPAY_CALLBACK_URL,
-      returnUrl: `${config.corsOrigin}/commandes`,
-    });
+    return { orders, checkoutUrl: `${config.corsOrigin}/paiement/${checkoutRef}`, reference: checkoutRef };
+  },
 
-    return { orders, checkoutUrl: paymentUrl, reference: checkoutRef };
+  async getCheckoutSummary(buyerId: string, reference: string) {
+    const orders = await orderRepo.findPendingByCheckoutRefForBuyer(reference, buyerId);
+    if (orders.length === 0) throw new NotFoundError("Paiement");
+    const items = orders.map((o) => ({
+      id: o.id,
+      title: o.product.title,
+      photo: o.product.photos[0] ?? null,
+      unitPrice: o.product.price,
+      quantity: o.quantity,
+      linePrice: o.price,
+    }));
+    const total = items.reduce((sum, i) => sum + i.linePrice, 0);
+    return { reference, items, total };
+  },
+
+  async payDirect(buyerId: string, reference: string) {
+    const orders = await orderRepo.findPendingByCheckoutRefForBuyer(reference, buyerId);
+    if (orders.length === 0) {
+      throw new ValidationError({ reference: "Aucun paiement en attente pour cette référence" });
+    }
+    await orderRepo.markPaidByCheckoutRefForBuyer(reference, buyerId, {
+      status: "paye",
+      shipBy: hoursFromNow(MARKETPLACE_SHIP_DEADLINE_HOURS),
+    });
+    return { paid: orders.length };
   },
 
   async checkout(buyerId: string, orderId: string) {
@@ -124,13 +143,7 @@ export const OrderService = {
     if (order.status !== "en_attente_paiement") {
       throw new ValidationError({ status: "Cette commande n'est plus en attente de paiement" });
     }
-    const { paymentUrl } = await createPaymentSession({
-      amount: order.price,
-      reference: order.checkoutRef,
-      callbackUrl: GENIUSPAY_CALLBACK_URL,
-      returnUrl: `${config.corsOrigin}/commandes`,
-    });
-    return { checkoutUrl: paymentUrl, reference: order.checkoutRef };
+    return { checkoutUrl: `${config.corsOrigin}/paiement/${order.checkoutRef}`, reference: order.checkoutRef };
   },
 
   async markPaidByCheckoutRef(checkoutRef: string) {

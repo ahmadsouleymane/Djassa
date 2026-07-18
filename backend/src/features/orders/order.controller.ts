@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 import type { Order } from "@prisma/client";
 import { OrderService } from "./order.service.js";
-import { createOrderSchema, createDirectOrderSchema, disputeSchema, resolveDisputeSchema } from "./order.schema.js";
+import { createOrderSchema, createDirectOrderSchema, payDirectSchema, disputeSchema, resolveDisputeSchema } from "./order.schema.js";
 import { ValidationError } from "../../shared/errors/index.js";
 
 function fieldErrors(error: { flatten: () => { fieldErrors: Record<string, string[] | undefined> } }) {
@@ -35,12 +35,33 @@ export async function createDirect(req: Request, res: Response, next: NextFuncti
   if (!parsed.success) return next(new ValidationError(fieldErrors(parsed.error)));
 
   try {
-    const result = await OrderService.createDirectBatch(req.userId!, parsed.data.productIds);
+    const result = await OrderService.createDirectBatch(req.userId!, parsed.data.items);
     res.status(201).json({
       orders: result.orders.map((o) => serializeOrder(o, req.userId!)),
       checkoutUrl: result.checkoutUrl,
       reference: result.reference,
     });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function checkoutSummary(req: Request, res: Response, next: NextFunction) {
+  try {
+    const summary = await OrderService.getCheckoutSummary(req.userId!, req.params.reference as string);
+    res.json(summary);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function payDirect(req: Request, res: Response, next: NextFunction) {
+  const parsed = payDirectSchema.safeParse(req.body);
+  if (!parsed.success) return next(new ValidationError(fieldErrors(parsed.error)));
+
+  try {
+    const result = await OrderService.payDirect(req.userId!, parsed.data.reference);
+    res.json(result);
   } catch (err) {
     next(err);
   }

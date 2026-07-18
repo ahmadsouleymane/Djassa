@@ -5,7 +5,18 @@ export const createOrderSchema = z.object({
 });
 
 export const createDirectOrderSchema = z.object({
-  productIds: z.array(z.string().uuid()).min(1),
+  items: z
+    .array(
+      z.object({
+        productId: z.string().uuid(),
+        quantity: z.number().int().min(1).max(99).default(1),
+      }),
+    )
+    .min(1),
+});
+
+export const payDirectSchema = z.object({
+  reference: z.string().uuid(),
 });
 
 export const disputeSchema = z.object({

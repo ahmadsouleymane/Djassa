@@ -18,6 +18,7 @@ import { reviewsApi, type Review } from "@/api/reviews";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { TrustBadge } from "@/components/TrustBadge";
+import { QuantityStepper } from "@/components/QuantityStepper";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -85,6 +86,7 @@ export function ProductDetail() {
   const [product, setProduct] = useState<Product | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [activePhoto, setActivePhoto] = useState(0);
+  const [quantity, setQuantity] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [isActing, setIsActing] = useState<"message" | null>(null);
   const [notFound, setNotFound] = useState(false);
@@ -131,14 +133,20 @@ export function ProductDetail() {
 
   function handleAddToCart() {
     if (!product || isInCart(product.id)) return;
-    addItem({
-      productId: product.id,
-      vendorId: product.vendorId,
-      title: product.title,
-      price: product.price,
-      photo: product.photos[0] ?? null,
-    });
-    toast.success("Ajouté au panier", { description: product.title });
+    addItem(
+      {
+        productId: product.id,
+        vendorId: product.vendorId,
+        title: product.title,
+        price: product.price,
+        photo: product.photos[0] ?? null,
+      },
+      quantity,
+    );
+    toast.success(
+      quantity > 1 ? `${quantity} ajoutés au panier` : "Ajouté au panier",
+      { description: product.title },
+    );
   }
 
   if (isLoading) {
@@ -247,7 +255,22 @@ export function ProductDetail() {
             {product.description}
           </p>
 
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+          {!inCart && (
+            <div className="mt-6 flex items-center gap-4">
+              <span className="text-sm font-medium text-muted-foreground">Quantité</span>
+              <QuantityStepper value={quantity} onChange={setQuantity} />
+              {quantity > 1 && (
+                <span className="text-sm text-muted-foreground">
+                  soit{" "}
+                  <strong className="text-foreground tabular">
+                    {formatFcfa(product.price * quantity)}
+                  </strong>
+                </span>
+              )}
+            </div>
+          )}
+
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row">
             <Button
               size="lg"
               className="flex-1"

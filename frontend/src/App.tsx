@@ -29,6 +29,7 @@ import { MentionsLegales } from "./pages/MentionsLegales";
 import { VendeurProfil } from "./pages/VendeurProfil";
 import { Panier } from "./pages/Panier";
 import { Checkout } from "./pages/Checkout";
+import { Paiement } from "./pages/Paiement";
 import { NotFound } from "./pages/NotFound";
 
 function Home() {
@@ -81,6 +82,14 @@ export function App() {
             element={
               <PrivateRoute>
                 <Checkout />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/paiement/:reference"
+            element={
+              <PrivateRoute>
+                <Paiement />
               </PrivateRoute>
             }
           />
