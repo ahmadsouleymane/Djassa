@@ -33,4 +33,24 @@ export class UserRepository {
       select: { id: true, createdAt: true, sellerVerificationStatus: true, planTier: true },
     });
   }
+
+  countByAccountType() {
+    return prisma.user.groupBy({ by: ["accountType"], _count: { _all: true } });
+  }
+
+  countByVerificationStatus() {
+    return prisma.user.groupBy({ by: ["sellerVerificationStatus"], _count: { _all: true } });
+  }
+
+  countSince(since: Date): Promise<number> {
+    return prisma.user.count({ where: { createdAt: { gte: since } } });
+  }
+
+  async emailsByAccountType(accountType?: AccountType): Promise<string[]> {
+    const users = await prisma.user.findMany({
+      where: accountType ? { accountType } : undefined,
+      select: { email: true },
+    });
+    return users.map((u) => u.email);
+  }
 }

@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { PackageOpen, Truck, CircleCheck, AlertTriangle, Loader2 } from "lucide-react";
+import { PackageOpen, CircleCheck, AlertTriangle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 import { ordersApi, type Order } from "@/api/orders";
 import { ReviewForm } from "@/components/ReviewForm";
+import { ShipOrderDialog } from "@/components/orders/ShipOrderDialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -153,6 +154,23 @@ function OrderRow({
         </div>
       )}
 
+      {(order.trackingNumber || order.carrier) && (order.status === "expedie" || order.status === "confirme") && (
+        <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-1 rounded-xl bg-secondary/70 px-4 py-3 text-sm">
+          {order.carrier && (
+            <span>
+              <span className="text-muted-foreground">Transporteur : </span>
+              <span className="font-medium">{order.carrier}</span>
+            </span>
+          )}
+          {order.trackingNumber && (
+            <span>
+              <span className="text-muted-foreground">Suivi : </span>
+              <span className="font-mono font-medium">{order.trackingNumber}</span>
+            </span>
+          )}
+        </div>
+      )}
+
       <div className="mt-5 flex flex-wrap gap-2.5">
         {isBuyer && order.status === "en_attente_paiement" && (
           <Button size="sm" onClick={handleCheckout} disabled={busy === "pay"}>
@@ -160,15 +178,7 @@ function OrderRow({
             Payer maintenant
           </Button>
         )}
-        {isVendor && order.status === "paye" && (
-          <Button
-            size="sm"
-            onClick={() => run("ship", () => ordersApi.ship(order.id), "Action impossible.")}
-            disabled={busy === "ship"}
-          >
-            <Truck className="size-4" /> Marquer expédiée
-          </Button>
-        )}
+        {isVendor && order.status === "paye" && <ShipOrderDialog orderId={order.id} onShipped={onChange} />}
         {isBuyer && order.status === "expedie" && (
           <Button
             size="sm"

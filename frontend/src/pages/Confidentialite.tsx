@@ -66,7 +66,7 @@ export function Confidentialite() {
         <h2>Tes droits</h2>
         <p>
           Tu peux demander l'accès, la correction ou la suppression de tes données
-          personnelles en écrivant à support@djassa.ci{" "}
+          personnelles en écrivant à support@djassa.net{" "}
           <Badge variant="warning">à compléter</Badge>, ou via la page{" "}
           <Link to="/contact">Contact</Link>.
         </p>

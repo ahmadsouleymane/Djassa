@@ -30,6 +30,35 @@ function StatCard({
   );
 }
 
+function useVendorJsonLd(vendor: PublicVendor | null, avgRating: number | null, reviewCount: number) {
+  useEffect(() => {
+    if (!vendor) return;
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.text = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      name: "Vendeur vérifié Djassa",
+      url: window.location.href,
+      ...(avgRating !== null
+        ? {
+            aggregateRating: {
+              "@type": "AggregateRating",
+              ratingValue: avgRating.toFixed(1),
+              reviewCount,
+              bestRating: 5,
+              worstRating: 1,
+            },
+          }
+        : {}),
+    });
+    document.head.appendChild(script);
+    return () => {
+      document.head.removeChild(script);
+    };
+  }, [vendor, avgRating, reviewCount]);
+}
+
 export function VendeurProfil() {
   const { id } = useParams<{ id: string }>();
   const [vendor, setVendor] = useState<PublicVendor | null>(null);
@@ -39,10 +68,18 @@ export function VendeurProfil() {
   const [isLoading, setIsLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
-  usePageTitle(vendor ? "Profil vendeur" : "Vendeur", {
-    description:
-      "Retrouve les produits, avis et score de confiance de ce vendeur vérifié sur Djassa.",
-  });
+  const avgRating =
+    reviews.length > 0 ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : null;
+
+  usePageTitle(
+    vendor ? `Vendeur vérifié${avgRating ? ` · ${avgRating.toFixed(1)}/5` : ""}` : "Vendeur",
+    {
+      description: vendor
+        ? `Vendeur vérifié par pièce d'identité sur Djassa · ${products.length} article${products.length > 1 ? "s" : ""} en vente${avgRating ? ` · noté ${avgRating.toFixed(1)}/5 sur ${reviews.length} avis` : ""}. Paiement séquestré jusqu'à ta confirmation de réception.`
+        : "Retrouve les produits, avis et score de confiance de ce vendeur vérifié sur Djassa.",
+    },
+  );
+  useVendorJsonLd(vendor, avgRating, reviews.length);
 
   useEffect(() => {
     if (!id) return;
@@ -88,8 +125,6 @@ export function VendeurProfil() {
     );
   }
 
-  const avgRating =
-    reviews.length > 0 ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : null;
   const memberSince = new Date(vendor.createdAt).toLocaleDateString("fr-FR", {
     year: "numeric",
     month: "long",

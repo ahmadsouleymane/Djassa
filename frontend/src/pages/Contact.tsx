@@ -35,7 +35,7 @@ export function Contact() {
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     const body = `${message}\n\nRépondre à : ${email}`;
-    const mailto = `mailto:support@djassa.ci?subject=${encodeURIComponent(
+    const mailto = `mailto:support@djassa.net?subject=${encodeURIComponent(
       `[Djassa] ${SUBJECT_LABELS[subject]}`,
     )}&body=${encodeURIComponent(body)}`;
     window.location.href = mailto;
@@ -61,7 +61,7 @@ export function Contact() {
             Commande, remboursement ou litige.
           </p>
           <p className="mt-2 flex flex-wrap items-center gap-1.5 font-mono text-sm">
-            support@djassa.ci
+            support@djassa.net
             <Badge variant="warning">à compléter</Badge>
           </p>
         </div>

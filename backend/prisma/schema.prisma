@@ -45,6 +45,31 @@ model User {
   planTier                 PlanTier                  @default(standard)
   planPeriodEnd            DateTime?
   payments                 Payment[]
+  reports                  Report[]                  @relation("Reports")
+  analyticsSessions        AnalyticsSession[]
+  passwordResetTokens      PasswordResetToken[]
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+model SentEmail {
+  id               String   @id @default(uuid())
+  sentByAdminId    String
+  subject          String
+  body             String
+  recipientFilter  String
+  recipientCount   Int
+  createdAt        DateTime @default(now())
 }
 
 enum ProductCategory {
@@ -130,12 +155,17 @@ model Order {
   shipBy           DateTime?
   confirmBy        DateTime?
   shippedAt        DateTime?
+  trackingNumber   String?
+  carrier          String?
   disputeReason    String?
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
   review           Review?
 
   @@index([checkoutRef])
+  @@index([vendorId])
+  @@index([buyerId])
+  @@index([status])
 }
 
 model Review {
@@ -164,4 +194,81 @@ model Payment {
   amount    Int
   status    PaymentStatus @default(pending)
   createdAt DateTime      @default(now())
+}
+
+enum ReportTargetType {
+  produit
+  utilisateur
+  message
+}
+
+enum ReportStatus {
+  en_attente
+  traite
+  rejete
+}
+
+model Report {
+  id         String           @id @default(uuid())
+  reporterId String
+  reporter   User             @relation("Reports", fields: [reporterId], references: [id])
+  targetType ReportTargetType
+  targetId   String
+  reason     String
+  status     ReportStatus     @default(en_attente)
+  adminNote  String?
+  createdAt  DateTime         @default(now())
+  resolvedAt DateTime?
+
+  @@index([status])
+  @@index([targetType, targetId])
+}
+
+model AnalyticsSession {
+  id              String           @id @default(uuid())
+  visitorId       String
+  userId          String?
+  user            User?            @relation(fields: [userId], references: [id])
+  deviceType      String?
+  browser         String?
+  os              String?
+  country         String?
+  city            String?
+  ipHash          String?
+  referrer        String?
+  entryPath       String?
+  exitPath        String?
+  startedAt       DateTime         @default(now())
+  lastSeenAt      DateTime         @default(now())
+  durationSeconds Int              @default(0)
+  isReturning     Boolean          @default(false)
+  events          AnalyticsEvent[]
+
+  @@index([visitorId])
+  @@index([userId])
+  @@index([startedAt])
+}
+
+model AnalyticsEvent {
+  id        String           @id @default(uuid())
+  sessionId String
+  session   AnalyticsSession @relation(fields: [sessionId], references: [id])
+  type      String
+  path      String?
+  targetId  String?
+  message   String?
+  metadata  Json?
+  createdAt DateTime         @default(now())
+
+  @@index([sessionId])
+  @@index([type, createdAt])
+  @@index([path])
+}
+
+model WaitlistSignup {
+  id        String   @id @default(uuid())
+  firstName String
+  lastName  String
+  email     String   @unique
+  createdAt DateTime @default(now())
 }

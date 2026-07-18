@@ -20,7 +20,7 @@ describe("Product CRUD", () => {
   it("rejects product creation from a client account", async () => {
     const clientRes = await request(app)
       .post("/api/auth/register")
-      .send({ email: clientEmail, password: "password123", accountType: "client" });
+      .send({ email: clientEmail, phone: "0700000000", password: "password123", accountType: "client" });
 
     const res = await request(app)
       .post("/api/products")
@@ -39,12 +39,12 @@ describe("Product CRUD", () => {
   it("registers two vendors for the test", async () => {
     const vendorRes = await request(app)
       .post("/api/auth/register")
-      .send({ email: vendorEmail, password: "password123", accountType: "vendeur" });
+      .send({ email: vendorEmail, phone: "0700000000", password: "password123", accountType: "vendeur" });
     vendorToken = vendorRes.body.accessToken;
 
     const otherRes = await request(app)
       .post("/api/auth/register")
-      .send({ email: otherEmail, password: "password123", accountType: "vendeur" });
+      .send({ email: otherEmail, phone: "0700000000", password: "password123", accountType: "vendeur" });
     otherToken = otherRes.body.accessToken;
 
     expect(vendorToken).toBeDefined();
@@ -60,7 +60,11 @@ describe("Product CRUD", () => {
         description: "Chaussures en cuir véritable, pointure 42",
         price: 25000,
         category: "mode_beaute",
-        photos: ["https://res.cloudinary.com/demo/image/upload/chaussures.jpg"],
+        photos: [
+          "https://res.cloudinary.com/demo/image/upload/chaussures-1.jpg",
+          "https://res.cloudinary.com/demo/image/upload/chaussures-2.jpg",
+          "https://res.cloudinary.com/demo/image/upload/chaussures-3.jpg",
+        ],
       });
 
     expect(res.status).toBe(201);

@@ -23,12 +23,12 @@ describe("Reviews", () => {
   it("sets up a confirmed order", async () => {
     const buyerRes = await request(app)
       .post("/api/auth/register")
-      .send({ email: buyerEmail, password: "password123", accountType: "client" });
+      .send({ email: buyerEmail, phone: "0700000000", password: "password123", accountType: "client" });
     buyerToken = buyerRes.body.accessToken;
 
     const vendorRes = await request(app)
       .post("/api/auth/register")
-      .send({ email: vendorEmail, password: "password123", accountType: "vendeur" });
+      .send({ email: vendorEmail, phone: "0700000000", password: "password123", accountType: "vendeur" });
     vendorId = vendorRes.body.user.id;
     await prisma.user.update({ where: { id: vendorId }, data: { sellerVerificationStatus: "approuvee" } });
 
@@ -40,7 +40,11 @@ describe("Reviews", () => {
         description: "Lampe de bureau LED, réglable en intensité",
         price: 9000,
         category: "maison",
-        photos: ["https://res.cloudinary.com/demo/image/upload/lampe.jpg"],
+        photos: [
+          "https://res.cloudinary.com/demo/image/upload/lampe-1.jpg",
+          "https://res.cloudinary.com/demo/image/upload/lampe-2.jpg",
+          "https://res.cloudinary.com/demo/image/upload/lampe-3.jpg",
+        ],
       });
 
     const conversationRes = await request(app)

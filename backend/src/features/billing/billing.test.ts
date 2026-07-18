@@ -54,7 +54,7 @@ describe("POST /api/billing/subscribe + GET /api/billing/me", () => {
   it("rejects a client account", async () => {
     const clientRes = await request(app)
       .post("/api/auth/register")
-      .send({ email: clientEmail, password: "password123", accountType: "client" });
+      .send({ email: clientEmail, phone: "0700000000", password: "password123", accountType: "client" });
 
     const res = await request(app)
       .post("/api/billing/subscribe")
@@ -66,7 +66,7 @@ describe("POST /api/billing/subscribe + GET /api/billing/me", () => {
   it("lets a vendor checkout and activates Pro via the webhook", async () => {
     const vendorRes = await request(app)
       .post("/api/auth/register")
-      .send({ email: vendorEmail, password: "password123", accountType: "vendeur" });
+      .send({ email: vendorEmail, phone: "0700000000", password: "password123", accountType: "vendeur" });
     const vendorToken = vendorRes.body.accessToken;
 
     const checkoutRes = await request(app)

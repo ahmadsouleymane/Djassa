@@ -36,12 +36,12 @@ describe("Order lifecycle", () => {
   it("rejects order creation for an unverified vendor", async () => {
     const buyerRes = await request(app)
       .post("/api/auth/register")
-      .send({ email: buyerEmail, password: "password123", accountType: "client" });
+      .send({ email: buyerEmail, phone: "0700000000", password: "password123", accountType: "client" });
     buyerToken = buyerRes.body.accessToken;
 
     const vendorRes = await request(app)
       .post("/api/auth/register")
-      .send({ email: vendorEmail, password: "password123", accountType: "vendeur" });
+      .send({ email: vendorEmail, phone: "0700000000", password: "password123", accountType: "vendeur" });
     vendorToken = vendorRes.body.accessToken;
     const vendorId = vendorRes.body.user.id;
 
@@ -53,7 +53,11 @@ describe("Order lifecycle", () => {
         description: "Montre connectée étanche, autonomie 5 jours",
         price: 30000,
         category: "electronique",
-        photos: ["https://res.cloudinary.com/demo/image/upload/montre.jpg"],
+        photos: [
+          "https://res.cloudinary.com/demo/image/upload/montre-1.jpg",
+          "https://res.cloudinary.com/demo/image/upload/montre-2.jpg",
+          "https://res.cloudinary.com/demo/image/upload/montre-3.jpg",
+        ],
       });
     productId = productRes.body.product.id;
 
@@ -157,7 +161,7 @@ describe("Order lifecycle", () => {
   it("sweeps past-deadline orders automatically", async () => {
     const buyer2 = await request(app)
       .post("/api/auth/register")
-      .send({ email: "order-buyer2@djassa.test", password: "password123", accountType: "client" });
+      .send({ email: "order-buyer2@djassa.test", phone: "0700000000", password: "password123", accountType: "client" });
 
     const conversationRes = await request(app)
       .post("/api/conversations")
@@ -195,7 +199,7 @@ describe("Order lifecycle", () => {
   it("opens and resolves a dispute (admin only)", async () => {
     const buyer3 = await request(app)
       .post("/api/auth/register")
-      .send({ email: "order-buyer3@djassa.test", password: "password123", accountType: "client" });
+      .send({ email: "order-buyer3@djassa.test", phone: "0700000000", password: "password123", accountType: "client" });
 
     const conversationRes = await request(app)
       .post("/api/conversations")
@@ -229,7 +233,7 @@ describe("Order lifecycle", () => {
 
     const adminRes = await request(app)
       .post("/api/auth/register")
-      .send({ email: adminEmail, password: "password123", accountType: "vendeur" });
+      .send({ email: adminEmail, phone: "0700000000", password: "password123", accountType: "vendeur" });
 
     const adminResolve = await request(app)
       .post(`/api/orders/${disputeOrderId}/dispute/resolve`)

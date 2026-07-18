@@ -12,6 +12,8 @@ import {
   BadgeCheck,
   CreditCard,
   LayoutGrid,
+  LayoutDashboard,
+  PackageSearch,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
@@ -35,7 +37,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
-const NAV_LINKS = [{ to: "/marche", label: "Marché" }];
+const BUYER_NAV_LINKS = [{ to: "/marche", label: "Marché" }];
+const VENDOR_NAV_LINKS = [
+  { to: "/vendeur/dashboard", label: "Tableau de bord" },
+  { to: "/vendeur/recherche", label: "Recherche" },
+];
 
 function SearchField({
   onSubmit,
@@ -115,8 +121,11 @@ export function SiteHeader() {
     navigate("/connexion");
   }
 
+  const isVendorAccount = user?.accountType === "vendeur";
+  const navLinks = isVendorAccount ? VENDOR_NAV_LINKS : BUYER_NAV_LINKS;
+
   const isActive = (path: string) =>
-    path === "/marche"
+    path === "/marche" || path === "/vendeur/dashboard"
       ? location.pathname === path
       : location.pathname.startsWith(path);
 
@@ -145,11 +154,15 @@ export function SiteHeader() {
           <Menu className="size-6" />
         </button>
 
-        <Logo to={user ? "/marche" : "/"} variant={dark ? "light" : "default"} className="shrink-0" />
+        <Logo
+          to={isVendorAccount ? "/vendeur/dashboard" : user ? "/marche" : "/"}
+          variant={dark ? "light" : "default"}
+          className="shrink-0"
+        />
 
         {/* Desktop nav links */}
         <nav className="ml-1 hidden items-center gap-1 lg:flex">
-          {NAV_LINKS.map((link) => (
+          {navLinks.map((link) => (
             <Link
               key={link.to}
               to={link.to}
@@ -170,26 +183,30 @@ export function SiteHeader() {
         </nav>
 
         {/* Desktop search */}
-        <SearchField
-          onSubmit={runSearch}
-          onDark={dark}
-          className="mx-auto hidden w-full max-w-md md:flex"
-        />
+        {!isVendorAccount && (
+          <SearchField
+            onSubmit={runSearch}
+            onDark={dark}
+            className="mx-auto hidden w-full max-w-md md:flex"
+          />
+        )}
 
         <div className="ml-auto flex items-center gap-1.5 md:gap-2.5">
           {/* Mobile search toggle */}
-          <button
-            type="button"
-            onClick={() => setMobileSearchOpen((v) => !v)}
-            aria-label="Rechercher"
-            aria-expanded={mobileSearchOpen}
-            className={cn(
-              "grid size-10 place-items-center rounded-full md:hidden",
-              dark ? "text-white hover:bg-white/10" : "text-foreground hover:bg-secondary",
-            )}
-          >
-            <Search className="size-[22px]" />
-          </button>
+          {!isVendorAccount && (
+            <button
+              type="button"
+              onClick={() => setMobileSearchOpen((v) => !v)}
+              aria-label="Rechercher"
+              aria-expanded={mobileSearchOpen}
+              className={cn(
+                "grid size-10 place-items-center rounded-full md:hidden",
+                dark ? "text-white hover:bg-white/10" : "text-foreground hover:bg-secondary",
+              )}
+            >
+              <Search className="size-[22px]" />
+            </button>
+          )}
 
           {/* Sell CTA (desktop) */}
           {user?.accountType === "vendeur" ? (
@@ -225,21 +242,23 @@ export function SiteHeader() {
           )}
 
           {/* Cart */}
-          <Link
-            to="/panier"
-            aria-label={`Panier, ${count} article${count > 1 ? "s" : ""}`}
-            className={cn(
-              "relative grid size-10 place-items-center rounded-full",
-              dark ? "text-white hover:bg-white/10" : "text-foreground hover:bg-secondary",
-            )}
-          >
-            <ShoppingBag className="size-[22px]" />
-            {count > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 grid min-w-5 place-items-center rounded-full bg-primary px-1 text-[0.7rem] font-bold leading-5 text-primary-foreground tabular">
-                {count}
-              </span>
-            )}
-          </Link>
+          {!isVendorAccount && (
+            <Link
+              to="/panier"
+              aria-label={`Panier, ${count} article${count > 1 ? "s" : ""}`}
+              className={cn(
+                "relative grid size-10 place-items-center rounded-full",
+                dark ? "text-white hover:bg-white/10" : "text-foreground hover:bg-secondary",
+              )}
+            >
+              <ShoppingBag className="size-[22px]" />
+              {count > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 grid min-w-5 place-items-center rounded-full bg-primary px-1 text-[0.7rem] font-bold leading-5 text-primary-foreground tabular">
+                  {count}
+                </span>
+              )}
+            </Link>
+          )}
 
           {/* Account */}
           {user ? (
@@ -278,8 +297,18 @@ export function SiteHeader() {
                   <>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
+                      <Link to="/vendeur/dashboard">
+                        <LayoutDashboard /> Tableau de bord
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
                       <Link to="/catalogue">
                         <LayoutGrid /> Mon catalogue
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/vendeur/recherche">
+                        <PackageSearch /> Recherche produits
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
@@ -298,8 +327,8 @@ export function SiteHeader() {
                   <>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
-                      <Link to="/admin/verifications">
-                        <ShieldCheck /> Admin vérifications
+                      <Link to="/admin">
+                        <ShieldCheck /> Administration
                       </Link>
                     </DropdownMenuItem>
                   </>
@@ -329,7 +358,7 @@ export function SiteHeader() {
       </div>
 
       {/* Mobile expanding search */}
-      {mobileSearchOpen && (
+      {mobileSearchOpen && !isVendorAccount && (
         <div className="border-t border-border px-4 py-3 md:hidden">
           <SearchField onSubmit={runSearch} autoFocus />
         </div>
@@ -340,7 +369,7 @@ export function SiteHeader() {
         <SheetContent side="left" className="w-[20rem] p-0">
           <SheetHeader className="border-b border-border">
             <SheetTitle className="flex items-center">
-              <Logo to={user ? "/marche" : "/"} />
+              <Logo to={isVendorAccount ? "/vendeur/dashboard" : user ? "/marche" : "/"} />
             </SheetTitle>
             <SheetDescription className="sr-only">
               Menu principal Djassa
@@ -348,7 +377,7 @@ export function SiteHeader() {
           </SheetHeader>
 
           <div className="flex flex-col gap-1 overflow-y-auto p-4">
-            {NAV_LINKS.map((link) => (
+            {navLinks.map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
@@ -359,12 +388,12 @@ export function SiteHeader() {
               </Link>
             ))}
             <Link
-              to={user?.accountType === "vendeur" ? "/catalogue" : "/vendre"}
+              to={isVendorAccount ? "/catalogue" : "/vendre"}
               onClick={() => setMenuOpen(false)}
               className="flex items-center gap-2 rounded-lg px-3 py-3 text-[0.95rem] font-medium text-foreground no-underline hover:bg-secondary"
             >
               <Store className="size-5 text-primary" />
-              {user?.accountType === "vendeur" ? "Mon catalogue" : "Vendre sur Djassa"}
+              {isVendorAccount ? "Mon catalogue" : "Vendre sur Djassa"}
             </Link>
 
             {user ? (
@@ -389,11 +418,11 @@ export function SiteHeader() {
                 </Link>
                 {user.isAdmin && (
                   <Link
-                    to="/admin/verifications"
+                    to="/admin"
                     onClick={() => setMenuOpen(false)}
                     className="rounded-lg px-3 py-3 text-[0.95rem] font-medium text-foreground no-underline hover:bg-secondary"
                   >
-                    Admin vérifications
+                    Administration
                   </Link>
                 )}
                 <Button variant="secondary" className="mt-3" onClick={handleLogout}>

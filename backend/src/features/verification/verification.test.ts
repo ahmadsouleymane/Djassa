@@ -18,7 +18,7 @@ describe("Seller verification", () => {
   it("rejects submission from a client account", async () => {
     const clientRes = await request(app)
       .post("/api/auth/register")
-      .send({ email: clientEmail, password: "password123", accountType: "client" });
+      .send({ email: clientEmail, phone: "0700000000", password: "password123", accountType: "client" });
 
     const res = await request(app)
       .post("/api/verification/submit")
@@ -31,7 +31,7 @@ describe("Seller verification", () => {
   it("lets a vendor submit and see pending status", async () => {
     const vendorRes = await request(app)
       .post("/api/auth/register")
-      .send({ email: vendorEmail, password: "password123", accountType: "vendeur" });
+      .send({ email: vendorEmail, phone: "0700000000", password: "password123", accountType: "vendeur" });
     vendorToken = vendorRes.body.accessToken;
     vendorId = vendorRes.body.user.id;
 
@@ -57,7 +57,7 @@ describe("Seller verification", () => {
   it("lets an admin approve a pending vendor", async () => {
     const adminRes = await request(app)
       .post("/api/auth/register")
-      .send({ email: adminEmail, password: "password123", accountType: "vendeur" });
+      .send({ email: adminEmail, phone: "0700000000", password: "password123", accountType: "vendeur" });
 
     const pendingRes = await request(app)
       .get("/api/verification/admin/pending")

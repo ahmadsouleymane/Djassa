@@ -161,7 +161,7 @@ export const OrderService = {
     return orders;
   },
 
-  async markShipped(vendorId: string, orderId: string) {
+  async markShipped(vendorId: string, orderId: string, tracking?: { trackingNumber?: string; carrier?: string }) {
     const order = await orderRepo.findById(orderId);
     if (!order) throw new NotFoundError("Commande");
     if (order.vendorId !== vendorId) throw new UnauthorizedError("Cette commande ne vous appartient pas");
@@ -170,6 +170,8 @@ export const OrderService = {
       status: "expedie",
       confirmBy: daysFromNow(MARKETPLACE_CONFIRM_DEADLINE_DAYS),
       shippedAt: new Date(),
+      trackingNumber: tracking?.trackingNumber ?? null,
+      carrier: tracking?.carrier ?? null,
     });
   },
 
@@ -200,6 +202,59 @@ export const OrderService = {
 
   listMine(userId: string) {
     return orderRepo.findByParticipant(userId);
+  },
+
+  adminListDisputes() {
+    return orderRepo.findDisputes();
+  },
+
+  async vendorStats(vendorId: string) {
+    const since = daysFromNow(-30);
+    const [statusCounts, revenueSeries, topProductsRaw, pendingShipments, averageOrderValue] = await Promise.all([
+      orderRepo.countByStatusForVendor(vendorId),
+      orderRepo.revenueSeriesForVendor(vendorId, since),
+      orderRepo.topProductsForVendor(vendorId, 5),
+      orderRepo.pendingShipmentsForVendor(vendorId),
+      orderRepo.averageOrderValueForVendor(vendorId),
+    ]);
+
+    const topProducts = await Promise.all(
+      topProductsRaw.map(async (row) => {
+        const product = await productRepo.findById(row.productId);
+        return {
+          productId: row.productId,
+          title: product?.title ?? "Produit supprimé",
+          photo: product?.photos?.[0] ?? null,
+          revenue: row._sum.netAmount ?? 0,
+          unitsSold: row._sum.quantity ?? 0,
+          orders: row._count._all,
+        };
+      }),
+    );
+
+    const byStatus = Object.fromEntries(statusCounts.map((r) => [r.status, r._count._all]));
+    const totalOrders = statusCounts.reduce((sum, r) => sum + r._count._all, 0);
+    const revenue30d = revenueSeries.reduce((sum, r) => sum + Number(r.revenue), 0);
+
+    return {
+      totalOrders,
+      revenue30d,
+      averageOrderValue,
+      byStatus,
+      revenueSeries: revenueSeries.map((r) => ({
+        day: r.day.toISOString().slice(0, 10),
+        revenue: Number(r.revenue),
+        orders: Number(r.orders),
+      })),
+      topProducts,
+      pendingShipments: pendingShipments.map((o) => ({
+        id: o.id,
+        productTitle: o.product.title,
+        photo: o.product.photos?.[0] ?? null,
+        shipBy: o.shipBy,
+        price: o.price,
+      })),
+    };
   },
 
   async sweepTimeouts(now = new Date()) {

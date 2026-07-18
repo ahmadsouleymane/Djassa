@@ -35,4 +35,12 @@ export const config = {
     .split(",")
     .map((e) => e.trim().toLowerCase())
     .filter(Boolean),
+  resend: {
+    // Optionnel : l'envoi d'email (reset de mot de passe, emails admin) est
+    // désactivé tant que RESEND_API_KEY n'est pas fourni, plutôt que de faire
+    // échouer le démarrage du serveur.
+    apiKey: process.env.RESEND_API_KEY ?? "",
+    fromEmail: process.env.RESEND_FROM_EMAIL ?? "Djassa <no-reply@djassa.net>",
+  },
+  frontendUrl: process.env.FRONTEND_URL ?? process.env.CORS_ORIGIN ?? "http://localhost:5173",
 } as const;

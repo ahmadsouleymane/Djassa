@@ -37,7 +37,7 @@ export function SiteFooter() {
 
   function handleNewsletter(e: FormEvent) {
     e.preventDefault();
-    const mailto = `mailto:support@djassa.ci?subject=${encodeURIComponent(
+    const mailto = `mailto:support@djassa.net?subject=${encodeURIComponent(
       "Inscription newsletter Djassa",
     )}&body=${encodeURIComponent(
       `Merci de m'ajouter à la newsletter Djassa.\n\nMon email : ${email}`,
@@ -69,8 +69,7 @@ export function SiteFooter() {
         <div className="flex flex-col gap-4">
           <Logo variant="light" to={user ? "/marche" : "/"} />
           <p className="max-w-xs text-[0.9rem] leading-relaxed text-white/60">
-            Le marché en ligne ivoirien où l'argent de l'acheteur reste bloqué
-            jusqu'à sa confirmation de réception.
+            Achetez et vendez vos produits en toute sécurité sur Djassa, la plateforme de confiance pour les transactions en Côte d'Ivoire.
           </p>
           <form onSubmit={handleNewsletter} className="mt-2 flex flex-col gap-2">
             <label
@@ -86,7 +85,7 @@ export function SiteFooter() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="toi@exemple.com"
+                placeholder="Email"
                 className="h-11 w-full min-w-0 rounded-lg border border-white/15 bg-white/5 px-3.5 text-sm text-white outline-none placeholder:text-white/40 focus:border-brand-300 focus:ring-[3px] focus:ring-brand-500/25"
               />
               <Button type="submit" className="shrink-0">
@@ -134,7 +133,7 @@ export function SiteFooter() {
 
       <div className="border-t border-white/10">
         <div className="mx-auto max-w-[1280px] px-4 py-6 text-sm text-white/50">
-          © {new Date().getFullYear()} Djassa. Fait avec confiance en Côte d'Ivoire.
+          © {new Date().getFullYear()} Djassa. Tous droits réservés.
         </div>
       </div>
     </footer>
