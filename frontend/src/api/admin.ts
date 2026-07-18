@@ -66,6 +66,14 @@ export type AnalyticsErrorEvent = {
   };
 };
 
+export type WaitlistSignup = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  createdAt: string;
+};
+
 export type SentEmail = {
   id: string;
   subject: string;
@@ -82,6 +90,7 @@ export const adminApi = {
     apiClient.get<{ reports: Report[] }>(`/api/admin/reports${status ? `?status=${status}` : ""}`),
   resolveReport: (id: string, status: "traite" | "rejete", adminNote?: string) =>
     apiClient.post<{ report: Report }>(`/api/admin/reports/${id}/resolve`, { status, adminNote }),
+  waitlist: () => apiClient.get<{ signups: WaitlistSignup[] }>("/api/admin/waitlist"),
   analyticsOverview: (range = 7) => apiClient.get<AdminOverview["visitors7d"]>(`/api/admin/analytics/overview?range=${range}`),
   analyticsSeries: (range = 14) => apiClient.get<{ series: AnalyticsSeriesPoint[] }>(`/api/admin/analytics/series?range=${range}`),
   analyticsPages: (range = 7) => apiClient.get<{ pages: TopPage[] }>(`/api/admin/analytics/pages?range=${range}`),

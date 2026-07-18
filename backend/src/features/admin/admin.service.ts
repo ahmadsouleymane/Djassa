@@ -3,6 +3,7 @@ import { OrderRepository } from "../orders/order.repository.js";
 import { OrderService } from "../orders/order.service.js";
 import { VerificationService } from "../verification/verification.service.js";
 import { ReportService } from "../reports/report.service.js";
+import { WaitlistService } from "../waitlist/waitlist.service.js";
 import { AnalyticsService } from "../analytics/analytics.service.js";
 import { AdminEmailRepository } from "./admin-email.repository.js";
 import { sendEmail } from "../../shared/email/index.js";
@@ -83,6 +84,10 @@ export const AdminService = {
 
   resolveReport(id: string, status: "traite" | "rejete", adminNote?: string) {
     return ReportService.resolve(id, status, adminNote);
+  },
+
+  listWaitlist() {
+    return WaitlistService.list();
   },
 
   async analyticsOverview(rangeDays: number) {

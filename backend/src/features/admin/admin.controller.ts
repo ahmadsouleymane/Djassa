@@ -63,6 +63,14 @@ export async function resolveReport(req: Request, res: Response, next: NextFunct
   }
 }
 
+export async function waitlist(req: Request, res: Response, next: NextFunction) {
+  try {
+    res.json({ signups: await AdminService.listWaitlist() });
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function analyticsOverview(req: Request, res: Response, next: NextFunction) {
   try {
     res.json(await AdminService.analyticsOverview(rangeDays(req)));

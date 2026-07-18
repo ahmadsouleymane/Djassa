@@ -43,6 +43,7 @@ const Abonnement = lazy(() => import("./pages/Abonnement").then((m) => ({ defaul
 const VendeurDashboard = lazy(() => import("./pages/vendeur/VendeurDashboard").then((m) => ({ default: m.VendeurDashboard })));
 const VendeurRecherche = lazy(() => import("./pages/vendeur/VendeurRecherche").then((m) => ({ default: m.VendeurRecherche })));
 const AdminVerifications = lazy(() => import("./pages/admin/AdminVerifications").then((m) => ({ default: m.AdminVerifications })));
+const AdminWaitlist = lazy(() => import("./pages/admin/AdminWaitlist").then((m) => ({ default: m.AdminWaitlist })));
 const AdminOverview = lazy(() => import("./pages/admin/AdminOverview").then((m) => ({ default: m.AdminOverview })));
 const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics").then((m) => ({ default: m.AdminAnalytics })));
 const AdminDisputes = lazy(() => import("./pages/admin/AdminDisputes").then((m) => ({ default: m.AdminDisputes })));
@@ -253,6 +254,14 @@ export function App() {
             element={
               <AdminRoute>
                 <AdminVerifications />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/liste-attente"
+            element={
+              <AdminRoute>
+                <AdminWaitlist />
               </AdminRoute>
             }
           />

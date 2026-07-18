@@ -16,6 +16,10 @@ export class WaitlistRepository {
     return prisma.waitlistSignup.findUnique({ where: { email } });
   }
 
+  findMany(): Promise<WaitlistSignup[]> {
+    return prisma.waitlistSignup.findMany({ orderBy: { createdAt: "desc" } });
+  }
+
   count(): Promise<number> {
     return prisma.waitlistSignup.count();
   }

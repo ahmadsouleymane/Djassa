@@ -52,6 +52,24 @@ describe("Admin dashboard", () => {
     expect(Array.isArray(reportsRes.body.reports)).toBe(true);
   });
 
+  it("rejects a non-admin from the waitlist endpoint", async () => {
+    const res = await request(app).get("/api/admin/waitlist").set("Authorization", `Bearer ${clientToken}`);
+    expect(res.status).toBe(401);
+  });
+
+  it("lets the admin list waitlist signups", async () => {
+    await request(app)
+      .post("/api/waitlist")
+      .send({ firstName: "Test", lastName: "Waitlist", email: "admin-waitlist-check@djassa.test" });
+
+    const res = await request(app).get("/api/admin/waitlist").set("Authorization", `Bearer ${adminToken}`);
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.signups)).toBe(true);
+    expect(res.body.signups.some((s: { email: string }) => s.email === "admin-waitlist-check@djassa.test")).toBe(true);
+
+    await prisma.waitlistSignup.deleteMany({ where: { email: "admin-waitlist-check@djassa.test" } });
+  });
+
   it("lets a client file a report and the admin resolve it", async () => {
     const createRes = await request(app)
       .post("/api/reports")

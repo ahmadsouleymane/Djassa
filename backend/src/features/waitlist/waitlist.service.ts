@@ -16,4 +16,8 @@ export const WaitlistService = {
   count() {
     return waitlistRepo.count();
   },
+
+  list() {
+    return waitlistRepo.findMany();
+  },
 };

@@ -5,6 +5,7 @@ import {
   disputes,
   reports,
   resolveReport,
+  waitlist,
   analyticsOverview,
   analyticsSeries,
   analyticsTopPages,
@@ -24,6 +25,7 @@ adminRouter.get("/overview", overview);
 adminRouter.get("/disputes", disputes);
 adminRouter.get("/reports", reports);
 adminRouter.post("/reports/:id/resolve", resolveReport);
+adminRouter.get("/waitlist", waitlist);
 adminRouter.get("/analytics/overview", analyticsOverview);
 adminRouter.get("/analytics/series", analyticsSeries);
 adminRouter.get("/analytics/pages", analyticsTopPages);
