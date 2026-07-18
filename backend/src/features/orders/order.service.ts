@@ -5,7 +5,7 @@ import { ConversationRepository } from "../conversations/conversation.repository
 import { UserRepository } from "../users/user.repository.js";
 import { ProductRepository } from "../products/product.repository.js";
 import { NotFoundError, UnauthorizedError, ValidationError, ConflictError } from "../../shared/errors/index.js";
-import { computeCommission, MARKETPLACE_SHIP_DEADLINE_HOURS, MARKETPLACE_CONFIRM_DEADLINE_DAYS } from "../../config/marketplace.js";
+import { computeCommission, effectiveUnitPrice, MARKETPLACE_SHIP_DEADLINE_HOURS, MARKETPLACE_CONFIRM_DEADLINE_DAYS } from "../../config/marketplace.js";
 import { config } from "../../shared/config/index.js";
 
 const orderRepo = new OrderRepository();
@@ -87,9 +87,14 @@ export const OrderService = {
         throw new ValidationError({ vendorId: "Ce vendeur n'est pas encore vérifié" });
       }
 
-      const linePrice = product.price * quantity;
+      // Promo auto + frais de livraison : la commission ne porte que sur la
+      // marchandise, le vendeur conserve l'intégralité des frais de livraison.
+      const unit = effectiveUnitPrice(product.price, product.discountPercent);
+      const goodsSubtotal = unit * quantity;
+      const shipping = product.shippingFee ?? 0;
+      const linePrice = goodsSubtotal + shipping;
       const isPro = vendor.planTier === "pro" && !!vendor.planPeriodEnd && vendor.planPeriodEnd > new Date();
-      const { commissionAmount, netAmount } = computeCommission(linePrice, isPro ? "pro" : "standard");
+      const { commissionAmount, netAmount: goodsNet } = computeCommission(goodsSubtotal, isPro ? "pro" : "standard");
 
       const order = await orderRepo.create({
         buyerId,
@@ -99,7 +104,7 @@ export const OrderService = {
         checkoutRef,
         price: linePrice,
         commissionAmount,
-        netAmount,
+        netAmount: goodsNet + shipping,
         paymentReference: randomUUID(),
         confirmationCode: String(randomInt(100000, 999999)),
       });

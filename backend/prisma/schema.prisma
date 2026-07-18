@@ -60,12 +60,15 @@ model Product {
   id            String          @id @default(uuid())
   vendorId      String
   vendor        User            @relation(fields: [vendorId], references: [id])
-  title         String
-  description   String
-  price         Int
-  category      ProductCategory
-  photos        String[]
-  createdAt     DateTime        @default(now())
+  title           String
+  description     String
+  deliveryInfo    String?
+  price           Int
+  shippingFee     Int             @default(0)
+  discountPercent Int?
+  category        ProductCategory
+  photos          String[]
+  createdAt       DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
   conversations Conversation[]
   orders        Order[]

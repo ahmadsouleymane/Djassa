@@ -5,7 +5,10 @@ export type Product = {
   vendorId: string;
   title: string;
   description: string;
+  deliveryInfo?: string | null;
   price: number;
+  shippingFee: number;
+  discountPercent?: number | null;
   category: string;
   photos: string[];
   createdAt: string;

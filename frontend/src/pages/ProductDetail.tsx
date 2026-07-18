@@ -9,6 +9,7 @@ import {
   Check,
   Store,
   Lock,
+  PackageCheck,
 } from "lucide-react";
 import { toast } from "sonner";
 import { publicProductsApi, type Product } from "@/api/products";
@@ -24,6 +25,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { formatFcfa, cn } from "@/lib/utils";
+import { productUnitPrice, productTotalPrice, hasDiscount } from "@/lib/pricing";
 
 function useProductJsonLd(product: Product | null) {
   useEffect(() => {
@@ -39,7 +41,7 @@ function useProductJsonLd(product: Product | null) {
       offers: {
         "@type": "Offer",
         priceCurrency: "XOF",
-        price: product.price,
+        price: productUnitPrice(product),
         availability: "https://schema.org/InStock",
         url: window.location.href,
       },
@@ -138,7 +140,8 @@ export function ProductDetail() {
         productId: product.id,
         vendorId: product.vendorId,
         title: product.title,
-        price: product.price,
+        price: productUnitPrice(product),
+        shippingFee: product.shippingFee ?? 0,
         photo: product.photos[0] ?? null,
       },
       quantity,
@@ -181,6 +184,9 @@ export function ProductDetail() {
 
   const photos = product.photos;
   const inCart = isInCart(product.id);
+  const discounted = hasDiscount(product);
+  const unitPrice = productUnitPrice(product);
+  const totalPrice = productTotalPrice(product);
   const avgRating =
     reviews.length > 0 ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : null;
 
@@ -237,23 +243,66 @@ export function ProductDetail() {
           </Badge>
           <h1 className="text-3xl font-semibold md:text-4xl">{product.title}</h1>
 
-          <div className="mt-4 flex flex-wrap items-center gap-4">
+          <div className="mt-4 flex flex-wrap items-center gap-3">
             <span className="font-display text-3xl font-semibold text-foreground tabular">
-              {formatFcfa(product.price)}
+              {formatFcfa(unitPrice)}
             </span>
-            <Link
-              to={`/vendeur/${product.vendorId}`}
-              className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-sm font-medium text-foreground no-underline transition-colors hover:border-brand-300 hover:bg-secondary"
-            >
-              <Store className="size-4 text-muted-foreground" />
-              Voir le vendeur
-              <TrustBadge vendorId={product.vendorId} />
-            </Link>
+            {discounted && (
+              <>
+                <span className="font-display text-lg font-medium text-muted-foreground line-through tabular">
+                  {formatFcfa(product.price)}
+                </span>
+                <span className="rounded-full bg-primary px-2.5 py-1 text-xs font-bold text-primary-foreground">
+                  -{product.discountPercent}%
+                </span>
+              </>
+            )}
+          </div>
+          <Link
+            to={`/vendeur/${product.vendorId}`}
+            className="mt-3 inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-sm font-medium text-foreground no-underline transition-colors hover:border-brand-300 hover:bg-secondary"
+          >
+            <Store className="size-4 text-muted-foreground" />
+            Voir le vendeur
+            <TrustBadge vendorId={product.vendorId} />
+          </Link>
+
+          {/* Prix total = article remisé + livraison */}
+          <div className="mt-5 rounded-xl border border-border bg-secondary/40 p-4">
+            <dl className="space-y-1.5 text-sm">
+              <div className="flex items-center justify-between">
+                <dt className="text-muted-foreground">Article</dt>
+                <dd className="font-medium tabular">{formatFcfa(unitPrice)}</dd>
+              </div>
+              <div className="flex items-center justify-between">
+                <dt className="text-muted-foreground">Livraison</dt>
+                <dd className="font-medium tabular">
+                  {product.shippingFee > 0 ? formatFcfa(product.shippingFee) : "Offerte"}
+                </dd>
+              </div>
+            </dl>
+            <div className="mt-2.5 flex items-baseline justify-between border-t border-border pt-2.5">
+              <span className="font-semibold">Prix total</span>
+              <span className="font-display text-2xl font-semibold tabular">
+                {formatFcfa(totalPrice)}
+              </span>
+            </div>
           </div>
 
           <p className="mt-5 leading-relaxed whitespace-pre-line text-foreground/85">
             {product.description}
           </p>
+
+          {product.deliveryInfo && (
+            <div className="mt-5 rounded-xl border border-border bg-card p-4">
+              <p className="flex items-center gap-2 text-sm font-semibold">
+                <PackageCheck className="size-4 text-primary" /> Ce que tu reçois
+              </p>
+              <p className="mt-1.5 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
+                {product.deliveryInfo}
+              </p>
+            </div>
+          )}
 
           {!inCart && (
             <div className="mt-6 flex items-center gap-4">
@@ -263,7 +312,7 @@ export function ProductDetail() {
                 <span className="text-sm text-muted-foreground">
                   soit{" "}
                   <strong className="text-foreground tabular">
-                    {formatFcfa(product.price * quantity)}
+                    {formatFcfa(unitPrice * quantity + product.shippingFee)}
                   </strong>
                 </span>
               )}

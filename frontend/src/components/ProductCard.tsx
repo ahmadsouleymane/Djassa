@@ -6,6 +6,7 @@ import type { Product } from "../api/products";
 import { useCart } from "@/context/CartContext";
 import { TrustBadge } from "./TrustBadge";
 import { formatFcfa, cn } from "@/lib/utils";
+import { productUnitPrice, hasDiscount } from "@/lib/pricing";
 
 const CATEGORY_LABELS: Record<string, string> = {
   mode_beaute: "Mode & Beauté",
@@ -27,6 +28,8 @@ export function ProductCard({
   const { addItem, isInCart } = useCart();
   const inCart = isInCart(product.id);
   const photo = product.photos[0];
+  const discounted = hasDiscount(product);
+  const unitPrice = productUnitPrice(product);
 
   function handleAdd(e: MouseEvent) {
     e.preventDefault();
@@ -36,7 +39,8 @@ export function ProductCard({
       productId: product.id,
       vendorId: product.vendorId,
       title: product.title,
-      price: product.price,
+      price: unitPrice,
+      shippingFee: product.shippingFee ?? 0,
       photo: photo ?? null,
     });
     toast.success("Ajouté au panier", { description: product.title });
@@ -51,6 +55,11 @@ export function ProductCard({
       )}
     >
       <div className="relative aspect-[4/5] overflow-hidden bg-secondary">
+        {discounted && (
+          <span className="absolute top-2.5 left-2.5 z-10 rounded-full bg-primary px-2.5 py-1 text-xs font-bold text-primary-foreground shadow-[var(--shadow-sm)]">
+            -{product.discountPercent}%
+          </span>
+        )}
         {photo ? (
           <img
             src={photo}
@@ -91,9 +100,16 @@ export function ProductCard({
         <h3 className="line-clamp-2 text-[0.95rem] leading-snug font-semibold text-foreground">
           {product.title}
         </h3>
-        <p className="mt-auto pt-1 font-display text-lg font-semibold text-foreground tabular">
-          {formatFcfa(product.price)}
-        </p>
+        <div className="mt-auto flex items-baseline gap-2 pt-1">
+          <p className="font-display text-lg font-semibold text-foreground tabular">
+            {formatFcfa(unitPrice)}
+          </p>
+          {discounted && (
+            <p className="text-sm font-medium text-muted-foreground line-through tabular">
+              {formatFcfa(product.price)}
+            </p>
+          )}
+        </div>
       </div>
     </Link>
   );

@@ -5,6 +5,7 @@ export type CartItem = {
   vendorId: string;
   title: string;
   price: number;
+  shippingFee: number;
   photo: string | null;
   quantity: number;
 };
@@ -40,7 +41,7 @@ function loadCart(): CartItem[] {
     // Normalise (anciennes entrées sans quantité)
     return parsed
       .filter((p) => p && typeof p.productId === "string")
-      .map((p) => ({ ...p, quantity: clampQty(p.quantity ?? 1) }));
+      .map((p) => ({ ...p, shippingFee: p.shippingFee ?? 0, quantity: clampQty(p.quantity ?? 1) }));
   } catch {
     return [];
   }
@@ -81,7 +82,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const isInCart = useCallback((productId: string) => items.some((p) => p.productId === productId), [items]);
 
   const count = useMemo(() => items.reduce((sum, item) => sum + item.quantity, 0), [items]);
-  const total = useMemo(() => items.reduce((sum, item) => sum + item.price * item.quantity, 0), [items]);
+  const total = useMemo(
+    () => items.reduce((sum, item) => sum + item.price * item.quantity + (item.shippingFee ?? 0), 0),
+    [items],
+  );
 
   return (
     <CartContext.Provider value={{ items, count, total, addItem, removeItem, setQuantity, clear, isInCart }}>

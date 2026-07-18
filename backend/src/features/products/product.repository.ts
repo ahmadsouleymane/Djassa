@@ -5,7 +5,10 @@ type CreateInput = {
   vendorId: string;
   title: string;
   description: string;
+  deliveryInfo?: string;
   price: number;
+  shippingFee?: number;
+  discountPercent?: number | null;
   category: ProductCategory;
   photos: string[];
 };
