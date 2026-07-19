@@ -10,7 +10,7 @@ Disallow: /verification
 Disallow: /abonnement
 Disallow: /admin
 
-Sitemap: https://djassa.net/sitemap.xml
+Sitemap: https://djassa.shop/sitemap.xml
 # Sitemap dynamique (produits + vendeurs), généré par l'API — remplace par le
 # domaine réel de l'API en production si différent de djassa.net.
 Sitemap: https://api.djassa.net/sitemap-products.xml

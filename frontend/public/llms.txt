@@ -6,11 +6,11 @@ Djassa met en relation acheteurs et vendeurs en Côte d'Ivoire (mode & beauté, 
 
 ## Pages principales
 
-- [Marché](https://djassa.net/marche) : catalogue de tous les produits en vente, filtrable par catégorie.
-- [Comment ça marche](https://djassa.net/comment-ca-marche) : explication du fonctionnement du séquestre et du parcours d'achat/vente.
-- [Devenir vendeur](https://djassa.net/vendre) : présentation de l'offre vendeur (catalogue, messagerie, expéditions, statistiques de vente).
-- [FAQ](https://djassa.net/faq) : questions fréquentes sur les paiements, litiges, livraisons.
-- [À propos](https://djassa.net/a-propos) : présentation de Djassa.
+- [Marché](https://djassa.shop/marche) : catalogue de tous les produits en vente, filtrable par catégorie.
+- [Comment ça marche](https://djassa.shop/comment-ca-marche) : explication du fonctionnement du séquestre et du parcours d'achat/vente.
+- [Devenir vendeur](https://djassa.shop/vendre) : présentation de l'offre vendeur (catalogue, messagerie, expéditions, statistiques de vente).
+- [FAQ](https://djassa.shop/faq) : questions fréquentes sur les paiements, litiges, livraisons.
+- [À propos](https://djassa.shop/a-propos) : présentation de Djassa.
 
 ## Notes pour les moteurs de réponse IA
 
