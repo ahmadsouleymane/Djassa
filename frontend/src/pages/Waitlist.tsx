@@ -25,6 +25,12 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 import { useLandingMotion } from "@/hooks/useLandingMotion";
 import { formatFcfa } from "@/lib/utils";
 
+declare global {
+  interface Window {
+    fbq: (...args: any[]) => void;
+  }
+}
+
 const PRO_MONTHLY_PRICE = 7000;
 
 const PROOF = [
@@ -137,26 +143,46 @@ export function Waitlist() {
   }, []);
 
   async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    setError(null);
-    setIsSubmitting(true);
-    try {
-      await waitlistApi.join({ firstName, lastName, email });
-      setCount((c) => (c ?? 0) + 1);
-      setSubmitted(true);
-      toast.success("Tu es sur la liste d'attente Djassa");
-    } catch (err) {
-      if (err instanceof ApiError && err.status === 409) {
-        setSubmitted(true);
-        toast.info("Cet email est déjà inscrit, mais bienvenue quand même");
-      } else if (err instanceof ApiError) {
-        setError(err.message);
-      } else {
-        setError("Une erreur est survenue, réessaie.");
-      }
-    } finally {
-      setIsSubmitting(false);
+  e.preventDefault();
+  setError(null);
+  setIsSubmitting(true);
+  try {
+    await waitlistApi.join({ firstName, lastName, email });
+    setCount((c) => (c ?? 0) + 1);
+    setSubmitted(true);
+
+    // ✅ TRACK META LEAD
+    if (typeof window !== 'undefined' && window.fbq) {
+      window.fbq('track', 'Lead', {
+        content_name: 'Liste d\'attente Djassa',
+        content_category: 'Pré-inscription',
+        value: 0,
+        currency: 'XOF'
+      });
     }
+
+    toast.success("Tu es sur la liste d'attente Djassa");
+  } catch (err) {
+    if (err instanceof ApiError && err.status === 409) {
+      setSubmitted(true);
+
+      // ✅ MÊME SI DÉJÀ INSCRIT, ON TRACK (lead qualifié)
+      if (typeof window !== 'undefined' && window.fbq) {
+        window.fbq('track', 'Lead', {
+          content_name: 'Liste d\'attente Djassa (déjà inscrit)',
+          content_category: 'Pré-inscription'
+        });
+      }
+
+      toast.info("Cet email est déjà inscrit, mais bienvenue quand même");
+    } else if (err instanceof ApiError) {
+      setError(err.message);
+    } else {
+      setError("Une erreur est survenue, réessaie.");
+    }
+  } finally {
+    setIsSubmitting(false);
+  }
   }
 
   return (
