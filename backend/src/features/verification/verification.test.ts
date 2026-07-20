@@ -23,7 +23,7 @@ describe("Seller verification", () => {
     const res = await request(app)
       .post("/api/verification/submit")
       .set("Authorization", `Bearer ${clientRes.body.accessToken}`)
-      .send({ documentUrl: "https://res.cloudinary.com/demo/image/upload/id.jpg" });
+      .send({ rectoUrl: "https://res.cloudinary.com/demo/image/upload/recto.jpg", versoUrl: "https://res.cloudinary.com/demo/image/upload/verso.jpg", selfieUrl: "https://res.cloudinary.com/demo/image/upload/selfie.jpg" });
 
     expect(res.status).toBe(401);
   });
@@ -38,7 +38,7 @@ describe("Seller verification", () => {
     const submitRes = await request(app)
       .post("/api/verification/submit")
       .set("Authorization", `Bearer ${vendorToken}`)
-      .send({ documentUrl: "https://res.cloudinary.com/demo/image/upload/id.jpg" });
+      .send({ rectoUrl: "https://res.cloudinary.com/demo/image/upload/recto.jpg", versoUrl: "https://res.cloudinary.com/demo/image/upload/verso.jpg", selfieUrl: "https://res.cloudinary.com/demo/image/upload/selfie.jpg" });
     expect(submitRes.status).toBe(200);
 
     const statusRes = await request(app)

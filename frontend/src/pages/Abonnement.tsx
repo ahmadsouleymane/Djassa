@@ -31,38 +31,39 @@ export function Abonnement() {
   useEffect(() => {
     // Si on revient de GeniusPay (paramètre ref), on force la synchro
     const ref = new URLSearchParams(window.location.search).get("ref");
-    if (ref && !status) {
+    if (ref) {
       setIsSyncing(true);
-      // Essayer immédiatement, puis réessayer toutes les 2s pendant 30s max
       let attempts = 0;
       const maxAttempts = 15;
+      let cancelled = false;
+
       const trySync = async () => {
+        if (cancelled) return;
         try {
-          const result = await billingApi.sync();
+          const result = await billingApi.sync(ref);
+          if (cancelled) return;
           if (result.planTier === "pro") {
             setStatus({ planTier: "pro", planPeriodEnd: result.planPeriodEnd ?? null });
             setIsSyncing(false);
             return;
           }
           if (result.synced) {
-            // Relire le statut
             const me = await billingApi.me();
-            setStatus(me);
-            setIsSyncing(false);
+            if (!cancelled) { setStatus(me); setIsSyncing(false); }
             return;
           }
-        } catch {}
+        } catch { /* on réessaie */ }
+        if (cancelled) return;
         attempts++;
         if (attempts < maxAttempts) {
           setTimeout(trySync, 2000);
         } else {
           setIsSyncing(false);
-          // Dernière tentative : recharger le statut
-          billingApi.me().then(setStatus).catch(() => {});
+          billingApi.me().then((s) => { if (!cancelled) setStatus(s); }).catch(() => {});
         }
       };
       trySync();
-      return;
+      return () => { cancelled = true; };
     }
 
     billingApi.me().then(setStatus).catch(() => {});

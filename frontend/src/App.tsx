@@ -173,9 +173,9 @@ export function App() {
           <Route
             path="/catalogue"
             element={
-              <PrivateRoute>
+              <VendorRoute>
                 <Catalogue />
-              </PrivateRoute>
+              </VendorRoute>
             }
           />
           <Route

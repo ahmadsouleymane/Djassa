@@ -5,5 +5,5 @@ export type PlanStatus = { planTier: "standard" | "pro"; planPeriodEnd: string |
 export const billingApi = {
   checkout: () => apiClient.post<{ checkoutUrl: string; reference: string }>("/api/billing/subscribe", {}),
   me: () => apiClient.get<PlanStatus>("/api/billing/me"),
-  sync: () => apiClient.post<{ synced: boolean; planTier?: string; planPeriodEnd?: string }>("/api/billing/sync", {}),
+  sync: (reference: string) => apiClient.post<{ synced: boolean; planTier?: string; planPeriodEnd?: string }>("/api/billing/sync", { reference }),
 };

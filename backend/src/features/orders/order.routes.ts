@@ -12,7 +12,7 @@ orderRouter.post("/pay", payDirect);
 orderRouter.get("/mine", listMine);
 orderRouter.get("/stats/vendor", requireVendor, vendorStats);
 orderRouter.post("/:id/checkout", checkout);
-orderRouter.post("/:id/ship", ship);
+orderRouter.post("/:id/ship", requireVendor, ship);
 orderRouter.post("/:id/confirm", confirm);
 orderRouter.post("/:id/dispute", dispute);
 orderRouter.post("/:id/dispute/resolve", requireAdmin, resolveDispute);

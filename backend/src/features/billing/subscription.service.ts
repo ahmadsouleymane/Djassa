@@ -31,10 +31,10 @@ export const SubscriptionService = {
     return userRepo.update(userId, { planTier: "pro", planPeriodEnd });
   },
 
-  /** Fallback quand le webhook GeniusPay n'arrive pas : active l'abonnement
-   *  si l'utilisateur a un paiement en attente. */
-  async sync(userId: string) {
-    const pendingPayment = await paymentRepo.findFirstPendingByUser(userId);
+  /** Fallback quand le webhook GeniusPay n'arrive pas : vérifie que le paiement
+   *  correspondant à la référence existe bien avant d'activer l'abonnement. */
+  async sync(userId: string, reference: string) {
+    const pendingPayment = await paymentRepo.findPendingByUserAndReference(userId, reference);
     if (!pendingPayment) return null;
 
     await paymentRepo.markPaid(pendingPayment.id);

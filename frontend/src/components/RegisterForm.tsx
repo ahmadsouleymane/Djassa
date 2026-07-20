@@ -53,6 +53,10 @@ export function RegisterForm({
       setError("Le numéro doit commencer par 0 et contenir exactement 10 chiffres.");
       return;
     }
+    if (password.length < 8) {
+      setError("Le mot de passe doit contenir au moins 8 caractères.");
+      return;
+    }
     if (!passwordsMatch) {
       setError("Les mots de passe ne correspondent pas.");
       return;

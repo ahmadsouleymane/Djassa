@@ -18,7 +18,7 @@ export function RegisterVendeur() {
         "5% de commission identique pour tous les paliers",
         "Vérification d'identité en 24 à 72h",
       ]}
-      redirectTo="/catalogue"
+      redirectTo="/vendeur/dashboard"
       switchPrompt="Tu viens plutôt acheter ?"
       switchLinkTo="/inscription"
       switchLinkLabel="Crée un compte acheteur"

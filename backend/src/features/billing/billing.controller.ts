@@ -49,8 +49,11 @@ export async function webhook(req: Request, res: Response) {
   // Chercher d'abord un paiement d'abonnement
   const payment = await paymentRepo.findByReference(ourRef);
   if (payment) {
-    await paymentRepo.markPaid(payment.id);
-    await SubscriptionService.activate(payment.userId);
+    // Éviter la double activation si le fallback sync() a déjà traité ce paiement
+    if (payment.status !== "paid") {
+      await paymentRepo.markPaid(payment.id);
+      await SubscriptionService.activate(payment.userId);
+    }
     return res.status(200).json({ received: true });
   }
 
@@ -85,7 +88,9 @@ export async function me(req: Request, res: Response, next: NextFunction) {
 
 export async function syncPlan(req: Request, res: Response, next: NextFunction) {
   try {
-    const updated = await SubscriptionService.sync(req.userId!);
+    const { reference } = req.body as { reference?: string };
+    if (!reference) return res.status(400).json({ error: "Référence manquante" });
+    const updated = await SubscriptionService.sync(req.userId!, reference);
     if (!updated) return res.json({ synced: false });
     res.json({ synced: true, planTier: updated.planTier, planPeriodEnd: updated.planPeriodEnd });
   } catch (err) {

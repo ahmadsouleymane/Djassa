@@ -1,5 +1,7 @@
 import { apiClient } from "./client";
 
+export type ProductCategory = "mode_beaute" | "electronique" | "maison" | "telephones" | "alimentation" | "autre";
+
 export type Product = {
   id: string;
   vendorId: string;
@@ -9,7 +11,7 @@ export type Product = {
   price: number;
   shippingFee: number;
   discountPercent?: number | null;
-  category: string;
+  category: ProductCategory;
   photos: string[];
   createdAt: string;
   vendorPlanTier?: "standard" | "pro";

@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { ImagePlus, X, Loader2 } from "lucide-react";
-import { productsApi, uploadPhoto, type Product } from "@/api/products";
+import { productsApi, uploadPhoto, type Product, type ProductCategory } from "@/api/products";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,7 +15,7 @@ import {
 import { cn, formatFcfa } from "@/lib/utils";
 import { effectiveUnitPrice } from "@/lib/pricing";
 
-const CATEGORIES = [
+const CATEGORIES: { value: ProductCategory; label: string }[] = [
   { value: "mode_beaute", label: "Mode & Beauté" },
   { value: "electronique", label: "Électronique" },
   { value: "maison", label: "Maison & Vie quotidienne" },
@@ -53,7 +53,7 @@ export function ProductForm({
   const [discount, setDiscount] = useState(
     editingProduct?.discountPercent ? String(editingProduct.discountPercent) : "",
   );
-  const [category, setCategory] = useState(editingProduct?.category ?? CATEGORIES[0].value);
+  const [category, setCategory] = useState<ProductCategory>(editingProduct?.category ?? CATEGORIES[0].value);
   const [existingPhotos, setExistingPhotos] = useState<string[]>(editingProduct?.photos ?? []);
   const [newPhotos, setNewPhotos] = useState<NewPhoto[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -62,7 +62,7 @@ export function ProductForm({
   const totalPhotos = existingPhotos.length + newPhotos.length;
   const priceNum = Number(price) || 0;
   const shippingNum = Number(shippingFee) || 0;
-  const discountNum = discount ? Math.min(90, Math.max(1, Number(discount))) : 0;
+  const discountNum = Number(discount) > 0 ? Math.min(90, Math.max(1, Number(discount))) : 0;
   const discountedUnit = effectiveUnitPrice(priceNum, discountNum);
   const totalPreview = discountedUnit + shippingNum;
 
@@ -270,7 +270,7 @@ export function ProductForm({
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-2">
             <Label>Catégorie</Label>
-            <Select value={category} onValueChange={setCategory}>
+            <Select value={category} onValueChange={(v) => setCategory(v as ProductCategory)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
