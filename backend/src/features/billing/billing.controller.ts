@@ -82,3 +82,13 @@ export async function me(req: Request, res: Response, next: NextFunction) {
     next(err);
   }
 }
+
+export async function syncPlan(req: Request, res: Response, next: NextFunction) {
+  try {
+    const updated = await SubscriptionService.sync(req.userId!);
+    if (!updated) return res.json({ synced: false });
+    res.json({ synced: true, planTier: updated.planTier, planPeriodEnd: updated.planPeriodEnd });
+  } catch (err) {
+    next(err);
+  }
+}

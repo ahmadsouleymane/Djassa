@@ -26,8 +26,45 @@ export function Abonnement() {
   usePageTitle("Abonnement vendeur : Standard ou Pro");
   const [status, setStatus] = useState<PlanStatus | null>(null);
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   useEffect(() => {
+    // Si on revient de GeniusPay (paramètre ref), on force la synchro
+    const ref = new URLSearchParams(window.location.search).get("ref");
+    if (ref && !status) {
+      setIsSyncing(true);
+      // Essayer immédiatement, puis réessayer toutes les 2s pendant 30s max
+      let attempts = 0;
+      const maxAttempts = 15;
+      const trySync = async () => {
+        try {
+          const result = await billingApi.sync();
+          if (result.planTier === "pro") {
+            setStatus({ planTier: "pro", planPeriodEnd: result.planPeriodEnd ?? null });
+            setIsSyncing(false);
+            return;
+          }
+          if (result.synced) {
+            // Relire le statut
+            const me = await billingApi.me();
+            setStatus(me);
+            setIsSyncing(false);
+            return;
+          }
+        } catch {}
+        attempts++;
+        if (attempts < maxAttempts) {
+          setTimeout(trySync, 2000);
+        } else {
+          setIsSyncing(false);
+          // Dernière tentative : recharger le statut
+          billingApi.me().then(setStatus).catch(() => {});
+        }
+      };
+      trySync();
+      return;
+    }
+
     billingApi.me().then(setStatus).catch(() => {});
   }, []);
 
@@ -51,7 +88,12 @@ export function Abonnement() {
           La commission de 5% est la même pour tous les paliers. Passe Pro pour
           gagner en visibilité, personnaliser ta boutique et accéder à plus de données.
         </p>
-        {status && (
+        {isSyncing ? (
+          <div className="mt-4 flex items-center justify-center gap-2 text-sm">
+            <Loader2 className="size-4 animate-spin" />
+            <span className="text-muted-foreground">Synchronisation du paiement…</span>
+          </div>
+        ) : status ? (
           <div className="mt-4 flex items-center justify-center gap-2 text-sm">
             <span className="text-muted-foreground">Palier actuel :</span>
             <Badge variant={isPro ? "success" : "secondary"}>
@@ -63,7 +105,7 @@ export function Abonnement() {
               </span>
             )}
           </div>
-        )}
+        ) : null}
       </header>
 
       <div className="grid gap-5 md:grid-cols-2">

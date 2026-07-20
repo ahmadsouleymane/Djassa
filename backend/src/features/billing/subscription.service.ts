@@ -16,7 +16,7 @@ export const SubscriptionService = {
     const { paymentUrl } = await createPaymentSession({
       amount: PRO_MONTHLY_PRICE,
       reference,
-      returnUrl: `${config.corsOrigin}/abonnement`,
+      returnUrl: `${config.corsOrigin}/abonnement?ref=${reference}`,
     });
     return { checkoutUrl: paymentUrl, reference };
   },
@@ -29,6 +29,16 @@ export const SubscriptionService = {
     const planPeriodEnd = new Date(base.getTime() + PRO_CYCLE_DAYS * 24 * 60 * 60 * 1000);
 
     return userRepo.update(userId, { planTier: "pro", planPeriodEnd });
+  },
+
+  /** Fallback quand le webhook GeniusPay n'arrive pas : active l'abonnement
+   *  si l'utilisateur a un paiement en attente. */
+  async sync(userId: string) {
+    const pendingPayment = await paymentRepo.findFirstPendingByUser(userId);
+    if (!pendingPayment) return null;
+
+    await paymentRepo.markPaid(pendingPayment.id);
+    return this.activate(userId);
   },
 
   me(userId: string) {

@@ -10,6 +10,10 @@ export class PaymentRepository {
     return prisma.payment.findUnique({ where: { reference } });
   }
 
+  findFirstPendingByUser(userId: string): Promise<Payment | null> {
+    return prisma.payment.findFirst({ where: { userId, status: "pending" }, orderBy: { createdAt: "desc" } });
+  }
+
   markPaid(id: string): Promise<Payment> {
     return prisma.payment.update({ where: { id }, data: { status: "paid" } });
   }
