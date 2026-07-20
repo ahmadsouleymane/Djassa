@@ -7,7 +7,7 @@ export const VerificationService = {
   async submit(userId: string, documentUrl: string) {
     return userRepo.update(userId, {
       sellerVerificationStatus: "en_attente",
-      sellerVerificationDocUrl: documentUrl,
+      sellerVerificationRectoUrl: documentUrl,
       sellerVerificationReason: null,
     });
   },
@@ -17,7 +17,7 @@ export const VerificationService = {
     if (!user) throw new NotFoundError("Utilisateur");
     return {
       status: user.sellerVerificationStatus,
-      documentUrl: user.sellerVerificationDocUrl,
+      documentUrl: user.sellerVerificationRectoUrl,
       reason: user.sellerVerificationReason,
     };
   },

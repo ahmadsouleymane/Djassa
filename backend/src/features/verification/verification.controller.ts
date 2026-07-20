@@ -36,7 +36,7 @@ export async function listPending(_req: Request, res: Response, next: NextFuncti
   try {
     const users = await VerificationService.listPending();
     res.json({
-      users: users.map((u) => ({ id: u.id, email: u.email, documentUrl: u.sellerVerificationDocUrl })),
+      users: users.map((u) => ({ id: u.id, email: u.email, documentUrl: u.sellerVerificationRectoUrl })),
     });
   } catch (err) {
     next(err);
