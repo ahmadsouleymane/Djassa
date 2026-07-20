@@ -28,9 +28,10 @@ export class ProductRepository {
     return prisma.product.findMany({ where: { vendorId }, orderBy: { createdAt: "desc" } });
   }
 
-  findPublicById(id: string): Promise<Product | null> {
+  findPublicById(id: string) {
     return prisma.product.findFirst({
       where: { id, vendor: { sellerVerificationStatus: "approuvee" } },
+      include: { vendor: { select: { planTier: true } } },
     });
   }
 
@@ -40,7 +41,7 @@ export class ProductRepository {
     limit: number;
     search?: string;
     vendorId?: string;
-  }): Promise<Product[]> {
+  }) {
     const where: Prisma.ProductWhereInput = {
       vendor: { sellerVerificationStatus: "approuvee" },
       ...(options.category ? { category: options.category } : {}),
@@ -49,9 +50,13 @@ export class ProductRepository {
     };
     return prisma.product.findMany({
       where,
-      orderBy: { createdAt: "desc" },
+      orderBy: [
+        { vendor: { planTier: "desc" } },
+        { createdAt: "desc" },
+      ],
       take: options.limit,
       ...(options.cursor ? { cursor: { id: options.cursor }, skip: 1 } : {}),
+      include: { vendor: { select: { planTier: true } } },
     });
   }
 

@@ -6,6 +6,7 @@ import { PasswordResetRepository } from "./passwordReset.repository.js";
 import { config } from "../../shared/config/index.js";
 import { ConflictError, UnauthorizedError, ValidationError } from "../../shared/errors/index.js";
 import { sendEmail, passwordResetEmailHtml } from "../../shared/email/index.js";
+import { LAUNCH_AT, PRE_LAUNCH_PRO_TRIAL_DAYS } from "../../config/launch.js";
 import type { RegisterInput, LoginInput } from "./auth.schema.js";
 
 const userRepo = new UserRepository();
@@ -33,11 +34,22 @@ export const AuthService = {
     if (existing) throw new ConflictError("Un compte existe déjà avec cet email");
 
     const passwordHash = await bcrypt.hash(input.password, 10);
+
+    // Les vendeurs inscrits avant le lancement reçoivent 2 mois gratuits de Pro
+    const isPreLaunch = Date.now() < LAUNCH_AT.getTime();
+    const isVendeur = input.accountType === "vendeur";
+    const planTier = isPreLaunch && isVendeur ? "pro" : undefined;
+    const planPeriodEnd = isPreLaunch && isVendeur
+      ? new Date(Date.now() + PRE_LAUNCH_PRO_TRIAL_DAYS * 24 * 60 * 60 * 1000)
+      : undefined;
+
     const user = await userRepo.create({
       email: input.email,
       phone: input.phone,
       passwordHash,
       accountType: input.accountType,
+      planTier,
+      planPeriodEnd,
     });
 
     return { user, ...signTokens(user.id, user.accountType) };

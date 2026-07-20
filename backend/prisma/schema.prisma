@@ -48,6 +48,12 @@ model User {
   reports                  Report[]                  @relation("Reports")
   analyticsSessions        AnalyticsSession[]
   passwordResetTokens      PasswordResetToken[]
+
+  /// Boutique personnalisable (réservé aux vendeurs Pro)
+  storeName        String?
+  storeDescription String?
+  storeLogoUrl     String?
+  storeBannerUrl   String?
 }
 
 model PasswordResetToken {

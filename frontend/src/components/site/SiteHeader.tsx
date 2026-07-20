@@ -321,6 +321,11 @@ export function SiteHeader() {
                         <CreditCard /> Abonnement
                       </Link>
                     </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/boutique">
+                        <Store /> Ma boutique
+                      </Link>
+                    </DropdownMenuItem>
                   </>
                 )}
                 {user.isAdmin && (

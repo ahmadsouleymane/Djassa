@@ -1,4 +1,4 @@
-export const MARKETPLACE_COMMISSION_RATE = { standard: 0.05, pro: 0.03 } as const;
+export const MARKETPLACE_COMMISSION_RATE = { standard: 0.05, pro: 0.05 } as const;
 export const MARKETPLACE_SHIP_DEADLINE_HOURS = 72;
 export const MARKETPLACE_CONFIRM_DEADLINE_DAYS = 7;
 

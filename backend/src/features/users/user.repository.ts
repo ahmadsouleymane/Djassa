@@ -7,6 +7,8 @@ export class UserRepository {
     phone: string;
     passwordHash: string;
     accountType: AccountType;
+    planTier?: "pro" | "standard";
+    planPeriodEnd?: Date;
   }): Promise<User> {
     return prisma.user.create({ data });
   }
@@ -30,7 +32,16 @@ export class UserRepository {
   findPublicVendor(id: string) {
     return prisma.user.findFirst({
       where: { id, accountType: "vendeur", sellerVerificationStatus: "approuvee" },
-      select: { id: true, createdAt: true, sellerVerificationStatus: true, planTier: true },
+      select: {
+        id: true,
+        createdAt: true,
+        sellerVerificationStatus: true,
+        planTier: true,
+        storeName: true,
+        storeDescription: true,
+        storeLogoUrl: true,
+        storeBannerUrl: true,
+      },
     });
   }
 

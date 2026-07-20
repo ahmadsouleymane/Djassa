@@ -29,7 +29,9 @@ publicProductRouter.get("/", async (req, res, next) => {
     const vendorId = typeof req.query.vendorId === "string" ? req.query.vendorId : undefined;
 
     const products = await productRepo.findPublic({ category, cursor, limit, search, vendorId });
-    res.json({ products });
+    res.json({
+      products: products.map(({ vendor, ...p }) => ({ ...p, vendorPlanTier: vendor.planTier })),
+    });
   } catch (err) {
     next(err);
   }
@@ -42,7 +44,8 @@ publicProductRouter.get("/:id", async (req, res, next) => {
       res.status(404).json({ error: "Produit introuvable" });
       return;
     }
-    res.json({ product });
+    const { vendor, ...rest } = product;
+    res.json({ product: { ...rest, vendorPlanTier: vendor.planTier } });
   } catch (err) {
     next(err);
   }

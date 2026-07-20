@@ -164,11 +164,11 @@ export function LandingVendeur() {
         </div>
       </section>
 
-      {/* Commission */}
+      {/* Commission & Paliers */}
       <section className="mx-auto max-w-[1000px] px-4 py-16 md:py-24">
         <div className="mx-auto max-w-2xl text-center" data-reveal>
           <span className="text-sm font-semibold tracking-wide text-primary uppercase">
-            Commission
+            Paliers
           </span>
           <h2 className="mt-2 text-3xl font-semibold md:text-4xl">
             Un coût clair, pas de surprise
@@ -179,7 +179,7 @@ export function LandingVendeur() {
             <h3 className="font-display text-xl font-semibold">Standard</h3>
             <p className="mt-1 text-sm text-muted-foreground">Gratuit, sans engagement.</p>
             <p className="mt-4 font-display text-3xl font-semibold">5%</p>
-            <p className="text-sm text-muted-foreground">par commande confirmée</p>
+            <p className="text-sm text-muted-foreground">de commission par commande</p>
           </div>
           <div
             data-reveal
@@ -187,19 +187,23 @@ export function LandingVendeur() {
             className="relative rounded-2xl border-2 border-primary bg-card p-6 shadow-[var(--shadow-md)]"
           >
             <span className="absolute -top-3 left-6 rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground">
-              Le plus rentable
+              Le plus complet
             </span>
             <h3 className="font-display text-xl font-semibold">Pro · 7 000 FCFA/mois</h3>
             <p className="mt-1 text-sm text-muted-foreground">Pour les vendeurs actifs.</p>
-            <p className="mt-4 font-display text-3xl font-semibold">3%</p>
+            <p className="mt-4 font-display text-3xl font-semibold">5%</p>
+            <p className="text-sm text-muted-foreground">de commission (identique au Standard)</p>
             <ul className="mt-4 space-y-2 text-sm">
-              {["Badge Pro visible", "Mise en avant sur le marché", "Statistiques détaillées"].map(
-                (f) => (
-                  <li key={f} className="flex items-center gap-2">
-                    <Check className="size-4 text-primary" /> {f}
-                  </li>
-                ),
-              )}
+              {[
+                "Produits mis en avant en tête de page",
+                "Badge Vendeur Pro sur ton profil",
+                "Boutique personnalisable",
+                "Statistiques et données avancées",
+              ].map((f) => (
+                <li key={f} className="flex items-center gap-2">
+                  <Check className="size-4 text-primary" /> {f}
+                </li>
+              ))}
             </ul>
           </div>
         </div>

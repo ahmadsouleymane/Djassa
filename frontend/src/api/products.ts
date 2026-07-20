@@ -12,6 +12,7 @@ export type Product = {
   category: string;
   photos: string[];
   createdAt: string;
+  vendorPlanTier?: "standard" | "pro";
 };
 
 type SignedUpload = { cloudName: string; apiKey: string; timestamp: number; signature: string; folder: string };

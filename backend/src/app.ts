@@ -19,6 +19,7 @@ import { webhookRouter, billingRouter } from "./features/billing/billing.routes.
 import { verificationRouter } from "./features/verification/verification.routes.js";
 import { reviewRouter, publicReviewRouter, publicTrustScoreRouter } from "./features/reviews/review.routes.js";
 import { publicVendorRouter } from "./features/users/public.routes.js";
+import { boutiqueRouter } from "./features/users/boutique.routes.js";
 import { analyticsRouter } from "./features/analytics/analytics.routes.js";
 import { reportRouter } from "./features/reports/report.routes.js";
 import { adminRouter } from "./features/admin/admin.routes.js";
@@ -66,5 +67,6 @@ app.use("/api/analytics", analyticsRouter);
 app.use("/api/reports", reportRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/waitlist", waitlistRouter);
+app.use("/api/boutique", boutiqueRouter);
 
 app.use(errorHandler);

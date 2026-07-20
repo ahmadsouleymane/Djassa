@@ -1,6 +1,6 @@
 import { type MouseEvent } from "react";
 import { Link } from "react-router-dom";
-import { Plus, Check } from "lucide-react";
+import { Plus, Check, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import type { Product } from "../api/products";
 import { useCart } from "@/context/CartContext";
@@ -63,6 +63,11 @@ export function ProductCard({
         {discounted && (
           <span className="absolute top-2.5 left-2.5 z-10 rounded-full bg-primary px-2.5 py-1 text-xs font-bold text-primary-foreground shadow-[var(--shadow-sm)]">
             -{product.discountPercent}%
+          </span>
+        )}
+        {product.vendorPlanTier === "pro" && (
+          <span className="absolute top-2.5 right-2.5 z-10 inline-flex items-center gap-1 rounded-full bg-ink px-2.5 py-1 text-xs font-bold text-brand-300 shadow-[var(--shadow-sm)]">
+            <Sparkles className="size-3" /> Pro
           </span>
         )}
         {photo ? (

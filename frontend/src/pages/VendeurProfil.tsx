@@ -8,6 +8,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 function StatCard({
@@ -130,19 +131,53 @@ export function VendeurProfil() {
     month: "long",
   });
 
+  const isPro = vendor.planTier === "pro";
+  const hasBoutique = isPro && vendor.storeName;
+
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-sm)] sm:flex-row sm:items-center">
-        <div className="grid size-16 shrink-0 place-items-center rounded-2xl bg-ink font-display text-2xl font-semibold text-brand-300">
-          J
+      {/* Bannière boutique (réservée aux Pro) */}
+      {isPro && vendor.storeBannerUrl && (
+        <div className="relative -mx-4 -mt-6 h-40 overflow-hidden sm:-mx-6 sm:h-56 md:-mt-8 md:h-64">
+          <img
+            src={vendor.storeBannerUrl}
+            alt=""
+            className="size-full object-cover"
+          />
         </div>
+      )}
+
+      <div className={cn(
+        "flex flex-col gap-4 rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-sm)] sm:flex-row sm:items-center",
+        isPro && vendor.storeBannerUrl && "-mt-10 relative z-10",
+      )}>
+        {isPro && vendor.storeLogoUrl ? (
+          <div className="size-16 shrink-0 overflow-hidden rounded-2xl border-2 border-white">
+            <img
+              src={vendor.storeLogoUrl}
+              alt={vendor.storeName ?? "Boutique"}
+              className="size-full object-cover"
+            />
+          </div>
+        ) : (
+          <div className="grid size-16 shrink-0 place-items-center rounded-2xl bg-ink font-display text-2xl font-semibold text-brand-300">
+            {(vendor.storeName ?? "J").charAt(0).toUpperCase()}
+          </div>
+        )}
         <div>
-          <h1 className="text-2xl font-semibold">Vendeur vérifié</h1>
+          <h1 className="text-2xl font-semibold">
+            {hasBoutique ? vendor.storeName : "Vendeur vérifié"}
+          </h1>
+          {hasBoutique && vendor.storeDescription && (
+            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+              {vendor.storeDescription}
+            </p>
+          )}
           <div className="mt-2 flex flex-wrap gap-2">
             <Badge variant="success">
               <ShieldCheck className="size-3" /> Identité vérifiée
             </Badge>
-            {vendor.planTier === "pro" && (
+            {isPro && (
               <Badge variant="ink">
                 <Sparkles className="size-3" /> Vendeur Pro
               </Badge>

@@ -19,6 +19,8 @@ import {
   LayoutGrid,
   MessageCircle,
   Search,
+  Store,
+  CreditCard,
 } from "lucide-react";
 import { ordersApi, type VendorStats } from "@/api/orders";
 import { ShipOrderDialog } from "@/components/orders/ShipOrderDialog";
@@ -36,6 +38,14 @@ const STATUS_LABELS: Record<string, string> = {
   en_litige: "En litige",
   rembourse: "Remboursées",
 };
+
+const QUICK_LINKS = [
+  { to: "/catalogue", label: "Mes produits & promotions", icon: LayoutGrid },
+  { to: "/messagerie", label: "Messagerie", icon: MessageCircle },
+  { to: "/vendeur/recherche", label: "Recherche produits", icon: Search },
+  { to: "/boutique", label: "Ma boutique", icon: Store },
+  { to: "/abonnement", label: "Abonnement & paliers", icon: CreditCard },
+];
 
 function StatTile({
   label,
@@ -60,12 +70,6 @@ function StatTile({
     </Card>
   );
 }
-
-const QUICK_LINKS = [
-  { to: "/catalogue", label: "Mes produits & promotions", icon: LayoutGrid },
-  { to: "/messagerie", label: "Messagerie", icon: MessageCircle },
-  { to: "/vendeur/recherche", label: "Recherche produits", icon: Search },
-];
 
 export function VendeurDashboard() {
   usePageTitle("Tableau de bord vendeur", { description: "Vue d'ensemble de ton activité de vente sur Djassa." });

@@ -73,12 +73,12 @@ const SELLER_POINTS = [
   {
     icon: Percent,
     title: "Commission claire",
-    body: "5% en formule Standard, réduite à 3% en formule Pro. Aucun frais caché.",
+    body: "5% de commission, identique pour tous les paliers. Aucun frais caché.",
   },
   {
     icon: Store,
     title: `Formule Pro à ${formatFcfa(PRO_MONTHLY_PRICE)}/mois`,
-    body: "Commission réduite et mise en avant de tes annonces sur le djassa.",
+    body: "Produits mis en avant, boutique personnalisable et données détaillées.",
   },
   {
     icon: MessageSquareText,

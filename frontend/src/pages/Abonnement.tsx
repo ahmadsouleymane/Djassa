@@ -14,10 +14,12 @@ const STANDARD_FEATURES = [
 ];
 
 const PRO_FEATURES = [
-  "Commission réduite à 3% par commande",
-  "Badge Vendeur Pro sur toutes tes annonces",
-  "Mise en avant sur le marché",
+  "Commission de 5% par commande confirmée (identique au Standard)",
+  "Produits mis en avant en tête du marché",
+  "Badge Vendeur Pro sur ton profil",
+  "Boutique personnalisable",
   "Statistiques de vente détaillées",
+  "Accès à plus de données sur ton activité",
 ];
 
 export function Abonnement() {
@@ -46,8 +48,8 @@ export function Abonnement() {
       <header className="text-center">
         <h1 className="text-3xl font-semibold md:text-4xl">Choisis ton palier vendeur</h1>
         <p className="mx-auto mt-2 max-w-xl text-muted-foreground">
-          La commission que Djassa prélève sur tes ventes dépend de ton palier.
-          Passe Pro pour vendre moins cher et gagner en visibilité.
+          La commission de 5% est la même pour tous les paliers. Passe Pro pour
+          gagner en visibilité, personnaliser ta boutique et accéder à plus de données.
         </p>
         {status && (
           <div className="mt-4 flex items-center justify-center gap-2 text-sm">
@@ -96,7 +98,7 @@ export function Abonnement() {
             <Sparkles className="size-3" /> Recommandé
           </span>
           <h2 className="font-display text-xl font-semibold">Pro</h2>
-          <p className="mt-1 text-sm text-muted-foreground">Pour vendre plus, moins cher.</p>
+          <p className="mt-1 text-sm text-muted-foreground">Pour vendre plus et mieux.</p>
           <p className="mt-4 flex items-baseline gap-1">
             <span className="font-display text-3xl font-semibold tabular">7 000 FCFA</span>
             <span className="text-sm text-muted-foreground">/mois</span>
@@ -130,10 +132,12 @@ export function Abonnement() {
       <div className="rounded-2xl border border-border bg-secondary/40 p-6">
         <h3 className="font-semibold">Pourquoi passer Pro ?</h3>
         <p className="mt-2 text-[0.95rem] leading-relaxed text-muted-foreground">
-          Sur 100 000 FCFA de ventes confirmées par mois, la différence entre 5%
-          et 3% de commission représente 2 000 FCFA d'économie. L'abonnement Pro
-          se rentabilise dès que ton chiffre d'affaires mensuel dépasse environ
-          350 000 FCFA. En dessous, le palier Standard reste le plus simple.
+          La commission reste à 5% quel que soit ton palier. Avec le palier Pro,
+          tes produits gagnent en visibilité (mis en avant en tête du marché),
+          tu profites d'une boutique personnalisable avec ton nom et ton image
+          de marque, et tu accèdes à des données détaillées sur tes ventes.
+          L'abonnement à 7 000 FCFA/mois est un investissement dans ta croissance
+          sur Djassa.
         </p>
       </div>
     </div>

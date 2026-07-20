@@ -5,6 +5,10 @@ export type PublicVendor = {
   createdAt: string;
   sellerVerificationStatus: "non_soumise" | "en_attente" | "approuvee" | "rejetee";
   planTier: "standard" | "pro";
+  storeName?: string | null;
+  storeDescription?: string | null;
+  storeLogoUrl?: string | null;
+  storeBannerUrl?: string | null;
 };
 
 export const vendorsApi = {

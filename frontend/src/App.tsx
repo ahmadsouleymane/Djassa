@@ -40,6 +40,7 @@ const Messagerie = lazy(() => import("./pages/Messagerie").then((m) => ({ defaul
 const Commandes = lazy(() => import("./pages/Commandes").then((m) => ({ default: m.Commandes })));
 const Verification = lazy(() => import("./pages/Verification").then((m) => ({ default: m.Verification })));
 const Abonnement = lazy(() => import("./pages/Abonnement").then((m) => ({ default: m.Abonnement })));
+const BoutiqueSettings = lazy(() => import("./pages/BoutiqueSettings").then((m) => ({ default: m.BoutiqueSettings })));
 const VendeurDashboard = lazy(() => import("./pages/vendeur/VendeurDashboard").then((m) => ({ default: m.VendeurDashboard })));
 const VendeurRecherche = lazy(() => import("./pages/vendeur/VendeurRecherche").then((m) => ({ default: m.VendeurRecherche })));
 const AdminVerifications = lazy(() => import("./pages/admin/AdminVerifications").then((m) => ({ default: m.AdminVerifications })));
@@ -231,6 +232,14 @@ export function App() {
               <PrivateRoute>
                 <Abonnement />
               </PrivateRoute>
+            }
+          />
+          <Route
+            path="/boutique"
+            element={
+              <VendorRoute>
+                <BoutiqueSettings />
+              </VendorRoute>
             }
           />
           <Route
