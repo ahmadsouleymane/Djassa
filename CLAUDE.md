@@ -2,71 +2,129 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Project overview
+## Stack
 
-Djassa is a C2C marketplace (French-language product/UX: "Marché", "Catalogue", "Commandes", "Messagerie") where sellers ("vendeurs") list products, chat with buyers, negotiate a price via a chat offer, and turn accepted offers into escrow-style orders with a commission cut. It's a two-package repo: `backend` (Express/Prisma/Postgres API) and `frontend` (React/Vite SPA). There is no root-level app — always work inside `backend/` or `frontend/`.
-
-## Commands
-
-All commands are run from inside `backend/` or `frontend/` respectively — there are no root-level scripts.
-
-### Backend (`backend/`)
-- `npm run dev` — run the API with hot reload (tsx watch on `src/server.ts`)
-- `npm run build` — type-check and compile to `dist/`
-- `npm start` — run the compiled server (`dist/server.js`)
-- `npm test` — run the full Vitest suite once
-- `npx vitest run src/features/products/product.test.ts` — run a single test file
-- `npx vitest run -t "creates a product"` — run tests matching a name
-- `npm run prisma:migrate` — create/apply a dev migration from `prisma/schema.prisma`
-- `npm run prisma:generate` — regenerate the Prisma client after a schema change
-- `npm run prisma:seed` — run `prisma/seed.ts`
-
-### Frontend (`frontend/`)
-- `npm run dev` — Vite dev server (port 5173)
-- `npm run build` — `tsc -b` then `vite build`
-- `npm run lint` — oxlint (config: `frontend/.oxlintrc.json`)
-- `npm run preview` — preview a production build
-
-### Tests need a real database
-Backend tests (`*.test.ts` next to the code they cover) are **not mocked** — repository and route tests hit the real Postgres database configured by `DATABASE_URL`/`.env`, and clean up their own rows in `afterAll`. Make sure a reachable database and applied migrations exist before running `npm test`.
+| Layer | Tech |
+|-------|------|
+| **Backend** | Node.js 22, Express 5, TypeScript 7 |
+| **Database** | PostgreSQL via Prisma ORM 6 |
+| **Frontend** | React 19, Vite 8, Tailwind CSS 4, React Router 7 |
+| **UI** | shadcn/ui (Radix UI primitives), Lucide icons, GSAP animations |
+| **Charts** | Recharts |
+| **Real-time** | Socket.IO (server + client) |
+| **Payments** | GeniusPay (Côte d'Ivoire) |
+| **File uploads** | Cloudinary (server-signed uploads) |
+| **Email** | Resend |
+| **Tests** | Vitest + Supertest |
+| **Linting** | oxlint (frontend only) |
+| **Hosting** | Render (backend), Vercel (frontend) |
 
 ## Architecture
 
-### Backend: feature-sliced, layered modules
-Each domain lives under `backend/src/features/<name>/` with a consistent file set:
-- `*.routes.ts` — Express `Router`, wires middleware (`requireAuth`, `requireVendor`, `requireAdmin`) to controller functions
-- `*.controller.ts` — parses `req`, calls the service, shapes the HTTP response
-- `*.service.ts` — business rules and cross-repository orchestration (the layer with authorization checks like "does this product belong to this vendor")
-- `*.repository.ts` — the only layer that talks to Prisma (`shared/db/client.ts`)
-- `*.schema.ts` — Zod input schemas
-- `*.test.ts` — Vitest, hits the real DB
+```
+DJASSA/
+├── backend/                   ← Express 5 API server
+│   ├── src/
+│   │   ├── app.ts             ← Express app setup (middleware, routes)
+│   │   ├── server.ts          ← HTTP server entry (Socket.IO, cron jobs)
+│   │   ├── config/            ← Marketplace constants, plan pricing
+│   │   ├── features/          ← Feature modules (one per domain)
+│   │   │   ├── auth/          ← Register, login, JWT, password reset
+│   │   │   ├── admin/         ← Admin overview, emails, disputes
+│   │   │   ├── analytics/     ← Session tracking, event ingestion
+│   │   │   ├── billing/       ← GeniusPay webhooks, subscriptions
+│   │   │   ├── conversations/ ← Buyer-vendor messaging
+│   │   │   ├── orders/        ← Order lifecycle, escrow, shipping
+│   │   │   ├── products/      ← CRUD, public listing, sitemap
+│   │   │   ├── reports/       ← User/message/product reports
+│   │   │   ├── reviews/       ← Ratings, trust score
+│   │   │   ├── uploads/       ← Cloudinary signed-upload endpoint
+│   │   │   ├── users/         ← Public vendor profiles
+│   │   │   ├── verification/  ← Seller KYC document verification
+│   │   │   └── waitlist/      ← Pre-launch signups
+│   │   ├── jobs/              ← Scheduled cron jobs (order timeouts)
+│   │   ├── services/          ← Cross-cutting: GeniusPay, realtime, trust score
+│   │   └── shared/            ← Config, Prisma client, logger (Pino), errors, middleware
+│   ├── prisma/
+│   │   ├── schema.prisma      ← Full data model (11 migrations)
+│   │   └── seed.ts
+│   └── vitest.config.ts
+│
+└── frontend/                  ← React SPA (Vite)
+    ├── src/
+    │   ├── App.tsx            ← Router, context providers, analytics init
+    │   ├── main.tsx           ← Entry point (TooltipProvider, Toaster)
+    │   ├── api/               ← Typed API client with auto-refresh on 401
+    │   ├── components/        ← Reusable UI and feature components
+    │   │   ├── ui/            ← shadcn/ui primitives (button, dialog, etc.)
+    │   │   ├── site/          ← Header, footer, mobile tab bar, logo
+    │   │   ├── admin/         ← Admin shell layout
+    │   │   ├── auth/          ← Auth layout, password input
+    │   │   ├── orders/        ← Ship order dialog
+    │   │   └── visual/        ← Landing animations, marquee, testimonials
+    │   ├── context/           ← AuthContext + CartContext (React Context, no Zustand)
+    │   ├── hooks/             ← useLandingMotion, usePageTitle
+    │   ├── lib/               ← Utils (cn, formatFcfa), pricing helpers, analytics tracker
+    │   ├── pages/             ← Route pages (Landing, Login, Register, Marche, etc.)
+    │   │   ├── admin/         ← Admin dashboard pages (lazy-loaded)
+    │   │   └── vendeur/       ← Vendor dashboard & search
+    │   ├── realtime/          ← Socket.IO client wrapper
+    │   └── routes/            ← Private, Admin, Vendor, VendorBlocked guards
+    └── vite.config.ts         ← @ alias, Tailwind plugin
+```
 
-Features: `auth`, `products`, `conversations` (chat + offers), `orders` (checkout/escrow lifecycle), `billing` (subscriptions/payments), `reviews`, `verification` (seller KYC), `uploads` (Cloudinary), `users`.
+## Domain model (Prisma)
 
-`backend/src/app.ts` is the single place that assembles the Express app and mounts every feature router — read it first to see the full API surface and route prefixes. `backend/src/server.ts` boots the HTTP server, `initRealtime` (Socket.IO), and the background `orderTimeoutJob`.
+The app is a **peer-to-peer marketplace with escrow** connecting buyers ("client") and sellers ("vendeur"). Key entities:
 
-Cross-cutting code lives in `backend/src/shared/`: `errors` (typed `AppError` subclasses — `NotFoundError`, `ValidationError`, `UnauthorizedError`, `ConflictError` — thrown from services and turned into HTTP responses by `shared/middleware/errorHandler.ts`), `config` (env var loading, throws at startup on missing required vars), `logger` (pino), `db/client.ts` (the shared `PrismaClient` singleton).
+- **User** — email, phone, password (bcrypt), `accountType` (vendeur/client), `planTier` (standard/pro), seller verification status
+- **Product** — title, description, category (enum), price (integer FCFA), photos[], discountPercent, shippingFee, deliveryInfo
+- **Conversation / ChatMessage** — buyer-vendor thread per product, supports offerPrice on messages
+- **Order** — tracks checkoutRef, price/commission/netAmount, status (en_attente_paiement → paye → expedie → confirme), dispute/review links, shipping tracking
+- **Review** — rating 1-5, comment, linked 1:1 to a completed Order
+- **Payment** — GeniusPay reference tracking (pending/paid)
+- **AnalyticsSession / AnalyticsEvent** — visitor session tracking with device, geo, referrer info
+- **WaitlistSignup** — pre-launch email capture
+- **Report** — flag products/users/messages for admin review
 
-Marketplace business constants (commission rates, shipping/confirmation deadlines, plan pricing) live in `backend/src/config/marketplace.ts` and `backend/src/config/plans.ts`, not scattered in services.
+## Key patterns
 
-### Order lifecycle (the core domain flow)
-A conversation offer (`ChatMessage.offerPrice`) becomes an `Order` via `OrderService.createFromOffer`, which requires the vendor to already be `sellerVerificationStatus: approuvee`. Orders move through `en_attente_paiement → paye → expedie → confirme`, with `en_litige`/`rembourse` as dispute branches. `backend/src/jobs/orderTimeoutJob.ts` runs every 15 minutes (`OrderService.sweepTimeouts`) to auto-refund orders past their ship deadline and auto-release orders past their confirm deadline (see `MARKETPLACE_SHIP_DEADLINE_HOURS` / `MARKETPLACE_CONFIRM_DEADLINE_DAYS`). Commission is computed by `computeCommission()` based on the vendor's `planTier` (standard vs pro) at offer-acceptance time.
+- **Feature modules** are self-contained: `*.routes.ts`, `*.controller.ts`, `*.service.ts`, `*.schema.ts` (Zod), `*.repository.ts`, `*.test.ts`. Routes register on the Express app in `app.ts`.
+- **API routes** do NOT use version prefix (e.g. `/api/auth/register`, not `/api/v1/auth/register`).
+- **Auth** uses JWT access + refresh token pattern. `requireAuth` / `optionalAuth` / `requireVendor` / `requireAdmin` middleware decode the token and set `req.userId`.
+- **Error handling** is via AppError subclasses (NotFoundError, ValidationError, UnauthorizedError, ConflictError) with a centralized error handler.
+- **The frontend API client** (`api/client.ts`) auto-refreshes expired access tokens on 401 (except for login/register/refresh/logout endpoints).
+- **State management** uses React Context (AuthContext, CartContext) — no external state library.
+- **Lazy loading** — authenticated pages (Catalogue, Panier, Checkout, Messagerie, all admin/vendor pages) are `React.lazy()` loaded.
+- **Analytics** — a custom in-house analytics system sends pageviews, clicks, errors, and session data to the backend `/api/analytics/ingest` endpoint, batched and flushed every 8s and on pagehide.
+- **Pricing** uses integer FCFA (CFA franc) amounts. Helper functions: `formatFcfa()`, `effectiveUnitPrice()`, `productUnitPrice()`, `productTotalPrice()`.
 
-### Auth
-JWT access + refresh tokens (`jsonwebtoken`), refresh token in an httpOnly cookie (`cookie-parser`), access token passed as a Bearer header and held in memory on the frontend (never localStorage — see `frontend/src/api/client.ts`). `requireAuth` populates `req.userId`/`req.accountType`; `requireVendor` gates vendor-only routes; `requireAdmin` checks the caller's email against the `ADMIN_EMAILS` env var (there's no admin role in the DB).
+## Commands
 
-### Realtime
-`backend/src/services/realtime.ts` authenticates Socket.IO connections with the same JWT access secret and joins each socket to a `user:<id>` room; `emitToUser` is how services push events (e.g. new chat messages) to a specific connected user. Frontend counterpart is `frontend/src/realtime/socket.ts`.
+```bash
+# Backend
+cd backend && npm run dev          # Start dev server with hot reload (tsx watch)
+cd backend && npm run build        # TypeScript compile
+cd backend && npm test             # Run all tests (vitest)
+cd backend && npx vitest run src/features/auth/auth.test.ts   # Single test file
+cd backend && npm run prisma:migrate   # Create new Prisma migration
+cd backend && npm run prisma:generate  # Regenerate Prisma client
+cd backend && npm run prisma:seed      # Run seed script
 
-### Frontend
-Vite + React 19 + React Router 7, all routing declared in `frontend/src/App.tsx`. `AuthContext` (`frontend/src/context/AuthContext.tsx`) restores a session on load via `/api/auth/refresh` + `/api/auth/me`, and `PrivateRoute` gates authenticated pages. `frontend/src/api/client.ts` is the single fetch wrapper: it attaches the in-memory access token, retries once on a 401 by calling `/api/auth/refresh`, and throws `ApiError` on non-OK responses — feature API modules under `frontend/src/api/*.ts` (e.g. `products.ts`, `orders.ts`) build on top of it rather than calling `fetch` directly. Pages are French-named and route-aligned (`Marche`, `Catalogue`, `Messagerie`, `Commandes`, `Verification`, `Abonnement`).
+# Frontend
+cd frontend && npm run dev         # Start Vite dev server (port 5173)
+cd frontend && npm run build       # tsc -b && vite build
+cd frontend && npm run lint        # oxlint
+cd frontend && npm run preview     # Preview production build
+```
 
-### Data model
-See `backend/prisma/schema.prisma` for the source of truth. Key relations: `User` (vendeur/client) → `Product` → `Conversation` (unique per buyer/vendor/product) → `ChatMessage` (optionally carries an `offerPrice`) → `Order` (1:1 with the accepting `ChatMessage`) → optional `Review`. `Payment` tracks subscription payments separately from order payments.
+## Conventions
 
-Money is stored as integer FCFA (no decimals) throughout — see `price`, `commissionAmount`, `netAmount` on `Order` and `PRO_MONTHLY_PRICE` in `config/plans.ts`.
-
-## Conventions worth knowing
-- Backend uses native ESM (`"type": "module"`) — relative imports must include the `.js` extension even though the source is `.ts` (NodeNext module resolution).
-- User-facing error messages thrown from services are in French (e.g. `"Produit introuvable"`) since they may surface directly in the UI.
-- Config values are read strictly through `shared/config/index.ts`; new required env vars should be added there via `requiredEnv()` so missing config fails fast at boot, and mirrored in the relevant `.env.example`.
+- **Language**: Code comments, UI text, and commit messages are in **French** (the app targets the Ivorian market).
+- **API errors** use `AppError` subclasses with a `code` string, `statusCode`, and `isOperational` flag.
+- **Validation** everywhere via Zod schemas (both backend request bodies and frontend forms).
+- **No `any`** — use `unknown` with type guards.
+- **Prices** are always stored as integers (FCFA, the smallest unit).
+- **Database queries** go through repository classes/files, not inline in controllers or services.
+- **Socket.IO** events are emitted per-user via `emitToUser(userId, event, payload)`.
+- **Env vars** are required on startup — missing keys throw immediately (except Resend API key, which is optional).

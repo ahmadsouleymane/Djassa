@@ -151,6 +151,8 @@
   html {
     -webkit-text-size-adjust: 100%;
     scroll-behavior: smooth;
+    /* Prevent overscroll rubber-banding on mobile */
+    overscroll-behavior-y: contain;
   }
 
   body {
@@ -160,6 +162,13 @@
     font-feature-settings: "ss01", "cv01";
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    /* Mobile tap highlight */
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Prevent iOS zoom on input focus (font-size >= 16px) */
+  input, textarea, select {
+    font-size: max(16px, inherit);
   }
 
   h1, h2, h3, h4 {
@@ -303,4 +312,36 @@
 @keyframes shimmer {
   from { background-position: -200% 0; }
   to { background-position: 200% 0; }
+}
+
+/* ── Mobile utilities ──────────────────────────────────────────────────── */
+
+@layer utilities {
+  /* Safe area insets for notched devices */
+  .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .pt-safe { padding-top: env(safe-area-inset-top, 0px); }
+
+  /* Offset for the mobile tab bar (h-14 + safe-area) */
+  .pb-mobile-nav { padding-bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px)); }
+}
+
+/* Touch-friendly minimums for interactive elements */
+@media (pointer: coarse) {
+  button, a, [role="button"], input[type="submit"] {
+    min-height: 44px;
+  }
+
+  /* Slightly larger tap targets for inline links */
+  a:not([class*="no-underline"]) {
+    padding: 0.25em 0;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

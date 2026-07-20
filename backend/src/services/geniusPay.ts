@@ -5,27 +5,29 @@ import { logger } from "../shared/logger/index.js";
 type CreatePaymentSessionInput = {
   amount: number;
   reference: string;
-  callbackUrl: string;
   returnUrl: string;
 };
 
-// Endpoint path/payload shape not yet confirmed against GeniusPay's real API docs
-// (pay.genius.ci/docs/api was behind a bot-check wall when this was written) —
-// adjust path/fields/response key/auth scheme here once the real contract is available.
-export async function createPaymentSession(input: CreatePaymentSessionInput): Promise<{ paymentUrl: string }> {
-  const basicAuth = Buffer.from(`${config.geniusPay.apiKey}:${config.geniusPay.apiSecret}`).toString("base64");
+// Doc: POST /api/v1/merchant/payments
+// Auth: X-API-Key + X-API-Secret
+// Réponse: { success, data: { checkout_url, payment_url, reference } }
+// Montant minimum: 200 XOF
+export async function createPaymentSession(input: CreatePaymentSessionInput): Promise<{ paymentUrl: string; reference: string }> {
   const res = await fetch(`${config.geniusPay.baseUrl}/payments`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Basic ${basicAuth}`,
+      Accept: "application/json",
+      "X-API-Key": config.geniusPay.apiKey,
+      "X-API-Secret": config.geniusPay.apiSecret,
     },
     body: JSON.stringify({
       amount: input.amount,
       currency: "XOF",
-      reference: input.reference,
-      callback_url: input.callbackUrl,
-      return_url: input.returnUrl,
+      description: `Paiement Djassa - ${input.reference}`,
+      success_url: input.returnUrl,
+      error_url: input.returnUrl,
+      metadata: { reference: input.reference },
     }),
   });
 
@@ -35,21 +37,25 @@ export async function createPaymentSession(input: CreatePaymentSessionInput): Pr
     throw new Error("Impossible d'initier le paiement GeniusPay");
   }
 
-  const data = (await res.json()) as { paymentUrl?: string; payment_url?: string };
-  const paymentUrl = data.paymentUrl ?? data.payment_url;
+  const json = (await res.json()) as { success: boolean; data?: { checkout_url?: string; payment_url?: string; reference?: string } };
+  const paymentUrl = json.data?.checkout_url ?? json.data?.payment_url;
+  const gpReference = json.data?.reference ?? "";
+
   if (!paymentUrl) {
-    logger.error({ data }, "GeniusPay: réponse sans URL de paiement");
+    logger.error({ response: json }, "GeniusPay: réponse sans URL de paiement");
     throw new Error("Réponse GeniusPay invalide");
   }
-  return { paymentUrl };
+
+  return { paymentUrl, reference: gpReference };
 }
 
-export function signWebhookPayload(timestamp: string, rawBody: string): string {
-  return createHmac("sha256", config.geniusPay.webhookSecret).update(`${timestamp}.${rawBody}`).digest("hex");
+// Doc: HMAC-SHA256 du corps brut (pas de timestamp)
+export function signWebhookPayload(rawBody: string): string {
+  return createHmac("sha256", config.geniusPay.webhookSecret).update(rawBody).digest("hex");
 }
 
-export function verifyWebhookSignature(timestamp: string, rawBody: string, signature: string): boolean {
-  const expected = signWebhookPayload(timestamp, rawBody);
+export function verifyWebhookSignature(rawBody: string, signature: string): boolean {
+  const expected = signWebhookPayload(rawBody);
   const expectedBuf = Buffer.from(expected, "hex");
   const receivedBuf = Buffer.from(signature, "hex");
   if (expectedBuf.length !== receivedBuf.length) return false;

@@ -14,7 +14,7 @@ export function Layout({ children, contained = true }: LayoutProps) {
     <div className="flex min-h-[100dvh] flex-col">
       <SiteHeader />
       {contained ? (
-        <main className="mx-auto w-full max-w-[1280px] flex-1 px-4 pt-6 pb-8 md:pt-8">
+        <main className="mx-auto w-full max-w-[1280px] flex-1 px-4 pt-6 pb-mobile-nav md:pb-8 md:pt-8">
           {children}
         </main>
       ) : (
@@ -22,7 +22,7 @@ export function Layout({ children, contained = true }: LayoutProps) {
       )}
       <SiteFooter />
       {/* Spacer so the fixed mobile tab bar never covers footer content */}
-      <div aria-hidden className="h-[4.75rem] bg-ink md:hidden" />
+      <div aria-hidden className="h-[4.75rem] bg-background md:hidden" />
       <MobileTabBar />
     </div>
   );

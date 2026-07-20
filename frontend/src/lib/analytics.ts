@@ -120,6 +120,11 @@ export function initAnalytics() {
   window.addEventListener("pagehide", () => flush(true));
 
   window.addEventListener("error", (e) => {
+    // Ignorer les "Script error." cross-origin (inutiles, viennent de scripts
+    // tiers comme Facebook Pixel dont on ne contrôle pas les CORS).
+    if (e.message === "Script error.") return;
+    // Ignorer les erreurs venant de domaines externes (fb, etc.)
+    try { if (e.filename && new URL(e.filename).origin !== location.origin) return; } catch {}
     trackError(e.message || "Erreur JavaScript non gérée", {
       source: e.filename,
       line: e.lineno,

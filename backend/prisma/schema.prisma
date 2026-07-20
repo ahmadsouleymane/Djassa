@@ -38,8 +38,10 @@ model User {
   buyerOrders              Order[]                   @relation("BuyerOrders")
   vendorOrders             Order[]                   @relation("VendorOrders")
   sellerVerificationStatus SellerVerificationStatus  @default(non_soumise)
-  sellerVerificationDocUrl String?
-  sellerVerificationReason String?
+  sellerVerificationRectoUrl  String?
+  sellerVerificationVersoUrl  String?
+  sellerVerificationSelfieUrl String?
+  sellerVerificationReason    String?
   buyerReviews             Review[]                  @relation("BuyerReviews")
   vendorReviews            Review[]                  @relation("VendorReviews")
   planTier                 PlanTier                  @default(standard)

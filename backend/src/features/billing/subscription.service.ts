@@ -16,7 +16,6 @@ export const SubscriptionService = {
     const { paymentUrl } = await createPaymentSession({
       amount: PRO_MONTHLY_PRICE,
       reference,
-      callbackUrl: `${config.apiBaseUrl}/api/billing/webhook/geniuspay`,
       returnUrl: `${config.corsOrigin}/abonnement`,
     });
     return { checkoutUrl: paymentUrl, reference };

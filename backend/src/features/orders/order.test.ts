@@ -5,7 +5,7 @@ vi.mock("../../services/geniusPay.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../services/geniusPay.js")>();
   return {
     ...actual,
-    createPaymentSession: vi.fn().mockResolvedValue({ paymentUrl: "https://checkout.geniuspay.mock/test" }),
+    createPaymentSession: vi.fn().mockResolvedValue({ paymentUrl: "https://checkout.geniuspay.mock/test", reference: "MTX-MOCKED" }),
   };
 });
 
@@ -118,14 +118,21 @@ describe("Order lifecycle", () => {
     expect(checkoutRes.status).toBe(200);
     const { reference } = checkoutRes.body;
 
-    const timestamp = String(Math.floor(Date.now() / 1000));
-    const body = JSON.stringify({ reference, status: "paid" });
-    const signature = signWebhookPayload(timestamp, body);
+    const body = JSON.stringify({
+      event: "payment.success",
+      timestamp: new Date().toISOString(),
+      data: {
+        transaction: { reference: "MTX-TEST", status: "completed", amount: 7000 },
+        metadata: { reference },
+        environment: "sandbox",
+      },
+    });
+    const signature = signWebhookPayload(body);
 
     const webhookRes = await request(app)
       .post("/api/billing/webhook/geniuspay")
       .set("Content-Type", "application/json")
-      .set("X-GeniusPay-Timestamp", timestamp)
+      .set("X-GeniusPay-Event", "payment.success")
       .set("X-GeniusPay-Signature", signature)
       .send(body);
     expect(webhookRes.status).toBe(200);

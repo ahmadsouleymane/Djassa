@@ -7,6 +7,8 @@ import { ProductRepository } from "../products/product.repository.js";
 import { NotFoundError, UnauthorizedError, ValidationError, ConflictError } from "../../shared/errors/index.js";
 import { computeCommission, effectiveUnitPrice, MARKETPLACE_SHIP_DEADLINE_HOURS, MARKETPLACE_CONFIRM_DEADLINE_DAYS } from "../../config/marketplace.js";
 import { config } from "../../shared/config/index.js";
+import { createPaymentSession } from "../../services/geniusPay.js";
+import { logger } from "../../shared/logger/index.js";
 
 const orderRepo = new OrderRepository();
 const messageRepo = new MessageRepository();
@@ -111,7 +113,20 @@ export const OrderService = {
       orders.push(order);
     }
 
-    return { orders, checkoutUrl: `${config.corsOrigin}/paiement/${checkoutRef}`, reference: checkoutRef };
+    // Tenter de créer une session de paiement GeniusPay
+    // Si ça échoue, on renvoie l'URL de la page Paiement comme fallback
+    try {
+      const total = orders.reduce((sum, o) => sum + o.price, 0);
+      const { paymentUrl } = await createPaymentSession({
+        amount: total,
+        reference: checkoutRef,
+        returnUrl: `${config.corsOrigin}/commandes?paye=1`,
+      });
+      return { orders, checkoutUrl: paymentUrl, reference: checkoutRef };
+    } catch (err) {
+      logger.warn({ err, checkoutRef }, "GeniusPay indisponible, fallback vers page Paiement");
+      return { orders, checkoutUrl: `${config.corsOrigin}/paiement/${checkoutRef}`, reference: checkoutRef };
+    }
   },
 
   async getCheckoutSummary(buyerId: string, reference: string) {

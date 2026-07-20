@@ -5,7 +5,7 @@ vi.mock("../../services/geniusPay.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../services/geniusPay.js")>();
   return {
     ...actual,
-    createPaymentSession: vi.fn().mockResolvedValue({ paymentUrl: "https://checkout.geniuspay.mock/test" }),
+    createPaymentSession: vi.fn().mockResolvedValue({ paymentUrl: "https://checkout.geniuspay.mock/test", reference: "MTX-MOCKED" }),
   };
 });
 
@@ -13,27 +13,42 @@ import { app } from "../../app.js";
 import { signWebhookPayload } from "../../services/geniusPay.js";
 import { prisma } from "../../shared/db/client.js";
 
+function makeWebhookPayload(reference: string) {
+  return JSON.stringify({
+    event: "payment.success",
+    timestamp: new Date().toISOString(),
+    data: {
+      transaction: {
+        reference: `MTX-${Math.random().toString(36).slice(2, 10).toUpperCase()}`,
+        status: "completed",
+        amount: 7000,
+      },
+      metadata: { reference },
+      environment: "sandbox",
+    },
+  });
+}
+
 describe("POST /api/billing/webhook/geniuspay", () => {
   it("rejects an invalid signature", async () => {
     const res = await request(app)
       .post("/api/billing/webhook/geniuspay")
       .set("Content-Type", "application/json")
-      .set("X-GeniusPay-Timestamp", "123")
+      .set("X-GeniusPay-Event", "payment.success")
       .set("X-GeniusPay-Signature", "bad-signature")
-      .send(JSON.stringify({ reference: "unknown", status: "paid" }));
+      .send(makeWebhookPayload("unknown"));
 
     expect(res.status).toBe(401);
   });
 
   it("accepts a validly signed payload for an unknown reference without erroring", async () => {
-    const timestamp = String(Math.floor(Date.now() / 1000));
-    const body = JSON.stringify({ reference: "unknown-ref", status: "paid" });
-    const signature = signWebhookPayload(timestamp, body);
+    const body = makeWebhookPayload("unknown-ref");
+    const signature = signWebhookPayload(body);
 
     const res = await request(app)
       .post("/api/billing/webhook/geniuspay")
       .set("Content-Type", "application/json")
-      .set("X-GeniusPay-Timestamp", timestamp)
+      .set("X-GeniusPay-Event", "payment.success")
       .set("X-GeniusPay-Signature", signature)
       .send(body);
 
@@ -75,14 +90,13 @@ describe("POST /api/billing/subscribe + GET /api/billing/me", () => {
     expect(checkoutRes.status).toBe(200);
     const { reference } = checkoutRes.body;
 
-    const timestamp = String(Math.floor(Date.now() / 1000));
-    const body = JSON.stringify({ reference, status: "paid" });
-    const signature = signWebhookPayload(timestamp, body);
+    const body = makeWebhookPayload(reference);
+    const signature = signWebhookPayload(body);
 
     const webhookRes = await request(app)
       .post("/api/billing/webhook/geniuspay")
       .set("Content-Type", "application/json")
-      .set("X-GeniusPay-Timestamp", timestamp)
+      .set("X-GeniusPay-Event", "payment.success")
       .set("X-GeniusPay-Signature", signature)
       .send(body);
     expect(webhookRes.status).toBe(200);
@@ -106,14 +120,13 @@ describe("POST /api/billing/subscribe + GET /api/billing/me", () => {
       .set("Authorization", `Bearer ${vendorToken}`);
     const { reference } = checkoutRes.body;
 
-    const timestamp = String(Math.floor(Date.now() / 1000));
-    const body = JSON.stringify({ reference, status: "paid" });
-    const signature = signWebhookPayload(timestamp, body);
+    const body = makeWebhookPayload(reference);
+    const signature = signWebhookPayload(body);
 
     await request(app)
       .post("/api/billing/webhook/geniuspay")
       .set("Content-Type", "application/json")
-      .set("X-GeniusPay-Timestamp", timestamp)
+      .set("X-GeniusPay-Event", "payment.success")
       .set("X-GeniusPay-Signature", signature)
       .send(body);
 
