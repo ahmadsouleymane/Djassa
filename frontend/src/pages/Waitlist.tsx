@@ -151,14 +151,21 @@ export function Waitlist() {
     setCount((c) => (c ?? 0) + 1);
     setSubmitted(true);
 
-    // ✅ TRACK META LEAD
-    if (typeof window !== 'undefined' && window.fbq) {
-      window.fbq('track', 'Lead', {
-        content_name: 'Liste d\'attente Djassa',
-        content_category: 'Pré-inscription',
-        value: 0,
-        currency: 'XOF'
-      });
+    // ✅ TRACK META LEAD (avec fallback silencieux)
+    if (typeof window !== 'undefined') {
+      try {
+        if (window.fbq) {
+          window.fbq('track', 'Lead', {
+            content_name: 'Liste d\'attente Djassa',
+            content_category: 'Pré-inscription',
+            value: 0,
+            currency: 'XOF'
+          });
+        }
+      } catch (e) {
+        // Le tracking a échoué mais on ignore pour ne pas bloquer l'utilisateur
+        console.warn('Meta Pixel non disponible, tracking ignoré');
+      }
     }
 
     toast.success("Tu es sur la liste d'attente Djassa");
@@ -167,11 +174,16 @@ export function Waitlist() {
       setSubmitted(true);
 
       // ✅ MÊME SI DÉJÀ INSCRIT, ON TRACK (lead qualifié)
-      if (typeof window !== 'undefined' && window.fbq) {
-        window.fbq('track', 'Lead', {
-          content_name: 'Liste d\'attente Djassa (déjà inscrit)',
-          content_category: 'Pré-inscription'
-        });
+      try {
+        if (typeof window !== 'undefined' && window.fbq) {
+          window.fbq('track', 'Lead', {
+            content_name: 'Liste d\'attente Djassa (déjà inscrit)',
+            content_category: 'Pré-inscription'
+          });
+        }
+      } catch (e) {
+        // Ignorer silencieusement
+        console.warn('Meta Pixel non disponible pour ce doublon');
       }
 
       toast.info("Cet email est déjà inscrit, mais bienvenue quand même");
@@ -183,7 +195,7 @@ export function Waitlist() {
   } finally {
     setIsSubmitting(false);
   }
-  }
+}
 
   return (
     <div ref={rootRef} className="min-h-dvh bg-background">
