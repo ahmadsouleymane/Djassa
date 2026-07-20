@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectTrigger,
@@ -35,7 +34,7 @@ export function Contact() {
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     const body = `${message}\n\nRépondre à : ${email}`;
-    const mailto = `mailto:support@djassa.net?subject=${encodeURIComponent(
+    const mailto = `mailto:contact@djassa.shop?subject=${encodeURIComponent(
       `[Djassa] ${SUBJECT_LABELS[subject]}`,
     )}&body=${encodeURIComponent(body)}`;
     window.location.href = mailto;
@@ -60,9 +59,8 @@ export function Contact() {
           <p className="mt-1 text-sm text-muted-foreground">
             Commande, remboursement ou litige.
           </p>
-          <p className="mt-2 flex flex-wrap items-center gap-1.5 font-mono text-sm">
-            support@djassa.net
-            <Badge variant="warning">à compléter</Badge>
+          <p className="mt-2 font-mono text-sm">
+            contact@djassa.shop
           </p>
         </div>
         <div className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-xs)]">
@@ -73,10 +71,23 @@ export function Contact() {
           <p className="mt-1 text-sm text-muted-foreground">
             Lundi au samedi, 9h – 18h (Abidjan).
           </p>
-          <p className="mt-2 flex flex-wrap items-center gap-1.5 font-mono text-sm">
-            +225 00 00 00 00 00
-            <Badge variant="warning">à compléter</Badge>
-          </p>
+          <div className="mt-2 space-y-1 font-mono text-sm">
+            <p>
+              <span className="text-muted-foreground">Appel :</span>{" "}
+              <a href="tel:+2250160726314" className="hover:underline">+225 01 60 72 63 14</a>
+            </p>
+            <p>
+              <span className="text-muted-foreground">WhatsApp :</span>{" "}
+              <a
+                href="https://wa.me/2250566110723"
+                target="_blank"
+                rel="noreferrer"
+                className="hover:underline"
+              >
+                +225 05 66 11 07 23
+              </a>
+            </p>
+          </div>
         </div>
         <div className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-xs)]">
           <span className="grid size-10 place-items-center rounded-lg bg-accent text-primary">

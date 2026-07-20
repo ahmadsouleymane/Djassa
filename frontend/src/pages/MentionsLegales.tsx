@@ -1,5 +1,4 @@
 import { Prose } from "@/components/site/Prose";
-import { Badge } from "@/components/ui/badge";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 export function MentionsLegales() {
@@ -14,39 +13,34 @@ export function MentionsLegales() {
         <h1 className="text-3xl font-semibold md:text-4xl">Mentions légales</h1>
       </header>
       <p className="mb-8 text-sm text-muted-foreground">
-        Dernière mise à jour : à compléter à la mise en production
+        Dernière mise à jour : 20 juillet 2026
       </p>
 
       <Prose>
         <h2>Éditeur du site</h2>
         <p>
-          Le site Djassa est édité par <strong>Djassa</strong>.
+          Le site Djassa est édité par <strong>Ahmad Souleymane</strong>.
         </p>
         <ul>
           <li>
-            Forme juridique et numéro RCCM : <Badge variant="warning">à compléter</Badge>
+            Siège social : Yamoussoukro, Côte d'Ivoire
           </li>
           <li>
-            Siège social : <Badge variant="warning">à compléter</Badge>, Abidjan,
-            Côte d'Ivoire
+            Téléphone : +225 01 60 72 63 14
           </li>
           <li>
-            Numéro de contribuable : <Badge variant="warning">à compléter</Badge>
+            Email : contact@djassa.shop
           </li>
           <li>
-            Email : support@djassa.net <Badge variant="warning">à compléter</Badge>
-          </li>
-          <li>
-            Directeur de la publication : <Badge variant="warning">à compléter</Badge>
+            Directeur de la publication : Ahmad Souleymane
           </li>
         </ul>
 
         <h2>Hébergement</h2>
         <p>
-          Le frontend est hébergé par Vercel Inc., et l'API et la base de données
-          par le fournisseur d'infrastructure choisi pour l'environnement de
-          production. Le détail exact (nom, adresse) sera précisé ici à la mise en
-          production finale.
+          Le frontend est hébergé par Vercel Inc. (340 S Lemon Ave, Walnut, CA 91789, États-Unis)
+          et l'API ainsi que la base de données par Render Services Inc.
+          (San Francisco, CA, États-Unis).
         </p>
 
         <h2>Propriété intellectuelle</h2>

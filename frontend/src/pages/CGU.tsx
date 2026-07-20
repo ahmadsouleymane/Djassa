@@ -16,7 +16,7 @@ export function CGU() {
         </h1>
       </header>
       <p className="mb-8 text-sm text-muted-foreground">
-        Dernière mise à jour : à compléter à la mise en production
+        Dernière mise à jour : 20 juillet 2026
       </p>
 
       <Prose>

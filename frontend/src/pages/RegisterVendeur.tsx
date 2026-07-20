@@ -15,7 +15,7 @@ export function RegisterVendeur() {
       brandTag="Publie tes produits, discute avec tes acheteurs et sois payé sans risque : le séquestre Djassa garantit ton paiement."
       brandBullets={[
         "Paiement garanti dès la commande passée",
-        "5% de commission identique pour tous les paliers",
+        "5% de commission Standard, 3% en formule Pro",
         "Vérification d'identité en 24 à 72h",
       ]}
       redirectTo="/vendeur/dashboard"

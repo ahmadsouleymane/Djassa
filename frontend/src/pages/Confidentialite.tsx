@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { Prose } from "@/components/site/Prose";
-import { Badge } from "@/components/ui/badge";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 export function Confidentialite() {
@@ -17,7 +16,7 @@ export function Confidentialite() {
         </h1>
       </header>
       <p className="mb-8 text-sm text-muted-foreground">
-        Dernière mise à jour : à compléter à la mise en production
+        Dernière mise à jour : 20 juillet 2026
       </p>
 
       <Prose>
@@ -66,8 +65,7 @@ export function Confidentialite() {
         <h2>Tes droits</h2>
         <p>
           Tu peux demander l'accès, la correction ou la suppression de tes données
-          personnelles en écrivant à support@djassa.net{" "}
-          <Badge variant="warning">à compléter</Badge>, ou via la page{" "}
+          personnelles en écrivant à contact@djassa.shop, ou via la page{" "}
           <Link to="/contact">Contact</Link>.
         </p>
       </Prose>

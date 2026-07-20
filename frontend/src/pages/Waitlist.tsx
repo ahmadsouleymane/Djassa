@@ -73,12 +73,12 @@ const SELLER_POINTS = [
   {
     icon: Percent,
     title: "Commission claire",
-    body: "5% de commission, identique pour tous les paliers. Aucun frais caché.",
+    body: "5% de commission au palier Standard, réduite à 3% pour les vendeurs Pro. Aucun frais caché.",
   },
   {
     icon: Store,
     title: `Formule Pro à ${formatFcfa(PRO_MONTHLY_PRICE)}/mois`,
-    body: "Produits mis en avant, boutique personnalisable et données détaillées.",
+    body: "Commission réduite à 3%, produits mis en avant, boutique personnalisable et statistiques détaillées.",
   },
   {
     icon: MessageSquareText,
