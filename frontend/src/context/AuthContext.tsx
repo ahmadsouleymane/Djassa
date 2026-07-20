@@ -2,7 +2,14 @@ import { createContext, useContext, useState, useCallback, useEffect, type React
 import { apiClient, setAccessToken } from "../api/client";
 
 type AccountType = "vendeur" | "client";
-type User = { id: string; email: string; accountType: AccountType; isAdmin: boolean };
+type User = {
+  id: string;
+  email: string;
+  accountType: AccountType;
+  isAdmin: boolean;
+  sellerVerificationStatus: "non_soumise" | "en_attente" | "approuvee" | "rejetee";
+  planTier: "standard" | "pro";
+};
 type AuthResponse = { user: User; accessToken: string };
 
 type AuthContextValue = {

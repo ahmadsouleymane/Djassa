@@ -17,7 +17,7 @@ export async function submit(req: Request, res: Response, next: NextFunction) {
   if (!parsed.success) return next(new ValidationError(fieldErrors(parsed.error)));
 
   try {
-    await VerificationService.submit(req.userId!, parsed.data.documentUrl);
+    await VerificationService.submit(req.userId!, parsed.data.rectoUrl, parsed.data.versoUrl, parsed.data.selfieUrl);
     res.status(200).json({ status: "en_attente" });
   } catch (err) {
     next(err);
@@ -36,7 +36,13 @@ export async function listPending(_req: Request, res: Response, next: NextFuncti
   try {
     const users = await VerificationService.listPending();
     res.json({
-      users: users.map((u) => ({ id: u.id, email: u.email, documentUrl: u.sellerVerificationRectoUrl })),
+      users: users.map((u) => ({
+        id: u.id,
+        email: u.email,
+        rectoUrl: u.sellerVerificationRectoUrl,
+        versoUrl: u.sellerVerificationVersoUrl,
+        selfieUrl: u.sellerVerificationSelfieUrl,
+      })),
     });
   } catch (err) {
     next(err);

@@ -65,3 +65,18 @@ export async function requireAdmin(req: Request, _res: Response, next: NextFunct
     next(err);
   }
 }
+
+/** Bloque les vendeurs dont l'identité n'a pas encore été vérifiée. */
+export async function requireVerified(req: Request, _res: Response, next: NextFunction) {
+  if (req.accountType !== "vendeur") return next();
+  try {
+    const user = await userRepo.findById(req.userId!);
+    if (!user) return next(new UnauthorizedError());
+    if (user.sellerVerificationStatus !== "approuvee") {
+      return next(new UnauthorizedError("Ton identité doit être vérifiée avant de pouvoir publier des annonces."));
+    }
+    next();
+  } catch (err) {
+    next(err);
+  }
+}

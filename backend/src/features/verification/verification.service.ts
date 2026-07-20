@@ -4,10 +4,12 @@ import { NotFoundError } from "../../shared/errors/index.js";
 const userRepo = new UserRepository();
 
 export const VerificationService = {
-  async submit(userId: string, documentUrl: string) {
+  async submit(userId: string, rectoUrl: string, versoUrl: string, selfieUrl: string) {
     return userRepo.update(userId, {
       sellerVerificationStatus: "en_attente",
-      sellerVerificationRectoUrl: documentUrl,
+      sellerVerificationRectoUrl: rectoUrl,
+      sellerVerificationVersoUrl: versoUrl,
+      sellerVerificationSelfieUrl: selfieUrl,
       sellerVerificationReason: null,
     });
   },
@@ -17,7 +19,9 @@ export const VerificationService = {
     if (!user) throw new NotFoundError("Utilisateur");
     return {
       status: user.sellerVerificationStatus,
-      documentUrl: user.sellerVerificationRectoUrl,
+      rectoUrl: user.sellerVerificationRectoUrl,
+      versoUrl: user.sellerVerificationVersoUrl,
+      selfieUrl: user.sellerVerificationSelfieUrl,
       reason: user.sellerVerificationReason,
     };
   },

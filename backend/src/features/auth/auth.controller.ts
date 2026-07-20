@@ -15,12 +15,20 @@ const REFRESH_COOKIE_OPTIONS = {
   maxAge: 30 * 24 * 60 * 60 * 1000,
 };
 
-function toPublicUser(user: { id: string; email: string; accountType: string }) {
+function toPublicUser(user: {
+  id: string;
+  email: string;
+  accountType: string;
+  sellerVerificationStatus?: string;
+  planTier?: string;
+}) {
   return {
     id: user.id,
     email: user.email,
     accountType: user.accountType,
     isAdmin: config.adminEmails.includes(user.email.toLowerCase()),
+    sellerVerificationStatus: user.sellerVerificationStatus ?? "non_soumise",
+    planTier: user.planTier ?? "standard",
   };
 }
 

@@ -1,7 +1,9 @@
 import { z } from "zod";
 
 export const submitVerificationSchema = z.object({
-  documentUrl: z.string().url(),
+  rectoUrl: z.string().url(),
+  versoUrl: z.string().url(),
+  selfieUrl: z.string().url(),
 });
 
 export const rejectVerificationSchema = z.object({
