@@ -26,13 +26,18 @@ export async function sendEmail(to: string | string[], subject: string, html: st
   }
 }
 
-export function passwordResetEmailHtml(resetUrl: string): string {
-  return `
-    <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
-      <h2 style="color:#00c266;">Réinitialisation de mot de passe</h2>
-      <p>Tu as demandé à réinitialiser ton mot de passe Djassa. Ce lien est valable 1 heure.</p>
-      <p><a href="${resetUrl}" style="display:inline-block;padding:12px 20px;background:#00c266;color:#fff;border-radius:8px;text-decoration:none;">Réinitialiser mon mot de passe</a></p>
-      <p style="color:#888;font-size:13px;">Si tu n'es pas à l'origine de cette demande, ignore cet email.</p>
-    </div>
-  `;
-}
+// Ré-exporter les templates depuis le module dédié
+export {
+  welcomeEmailHtml,
+  passwordResetEmailHtml,
+  passwordChangedEmailHtml,
+  nouvelleCommandeVendeurEmailHtml,
+  commandePayeeVendeurEmailHtml,
+  commandeConfirmeeVendeurEmailHtml,
+  commandePayeeAcheteurEmailHtml,
+  commandeExpedieeAcheteurEmailHtml,
+  commandeRembourseeAcheteurEmailHtml,
+  litigeOuvertEmailHtml,
+  litigeResoluVendeurEmailHtml,
+  litigeResoluAcheteurEmailHtml,
+} from "./templates.js";

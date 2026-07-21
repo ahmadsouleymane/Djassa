@@ -9,6 +9,7 @@ import { computeCommission, effectiveUnitPrice, MARKETPLACE_SHIP_DEADLINE_HOURS,
 import { config } from "../../shared/config/index.js";
 import { createPaymentSession } from "../../services/geniusPay.js";
 import { logger } from "../../shared/logger/index.js";
+import { sendEmail, nouvelleCommandeVendeurEmailHtml, commandePayeeVendeurEmailHtml, commandeConfirmeeVendeurEmailHtml, commandePayeeAcheteurEmailHtml, commandeExpedieeAcheteurEmailHtml, commandeRembourseeAcheteurEmailHtml, litigeOuvertEmailHtml, litigeResoluVendeurEmailHtml, litigeResoluAcheteurEmailHtml } from "../../shared/email/index.js";
 
 const orderRepo = new OrderRepository();
 const messageRepo = new MessageRepository();
@@ -52,8 +53,9 @@ export const OrderService = {
     const { commissionAmount, netAmount } = computeCommission(message.offerPrice, isPro ? "pro" : "standard");
 
     const paymentReference = randomUUID();
+    let order;
     try {
-      return await orderRepo.create({
+      order = await orderRepo.create({
         buyerId,
         vendorId: conversation.vendorId,
         productId: conversation.productId,
@@ -71,6 +73,25 @@ export const OrderService = {
       }
       throw err;
     }
+
+    // Notifier le vendeur (fire-and-forget)
+    const product = await productRepo.findPublicById(conversation.productId);
+    if (product && vendor.email) {
+      sendEmail(
+        vendor.email,
+        `Nouvelle commande : ${product.title}`,
+        nouvelleCommandeVendeurEmailHtml({
+          vendorName: vendor.email.split("@")[0],
+          productTitle: product.title,
+          productPhotoUrl: product.photos?.[0] ?? null,
+          productUrl: `${config.frontendUrl}/article/${product.id}`,
+          price: message.offerPrice,
+          buyerEmail: (await userRepo.findById(buyerId))?.email ?? "client",
+        }),
+      );
+    }
+
+    return order;
   },
 
   async createDirectBatch(buyerId: string, items: { productId: string; quantity: number }[]) {
@@ -113,8 +134,30 @@ export const OrderService = {
       orders.push(order);
     }
 
-    // Tenter de créer une session de paiement GeniusPay
-    // Si ça échoue, on renvoie l'URL de la page Paiement comme fallback
+    // Notifier les vendeurs (fire-and-forget)
+    const buyer = await userRepo.findById(buyerId);
+    const buyerEmail = buyer?.email ?? "client";
+    for (const order of orders) {
+      const p = await productRepo.findPublicById(order.productId);
+      const v = await userRepo.findById(order.vendorId);
+      if (p && v?.email) {
+        sendEmail(
+          v.email,
+          `Nouvelle commande : ${p.title}`,
+          nouvelleCommandeVendeurEmailHtml({
+            vendorName: v.email.split("@")[0],
+            productTitle: p.title,
+            productPhotoUrl: p.photos?.[0] ?? null,
+            productUrl: `${config.frontendUrl}/article/${p.id}`,
+            price: order.price,
+            quantity: order.quantity,
+            buyerEmail,
+          }),
+        );
+      }
+    }
+
+    // Tenter de créer une session de paiement GeniusPay    // Si ça échoue, on renvoie l'URL de la page Paiement comme fallback
     try {
       const total = orders.reduce((sum, o) => sum + o.price, 0);
       const { paymentUrl } = await createPaymentSession({
@@ -153,6 +196,48 @@ export const OrderService = {
       status: "paye",
       shipBy: hoursFromNow(MARKETPLACE_SHIP_DEADLINE_HOURS),
     });
+
+    // Envoyer les emails post-paiement (même logique que markPaidByCheckoutRef via webhook)
+    const shipByStr = hoursFromNow(MARKETPLACE_SHIP_DEADLINE_HOURS).toLocaleDateString("fr-FR", {
+      day: "numeric", month: "long", hour: "2-digit", minute: "2-digit",
+    });
+    const buyer = await userRepo.findById(buyerId);
+    const buyerName = buyer?.email?.split("@")[0] ?? "acheteur";
+    const buyerEmail = buyer?.email;
+
+    for (const order of orders) {
+      const p = await productRepo.findPublicById(order.productId);
+      const v = await userRepo.findById(order.vendorId);
+      const productTitle = p?.title ?? "Article";
+      const photo = p?.photos?.[0] ?? null;
+
+      if (buyerEmail) {
+        sendEmail(buyerEmail, `Paiement confirmé : ${productTitle}`, commandePayeeAcheteurEmailHtml({
+          buyerName,
+          productTitle,
+          productPhotoUrl: photo,
+          productUrl: `${config.frontendUrl}/article/${order.productId}`,
+          price: order.price,
+          quantity: order.quantity,
+          confirmationCode: order.confirmationCode,
+        }));
+      }
+
+      if (v?.email) {
+        sendEmail(v.email, `Paiement confirmé — prépare l'expédition : ${productTitle}`, commandePayeeVendeurEmailHtml({
+          vendorName: v.email.split("@")[0],
+          productTitle,
+          productPhotoUrl: photo,
+          productUrl: `${config.frontendUrl}/article/${order.productId}`,
+          price: order.price,
+          netAmount: order.netAmount,
+          commission: order.commissionAmount,
+          quantity: order.quantity,
+          shipBy: shipByStr,
+        }));
+      }
+    }
+
     return { paid: orders.length };
   },
 
@@ -167,12 +252,59 @@ export const OrderService = {
   },
 
   async markPaidByCheckoutRef(checkoutRef: string) {
-    const orders = await orderRepo.findByCheckoutRef(checkoutRef);
+    const orders = await orderRepo.findByCheckoutRefWithDetails(checkoutRef);
     if (orders.length === 0) return null;
+
     await orderRepo.updateManyByCheckoutRef(checkoutRef, {
       status: "paye",
       shipBy: hoursFromNow(MARKETPLACE_SHIP_DEADLINE_HOURS),
     });
+
+    // Notifier acheteur + vendeur pour chaque commande (fire-and-forget)
+    const shipByStr = hoursFromNow(MARKETPLACE_SHIP_DEADLINE_HOURS).toLocaleDateString("fr-FR", {
+      day: "numeric", month: "long", hour: "2-digit", minute: "2-digit",
+    });
+    for (const order of orders) {
+      const buyerEmail = order.buyer?.email;
+      const vendorEmail = order.vendor?.email;
+      const productTitle = order.product?.title ?? "Article";
+      const photo = order.product?.photos?.[0] ?? null;
+
+      if (buyerEmail) {
+        sendEmail(
+          buyerEmail,
+          `Paiement confirmé : ${productTitle}`,
+          commandePayeeAcheteurEmailHtml({
+            buyerName: buyerEmail.split("@")[0],
+            productTitle,
+            productPhotoUrl: photo,
+            productUrl: `${config.frontendUrl}/article/${order.productId}`,
+            price: order.price,
+            quantity: order.quantity,
+            confirmationCode: order.confirmationCode,
+          }),
+        );
+      }
+
+      if (vendorEmail) {
+        sendEmail(
+          vendorEmail,
+          `Paiement confirmé — prépare l'expédition : ${productTitle}`,
+          commandePayeeVendeurEmailHtml({
+            vendorName: vendorEmail.split("@")[0],
+            productTitle,
+            productPhotoUrl: photo,
+            productUrl: `${config.frontendUrl}/article/${order.productId}`,
+            price: order.price,
+            netAmount: order.netAmount,
+            commission: order.commissionAmount,
+            quantity: order.quantity,
+            shipBy: shipByStr,
+          }),
+        );
+      }
+    }
+
     return orders;
   },
 
@@ -181,13 +313,42 @@ export const OrderService = {
     if (!order) throw new NotFoundError("Commande");
     if (order.vendorId !== vendorId) throw new UnauthorizedError("Cette commande ne vous appartient pas");
     if (order.status !== "paye") throw new ValidationError({ status: "Cette commande n'est pas prête à être expédiée" });
-    return orderRepo.update(order.id, {
+    const updated = await orderRepo.update(order.id, {
       status: "expedie",
       confirmBy: daysFromNow(MARKETPLACE_CONFIRM_DEADLINE_DAYS),
       shippedAt: new Date(),
       trackingNumber: tracking?.trackingNumber ?? null,
       carrier: tracking?.carrier ?? null,
     });
+
+    // Notifier l'acheteur (fire-and-forget)
+    const details = await orderRepo.findByIdWithDetails(orderId);
+    if (details) {
+      const buyerEmail = details.buyer?.email;
+      const productTitle = details.product?.title ?? "Article";
+      if (buyerEmail) {
+        const confirmByStr = updated.confirmBy
+          ? updated.confirmBy.toLocaleDateString("fr-FR", { day: "numeric", month: "long" })
+          : undefined;
+        sendEmail(
+          buyerEmail,
+          `Commande expédiée : ${productTitle}`,
+          commandeExpedieeAcheteurEmailHtml({
+            buyerName: buyerEmail.split("@")[0],
+            productTitle,
+            productPhotoUrl: details.product?.photos?.[0] ?? null,
+            productUrl: `${config.frontendUrl}/article/${order.productId}`,
+            price: order.price,
+            confirmationCode: order.confirmationCode,
+            trackingNumber: tracking?.trackingNumber ?? null,
+            carrier: tracking?.carrier ?? null,
+            confirmBy: confirmByStr,
+          }),
+        );
+      }
+    }
+
+    return updated;
   },
 
   async confirm(buyerId: string, orderId: string) {
@@ -195,7 +356,30 @@ export const OrderService = {
     if (!order) throw new NotFoundError("Commande");
     if (order.buyerId !== buyerId) throw new UnauthorizedError("Cette commande ne vous appartient pas");
     if (order.status !== "expedie") throw new ValidationError({ status: "Cette commande n'est pas en attente de confirmation" });
-    return orderRepo.update(order.id, { status: "confirme" });
+    const updated = await orderRepo.update(order.id, { status: "confirme" });
+
+    // Notifier le vendeur (fire-and-forget)
+    const details = await orderRepo.findByIdWithDetails(orderId);
+    if (details) {
+      const vendorEmail = details.vendor?.email;
+      const productTitle = details.product?.title ?? "Article";
+      if (vendorEmail) {
+        sendEmail(
+          vendorEmail,
+          `Commande confirmée — paiement libéré : ${productTitle}`,
+          commandeConfirmeeVendeurEmailHtml({
+            vendorName: vendorEmail.split("@")[0],
+            productTitle,
+            productPhotoUrl: details.product?.photos?.[0] ?? null,
+            price: order.price,
+            netAmount: order.netAmount,
+            commission: order.commissionAmount,
+          }),
+        );
+      }
+    }
+
+    return updated;
   },
 
   async openDispute(userId: string, orderId: string, reason: string) {
@@ -205,14 +389,100 @@ export const OrderService = {
     if (order.status !== "paye" && order.status !== "expedie") {
       throw new ValidationError({ status: "Un litige ne peut être ouvert qu'après paiement" });
     }
-    return orderRepo.update(order.id, { status: "en_litige", disputeReason: reason });
+    const updated = await orderRepo.update(order.id, { status: "en_litige", disputeReason: reason });
+
+    // Notifier les deux parties (fire-and-forget)
+    const details = await orderRepo.findByIdWithDetails(orderId);
+    if (details) {
+      const buyerEmail = details.buyer?.email;
+      const vendorEmail = details.vendor?.email;
+      const productTitle = details.product?.title ?? "Article";
+      const photo = details.product?.photos?.[0] ?? null;
+
+      const html = litigeOuvertEmailHtml({
+        recipientName: "",
+        productTitle,
+        productPhotoUrl: photo,
+        price: order.price,
+        reason,
+      });
+
+      if (buyerEmail) {
+        sendEmail(
+          buyerEmail,
+          `Litige ouvert : ${productTitle}`,
+          litigeOuvertEmailHtml({
+            recipientName: buyerEmail.split("@")[0],
+            productTitle,
+            productPhotoUrl: photo,
+            price: order.price,
+            reason,
+          }),
+        );
+      }
+
+      if (vendorEmail) {
+        sendEmail(
+          vendorEmail,
+          `Litige ouvert sur ta commande : ${productTitle}`,
+          litigeOuvertEmailHtml({
+            recipientName: vendorEmail.split("@")[0],
+            productTitle,
+            productPhotoUrl: photo,
+            price: order.price,
+            reason,
+          }),
+        );
+      }
+    }
+
+    return updated;
   },
 
   async resolveDispute(orderId: string, resolution: "confirme" | "rembourse") {
     const order = await orderRepo.findById(orderId);
     if (!order) throw new NotFoundError("Commande");
     if (order.status !== "en_litige") throw new ValidationError({ status: "Cette commande n'est pas en litige" });
-    return orderRepo.update(order.id, { status: resolution });
+    const updated = await orderRepo.update(order.id, { status: resolution });
+
+    // Notifier la partie concernée (fire-and-forget)
+    const details = await orderRepo.findByIdWithDetails(orderId);
+    if (details) {
+      const productTitle = details.product?.title ?? "Article";
+      const photo = details.product?.photos?.[0] ?? null;
+
+      if (resolution === "confirme") {
+        const vendorEmail = details.vendor?.email;
+        if (vendorEmail) {
+          sendEmail(
+            vendorEmail,
+            `Litige résolu — paiement libéré : ${productTitle}`,
+            litigeResoluVendeurEmailHtml({
+              vendorName: vendorEmail.split("@")[0],
+              productTitle,
+              productPhotoUrl: photo,
+              netAmount: order.netAmount,
+            }),
+          );
+        }
+      } else {
+        const buyerEmail = details.buyer?.email;
+        if (buyerEmail) {
+          sendEmail(
+            buyerEmail,
+            `Litige résolu — remboursement : ${productTitle}`,
+            litigeResoluAcheteurEmailHtml({
+              buyerName: buyerEmail.split("@")[0],
+              productTitle,
+              productPhotoUrl: photo,
+              price: order.price,
+            }),
+          );
+        }
+      }
+    }
+
+    return updated;
   },
 
   listMine(userId: string) {

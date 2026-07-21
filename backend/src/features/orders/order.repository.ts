@@ -24,6 +24,30 @@ export class OrderRepository {
     return prisma.order.findUnique({ where: { id } });
   }
 
+  /** Trouve une commande avec les emails buyer/vendor et le titre du produit. */
+  findByIdWithDetails(id: string) {
+    return prisma.order.findUnique({
+      where: { id },
+      include: {
+        buyer: { select: { email: true } },
+        vendor: { select: { email: true } },
+        product: { select: { title: true, photos: true } },
+      },
+    });
+  }
+
+  /** Trouve toutes les commandes d'un checkoutRef avec les détails. */
+  findByCheckoutRefWithDetails(checkoutRef: string) {
+    return prisma.order.findMany({
+      where: { checkoutRef },
+      include: {
+        buyer: { select: { email: true } },
+        vendor: { select: { email: true } },
+        product: { select: { title: true, photos: true } },
+      },
+    });
+  }
+
   findByChatMessageId(chatMessageId: string): Promise<Order | null> {
     return prisma.order.findUnique({ where: { chatMessageId } });
   }

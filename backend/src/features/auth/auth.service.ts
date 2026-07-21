@@ -5,7 +5,7 @@ import { UserRepository } from "../users/user.repository.js";
 import { PasswordResetRepository } from "./passwordReset.repository.js";
 import { config } from "../../shared/config/index.js";
 import { ConflictError, UnauthorizedError, ValidationError } from "../../shared/errors/index.js";
-import { sendEmail, passwordResetEmailHtml } from "../../shared/email/index.js";
+import { sendEmail, passwordResetEmailHtml, welcomeEmailHtml, passwordChangedEmailHtml } from "../../shared/email/index.js";
 import { LAUNCH_AT, PRE_LAUNCH_PRO_TRIAL_DAYS } from "../../config/launch.js";
 import type { RegisterInput, LoginInput } from "./auth.schema.js";
 
@@ -51,6 +51,13 @@ export const AuthService = {
       planTier,
       planPeriodEnd,
     });
+
+    // Email de bienvenue (non-bloquant : l'envoi échoue → simple log)
+    sendEmail(
+      user.email,
+      "Bienvenue sur Djassa !",
+      welcomeEmailHtml({ email: user.email, accountType: user.accountType, planTier: user.planTier ?? undefined }),
+    );
 
     return { user, ...signTokens(user.id, user.accountType) };
   },
@@ -107,5 +114,15 @@ export const AuthService = {
     await userRepo.update(record.userId, { passwordHash });
     await passwordResetRepo.markUsed(record.id);
     await passwordResetRepo.invalidateAllForUser(record.userId);
+
+    // Email de confirmation (non-bloquant)
+    const updatedUser = await userRepo.findById(record.userId);
+    if (updatedUser) {
+      sendEmail(
+        updatedUser.email,
+        "Mot de passe modifié avec succès",
+        passwordChangedEmailHtml(),
+      );
+    }
   },
 };
