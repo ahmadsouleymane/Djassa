@@ -24,6 +24,7 @@ import { analyticsRouter } from "./features/analytics/analytics.routes.js";
 import { reportRouter } from "./features/reports/report.routes.js";
 import { adminRouter } from "./features/admin/admin.routes.js";
 import { waitlistRouter } from "./features/waitlist/waitlist.routes.js";
+import { referralRouter } from "./features/referrals/referrals.routes.js";
 
 export const app = express();
 
@@ -68,5 +69,6 @@ app.use("/api/reports", reportRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/waitlist", waitlistRouter);
 app.use("/api/boutique", boutiqueRouter);
+app.use("/api/referrals", referralRouter);
 
 app.use(errorHandler);

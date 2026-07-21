@@ -17,7 +17,7 @@ type AuthContextValue = {
   accessToken: string | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, phone: string, password: string, accountType: AccountType) => Promise<void>;
+  register: (email: string, phone: string, password: string, accountType: AccountType, referralCode?: string) => Promise<void>;
   logout: () => void;
 };
 
@@ -53,8 +53,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(res.user);
   }, []);
 
-  const register = useCallback(async (email: string, phone: string, password: string, accountType: AccountType) => {
-    const res = await apiClient.post<AuthResponse>("/api/auth/register", { email, phone, password, accountType });
+  const register = useCallback(async (email: string, phone: string, password: string, accountType: AccountType, referralCode?: string) => {
+    const res = await apiClient.post<AuthResponse>("/api/auth/register", {
+      email,
+      phone,
+      password,
+      accountType,
+      ...(referralCode ? { referralCode } : {}),
+    });
     setAccessToken(res.accessToken);
     setAccessTokenState(res.accessToken);
     setUser(res.user);

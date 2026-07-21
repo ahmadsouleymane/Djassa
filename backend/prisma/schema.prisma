@@ -56,6 +56,11 @@ model User {
   storeDescription String?
   storeLogoUrl     String?
   storeBannerUrl   String?
+
+  /// Parrainage
+  referralCode   String?    @unique
+  referralsMade  Referral[] @relation("ReferralsMade")
+  referralOf     Referral[] @relation("ReferralOf")
 }
 
 model PasswordResetToken {
@@ -279,4 +284,33 @@ model WaitlistSignup {
   lastName  String
   email     String   @unique
   createdAt DateTime @default(now())
+}
+
+enum ReferralStatus {
+  pending
+  signed_up
+  purchased
+}
+
+enum RewardStatus {
+  pending
+  credited
+}
+
+model Referral {
+  id             String         @id @default(uuid())
+  referrerId     String
+  referrer       User           @relation("ReferralsMade", fields: [referrerId], references: [id])
+  referredEmail  String
+  status         ReferralStatus @default(pending)
+  referredUserId String?
+  referredUser   User?          @relation("ReferralOf", fields: [referredUserId], references: [id])
+  rewardStatus   RewardStatus   @default(pending)
+  rewardAmount   Int            @default(0)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@index([referrerId])
+  @@index([referredEmail])
+  @@index([status])
 }

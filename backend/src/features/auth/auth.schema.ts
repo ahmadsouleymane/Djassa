@@ -7,6 +7,7 @@ export const registerSchema = z.object({
     .regex(/^0\d{9}$/, "Le numéro doit commencer par 0 et contenir exactement 10 chiffres"),
   password: z.string().min(8, "Le mot de passe doit contenir au moins 8 caractères"),
   accountType: z.enum(["vendeur", "client"]).default("vendeur"),
+  referralCode: z.string().max(50).optional(),
 });
 
 export const loginSchema = z.object({

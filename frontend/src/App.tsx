@@ -50,6 +50,7 @@ const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics").then((m
 const AdminDisputes = lazy(() => import("./pages/admin/AdminDisputes").then((m) => ({ default: m.AdminDisputes })));
 const AdminReports = lazy(() => import("./pages/admin/AdminReports").then((m) => ({ default: m.AdminReports })));
 const AdminEmails = lazy(() => import("./pages/admin/AdminEmails").then((m) => ({ default: m.AdminEmails })));
+const Parrainage = lazy(() => import("./pages/Parrainage").then((m) => ({ default: m.Parrainage })));
 
 function RouteFallback() {
   return (
@@ -170,6 +171,14 @@ export function App() {
           <Route path="/cgu" element={withLayout(<CGU />)} />
           <Route path="/politique-de-confidentialite" element={withLayout(<Confidentialite />)} />
           <Route path="/mentions-legales" element={withLayout(<MentionsLegales />)} />
+          <Route
+            path="/parrainage"
+            element={
+              <PrivateRoute>
+                <Parrainage />
+              </PrivateRoute>
+            }
+          />
           <Route
             path="/catalogue"
             element={

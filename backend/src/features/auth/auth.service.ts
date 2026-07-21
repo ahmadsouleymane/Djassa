@@ -7,6 +7,8 @@ import { config } from "../../shared/config/index.js";
 import { ConflictError, UnauthorizedError, ValidationError } from "../../shared/errors/index.js";
 import { sendEmail, passwordResetEmailHtml, welcomeEmailHtml, passwordChangedEmailHtml } from "../../shared/email/index.js";
 import { LAUNCH_AT, PRE_LAUNCH_PRO_TRIAL_DAYS } from "../../config/launch.js";
+import { ReferralService } from "../referrals/referrals.service.js";
+import { logger } from "../../shared/logger/index.js";
 import type { RegisterInput, LoginInput } from "./auth.schema.js";
 
 const userRepo = new UserRepository();
@@ -58,6 +60,16 @@ export const AuthService = {
       "Bienvenue sur Djassa !",
       welcomeEmailHtml({ email: user.email, accountType: user.accountType, planTier: user.planTier ?? undefined }),
     );
+
+    // Traitement du code de parrainage (non-bloquant : un code invalide n'empêche pas l'inscription)
+    if (input.referralCode) {
+      try {
+        await ReferralService.applyCode({ code: input.referralCode, email: input.email });
+        await ReferralService.onUserRegistered(input.email, user.id);
+      } catch (err) {
+        logger.warn({ err, email: input.email, code: input.referralCode }, "Échec application code parrainage à l'inscription");
+      }
+    }
 
     return { user, ...signTokens(user.id, user.accountType) };
   },

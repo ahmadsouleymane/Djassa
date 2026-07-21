@@ -1,7 +1,8 @@
-import { useState, type FormEvent } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useState, useEffect, type FormEvent } from "react";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { ApiError } from "@/api/client";
+import { referralApi } from "@/api/referrals";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import { PasswordInput } from "@/components/auth/PasswordInput";
 import { Button } from "@/components/ui/button";
@@ -35,6 +36,9 @@ export function RegisterForm({
 }: RegisterFormProps) {
   const { register } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const referralCode = searchParams.get("ref")?.trim() ?? undefined;
+  const [referrerName, setReferrerName] = useState<string | null>(null);
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
@@ -44,6 +48,14 @@ export function RegisterForm({
 
   const phoneValid = /^0\d{9}$/.test(phone);
   const passwordsMatch = password === confirmPassword;
+
+  // Vérifier le code de parrainage dans l'URL
+  useEffect(() => {
+    if (!referralCode) return;
+    referralApi.checkCode(referralCode).then((res) => {
+      setReferrerName(res.referrerName);
+    }).catch(() => {});
+  }, [referralCode]);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -64,7 +76,7 @@ export function RegisterForm({
 
     setIsSubmitting(true);
     try {
-      await register(email, phone, password, accountType);
+      await register(email, phone, password, accountType, referralCode);
       navigate(redirectTo);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Erreur d'inscription");
@@ -80,6 +92,12 @@ export function RegisterForm({
       </span>
       <h1 className="mt-2 text-3xl font-semibold">{title}</h1>
       <p className="mt-1.5 text-muted-foreground">{lead}</p>
+
+      {referrerName && (
+        <div className="mt-5 rounded-xl border border-primary/30 bg-primary/5 px-4 py-3 text-sm">
+          🎉 <strong>{referrerName}</strong> t'a invité sur Djassa. Ton premier achat est 100% protégé.
+        </div>
+      )}
 
       <form className="mt-7 flex flex-col gap-4" onSubmit={handleSubmit}>
         {error && (

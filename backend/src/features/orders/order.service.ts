@@ -379,6 +379,12 @@ export const OrderService = {
       }
     }
 
+    // Crédit de parrainage : si c'est le premier achat confirmé du buyer,
+    // on tente de créditer son parrain (fire-and-forget, non-bloquant).
+    import("../referrals/referrals.service.js").then(({ ReferralService }) =>
+      ReferralService.tryRewardReferrer(order.buyerId, order.price),
+    ).catch(() => {});
+
     return updated;
   },
 
