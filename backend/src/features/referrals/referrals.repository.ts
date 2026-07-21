@@ -79,6 +79,18 @@ export class ReferralRepository {
     });
   }
 
+  /**
+   * Crédite le parrain de façon atomique : met à jour status + rewardStatus + rewardAmount
+   * en une seule requête avec un WHERE conditionnel qui empêche les race conditions.
+   * Retourne le nombre de lignes affectées (0 si déjà crédité par un appel concurrent).
+   */
+  creditReferral(id: string, credit: number) {
+    return prisma.referral.updateMany({
+      where: { id, status: "signed_up", rewardStatus: "pending" },
+      data: { status: "purchased", rewardStatus: "credited", rewardAmount: credit },
+    });
+  }
+
   findByReferredUserId(referredUserId: string): Promise<Referral | null> {
     return prisma.referral.findFirst({
       where: { referredUserId, status: "signed_up" },

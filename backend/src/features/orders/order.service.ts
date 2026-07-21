@@ -405,14 +405,6 @@ export const OrderService = {
       const productTitle = details.product?.title ?? "Article";
       const photo = details.product?.photos?.[0] ?? null;
 
-      const html = litigeOuvertEmailHtml({
-        recipientName: "",
-        productTitle,
-        productPhotoUrl: photo,
-        price: order.price,
-        reason,
-      });
-
       if (buyerEmail) {
         sendEmail(
           buyerEmail,

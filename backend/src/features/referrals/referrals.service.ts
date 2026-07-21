@@ -1,16 +1,17 @@
 import crypto from "node:crypto";
 import { ReferralRepository } from "./referrals.repository.js";
+import { UserRepository } from "../users/user.repository.js";
 import {
   computeReferralCredit,
   getReferralLevel,
   getNextThreshold,
   REFERRAL_MIN_ORDER_AMOUNT,
 } from "./referrals.schema.js";
-import { prisma } from "../../shared/db/client.js";
 import { NotFoundError, ConflictError } from "../../shared/errors/index.js";
 import { logger } from "../../shared/logger/index.js";
 
 const referralRepo = new ReferralRepository();
+const userRepo = new UserRepository();
 
 function generateCode(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -24,19 +25,19 @@ function generateCode(): string {
 export const ReferralService = {
   /** Récupère ou génère le code de parrainage d'un utilisateur. */
   async getOrCreateCode(userId: string) {
-    const user = await prisma.user.findUnique({ where: { id: userId } });
+    const user = await userRepo.findById(userId);
     if (!user) throw new NotFoundError("Utilisateur");
 
     if (!user.referralCode) {
       let code = generateCode();
-      while (await prisma.user.findUnique({ where: { referralCode: code } })) {
+      while (await referralRepo.findByReferralCode(code)) {
         code = generateCode();
       }
-      await prisma.user.update({ where: { id: userId }, data: { referralCode: code } });
+      await userRepo.update(userId, { referralCode: code });
+      return { code };
     }
 
-    const finalUser = await prisma.user.findUniqueOrThrow({ where: { id: userId } });
-    return { code: finalUser.referralCode! };
+    return { code: user.referralCode };
   },
 
   /** Stats complètes du parrain connecté. */
@@ -46,10 +47,10 @@ export const ReferralService = {
     const rewardedConversions = await referralRepo.countRewardedByReferrer(userId);
     const totalEarnings = await referralRepo.sumRewardsByReferrer(userId);
     const referrals = await referralRepo.findByReferrerId(userId);
-    const code = await prisma.user.findUnique({ where: { id: userId }, select: { referralCode: true } });
+    const code = await userRepo.findReferralCode(userId);
 
     return {
-      code: code?.referralCode ?? null,
+      code,
       totalReferrals,
       conversions,
       rewardedConversions,
@@ -117,8 +118,11 @@ export const ReferralService = {
     const credit = computeReferralCredit(orderAmount);
     if (credit <= 0) return;
 
-    await referralRepo.updateStatus(ref.id, "purchased");
-    await referralRepo.creditReward(ref.id, credit);
+    const result = await referralRepo.creditReferral(ref.id, credit);
+    if (result.count === 0) {
+      logger.info({ refId: ref.id, buyerId, credit }, "Parrainage déjà crédité (course condition évitée)");
+      return;
+    }
 
     logger.info(
       { referrerId: ref.referrerId, buyerId, orderAmount, credit },

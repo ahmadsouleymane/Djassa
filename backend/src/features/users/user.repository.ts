@@ -64,4 +64,13 @@ export class UserRepository {
     });
     return users.map((u) => u.email);
   }
+
+  /** Récupère uniquement le code de parrainage d'un utilisateur. */
+  async findReferralCode(userId: string): Promise<string | null> {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { referralCode: true },
+    });
+    return user?.referralCode ?? null;
+  }
 }
