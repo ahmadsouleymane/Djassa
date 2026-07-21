@@ -9,7 +9,7 @@ import { computeCommission, effectiveUnitPrice, MARKETPLACE_SHIP_DEADLINE_HOURS,
 import { config } from "../../shared/config/index.js";
 import { createPaymentSession } from "../../services/geniusPay.js";
 import { logger } from "../../shared/logger/index.js";
-import { sendEmail, nouvelleCommandeVendeurEmailHtml, commandePayeeVendeurEmailHtml, commandeConfirmeeVendeurEmailHtml, commandePayeeAcheteurEmailHtml, commandeExpedieeAcheteurEmailHtml, commandeRembourseeAcheteurEmailHtml, litigeOuvertEmailHtml, litigeResoluVendeurEmailHtml, litigeResoluAcheteurEmailHtml } from "../../shared/email/index.js";
+import { sendEmail, nouvelleCommandeVendeurEmailHtml, commandePayeeVendeurEmailHtml, commandeConfirmeeVendeurEmailHtml, commandePayeeAcheteurEmailHtml, commandeExpedieeAcheteurEmailHtml, commandeRembourseeAcheteurEmailHtml, commandeAutoRembourseeEmailHtml, commandeAutoConfirmeeVendeurEmailHtml, litigeOuvertEmailHtml, litigeResoluVendeurEmailHtml, litigeResoluAcheteurEmailHtml } from "../../shared/email/index.js";
 
 const orderRepo = new OrderRepository();
 const messageRepo = new MessageRepository();
@@ -544,10 +544,56 @@ export const OrderService = {
 
   async sweepTimeouts(now = new Date()) {
     const pastShip = await orderRepo.findPastShipDeadline(now);
-    if (pastShip.length > 0) await orderRepo.updateMany(pastShip.map((o) => o.id), "rembourse");
+    if (pastShip.length > 0) {
+      await orderRepo.updateMany(pastShip.map((o) => o.id), "rembourse");
+
+      // Notifier les acheteurs (fire-and-forget)
+      for (const order of pastShip) {
+        const details = await orderRepo.findByIdWithDetails(order.id);
+        if (details) {
+          const buyerEmail = details.buyer?.email;
+          const productTitle = details.product?.title ?? "Article";
+          if (buyerEmail) {
+            sendEmail(
+              buyerEmail,
+              `Remboursement automatique : ${productTitle}`,
+              commandeAutoRembourseeEmailHtml({
+                buyerName: buyerEmail.split("@")[0],
+                productTitle,
+                productPhotoUrl: details.product?.photos?.[0] ?? null,
+                price: order.price,
+              }),
+            );
+          }
+        }
+      }
+    }
 
     const pastConfirm = await orderRepo.findPastConfirmDeadline(now);
-    if (pastConfirm.length > 0) await orderRepo.updateMany(pastConfirm.map((o) => o.id), "confirme");
+    if (pastConfirm.length > 0) {
+      await orderRepo.updateMany(pastConfirm.map((o) => o.id), "confirme");
+
+      // Notifier les vendeurs (fire-and-forget)
+      for (const order of pastConfirm) {
+        const details = await orderRepo.findByIdWithDetails(order.id);
+        if (details) {
+          const vendorEmail = details.vendor?.email;
+          const productTitle = details.product?.title ?? "Article";
+          if (vendorEmail) {
+            sendEmail(
+              vendorEmail,
+              `Paiement libéré automatiquement : ${productTitle}`,
+              commandeAutoConfirmeeVendeurEmailHtml({
+                vendorName: vendorEmail.split("@")[0],
+                productTitle,
+                productPhotoUrl: details.product?.photos?.[0] ?? null,
+                netAmount: order.netAmount,
+              }),
+            );
+          }
+        }
+      }
+    }
 
     return { refunded: pastShip.length, released: pastConfirm.length };
   },

@@ -751,3 +751,441 @@ export function litigeResoluAcheteurEmailHtml(input: {
 
   return baseLayout(body, `Litige résolu : ${formatFcfa(input.price)}`);
 }
+
+/* ── Vérification KYC ──────────────────────────────────────────────── */
+
+/** KYC soumis — notification admin. */
+export function kycSoumisAdminEmailHtml(input: {
+  vendorEmail: string;
+  vendorId: string;
+}): string {
+  const body = `
+    <h1 style="margin:0 0 8px;font-size:22px;font-weight:700;color:${C.ink};line-height:1.3;">
+      Vérification KYC en attente
+    </h1>
+    <p style="margin:0 0 12px;font-size:15px;color:${C.muted};line-height:1.6;">
+      Le vendeur <strong>${escapeHtml(input.vendorEmail)}</strong> vient de soumettre
+      ses documents de vérification.
+    </p>
+
+    <table role="presentation" cellspacing="0" cellpadding="14" border="0"
+           style="background-color:${C.accentBg};border-radius:10px;margin:16px 0;width:100%;">
+      <tr>
+        <td>
+          <p style="margin:0;font-size:13px;color:${C.accentFg};line-height:1.5;">
+            ID vendeur : <strong>${escapeHtml(input.vendorId)}</strong><br/>
+            Email : <strong>${escapeHtml(input.vendorEmail)}</strong>
+          </p>
+        </td>
+      </tr>
+    </table>
+
+    ${ctaButton(`${config.frontendUrl}/admin/verifications`, "Examiner les documents")}
+
+    <p style="margin:8px 0 0;font-size:13px;color:${C.muted};line-height:1.5;">
+      Connecte-toi au tableau de bord admin pour approuver ou rejeter ce vendeur.
+    </p>
+  `;
+
+  return baseLayout(body, "Nouvelle vérification KYC en attente");
+}
+
+/** KYC approuvé — notification vendeur. */
+export function kycApprouveVendeurEmailHtml(input: {
+  vendorName: string;
+}): string {
+  const body = `
+    <h1 style="margin:0 0 8px;font-size:22px;font-weight:700;color:${C.ink};line-height:1.3;">
+      Vérification validée !
+    </h1>
+    <p style="margin:0 0 4px;font-size:15px;color:${C.ink};line-height:1.6;">
+      Salut <strong>${escapeHtml(input.vendorName)}</strong>,
+    </p>
+    <p style="margin:0 0 12px;font-size:14px;color:${C.muted};line-height:1.6;">
+      Tes documents de vérification ont été <strong>approuvés</strong>. Tu peux
+      maintenant recevoir des commandes et vendre tes articles sur Djassa.
+    </p>
+
+    <table role="presentation" cellspacing="0" cellpadding="14" border="0"
+           style="background-color:${C.accentBg};border-radius:10px;margin:16px 0;width:100%;">
+      <tr>
+        <td>
+          <p style="margin:0;font-size:14px;color:${C.accentFg};line-height:1.5;">
+            ✅ Ton compte vendeur est officiellement vérifié.
+          </p>
+        </td>
+      </tr>
+    </table>
+
+    ${ctaButton(`${config.frontendUrl}/vendeur`, "Accéder à mon espace vendeur")}
+
+    <p style="margin:8px 0 0;font-size:13px;color:${C.muted};">
+      Publie tes premiers articles et commence à vendre sans attendre.
+    </p>
+  `;
+
+  return baseLayout(body, "Vérification validée — tu peux vendre sur Djassa");
+}
+
+/** KYC rejeté — notification vendeur. */
+export function kycRejeteVendeurEmailHtml(input: {
+  vendorName: string;
+  reason: string;
+}): string {
+  const body = `
+    <h1 style="margin:0 0 8px;font-size:22px;font-weight:700;color:${C.destructive};line-height:1.3;">
+      Vérification à corriger
+    </h1>
+    <p style="margin:0 0 4px;font-size:15px;color:${C.ink};line-height:1.6;">
+      Salut <strong>${escapeHtml(input.vendorName)}</strong>,
+    </p>
+    <p style="margin:0 0 12px;font-size:14px;color:${C.muted};line-height:1.6;">
+      Tes documents de vérification n'ont pas pu être validés. Ne t'inquiète pas,
+      tu peux soumettre de nouveaux documents corrigés.
+    </p>
+
+    <table role="presentation" cellspacing="0" cellpadding="14" border="0"
+           style="background-color:#fef2f2;border-radius:10px;margin:16px 0;width:100%;">
+      <tr>
+        <td>
+          <p style="margin:0 0 4px;font-size:13px;color:${C.destructive};line-height:1.5;">
+            <strong>Motif</strong>
+          </p>
+          <p style="margin:0;font-size:14px;color:${C.ink};line-height:1.6;">
+            ${escapeHtml(input.reason)}
+          </p>
+        </td>
+      </tr>
+    </table>
+
+    ${ctaButton(`${config.frontendUrl}/vendeur/verification`, "Soumettre de nouveaux documents")}
+
+    <p style="margin:8px 0 0;font-size:13px;color:${C.muted};">
+      Si tu as des questions, réponds à cet email ou contacte
+      <a href="mailto:support@djassa.net" style="color:${C.primary};">support@djassa.net</a>.
+    </p>
+  `;
+
+  return baseLayout(body, "Vérification à corriger — soumets de nouveaux documents");
+}
+
+/* ── Abonnement Pro ───────────────────────────────────────────────── */
+
+/** Activation de l'abonnement Pro. */
+export function abonnementProActiveEmailHtml(input: {
+  vendorName: string;
+  planPeriodEnd: string;
+}): string {
+  const body = `
+    <h1 style="margin:0 0 8px;font-size:22px;font-weight:700;color:${C.ink};line-height:1.3;">
+      Abonnement Pro activé !
+    </h1>
+    <p style="margin:0 0 4px;font-size:15px;color:${C.ink};line-height:1.6;">
+      Salut <strong>${escapeHtml(input.vendorName)}</strong>,
+    </p>
+    <p style="margin:0 0 12px;font-size:14px;color:${C.muted};line-height:1.6;">
+      Ton abonnement <strong>Pro</strong> est maintenant actif. Profite de tous
+      les avantages pour booster tes ventes.
+    </p>
+
+    <table role="presentation" cellspacing="0" cellpadding="14" border="0"
+           style="background-color:${C.accentBg};border-radius:10px;margin:16px 0;width:100%;">
+      <tr>
+        <td>
+          <p style="margin:0;font-size:13px;color:${C.accentFg};line-height:1.5;">
+            <strong>Ce que tu obtiens avec Pro :</strong><br/>
+            ✅ Commission réduite sur chaque vente<br/>
+            ✅ Mise en avant de tes articles<br/>
+            ✅ Boutique personnalisable<br/>
+            ✅ Statistiques avancées
+          </p>
+          <p style="margin:12px 0 0;font-size:12px;color:${C.muted};">
+            Valable jusqu'au <strong>${input.planPeriodEnd}</strong>
+          </p>
+        </td>
+      </tr>
+    </table>
+
+    ${ctaButton(`${config.frontendUrl}/vendeur`, "Accéder à mon espace Pro")}
+
+    <p style="margin:8px 0 0;font-size:13px;color:${C.muted};">
+      Une question sur ton abonnement ? Écris à
+      <a href="mailto:support@djassa.net" style="color:${C.primary};">support@djassa.net</a>.
+    </p>
+  `;
+
+  return baseLayout(body, "Abonnement Pro activé — booste tes ventes");
+}
+
+/* ── Avis / Reviews ────────────────────────────────────────────────── */
+
+/** Nouvel avis reçu — notification vendeur. */
+export function nouvelAvisVendeurEmailHtml(input: {
+  vendorName: string;
+  productTitle: string;
+  productPhotoUrl?: string | null;
+  rating: number;
+  comment: string;
+  productUrl: string;
+}): string {
+  const stars = "★".repeat(input.rating) + "☆".repeat(5 - input.rating);
+  const body = `
+    <h1 style="margin:0 0 8px;font-size:22px;font-weight:700;color:${C.ink};line-height:1.3;">
+      Nouvel avis reçu
+    </h1>
+    <p style="margin:0 0 4px;font-size:15px;color:${C.ink};line-height:1.6;">
+      Salut <strong>${escapeHtml(input.vendorName)}</strong>,
+    </p>
+    <p style="margin:0 0 12px;font-size:14px;color:${C.muted};line-height:1.6;">
+      Un client a laissé un avis sur ton article.
+    </p>
+
+    <table role="presentation" cellspacing="0" cellpadding="14" border="0"
+           style="background-color:${C.accentBg};border-radius:10px;margin:16px 0;width:100%;">
+      <tr>
+        <td>
+          <p style="margin:0 0 4px;font-size:18px;color:${C.primary};line-height:1.3;">
+            ${stars}
+          </p>
+          <p style="margin:0 0 8px;font-size:14px;color:${C.accentFg};line-height:1.4;">
+            <strong>${escapeHtml(input.productTitle)}</strong>
+          </p>
+          <p style="margin:0;font-size:14px;color:${C.ink};line-height:1.6;">
+            "${escapeHtml(input.comment)}"
+          </p>
+        </td>
+      </tr>
+    </table>
+
+    <p style="margin:16px 0 0;font-size:13px;color:${C.muted};">
+      Les avis renforcent la confiance des clients. Continue à offrir un service
+      de qualité pour accumuler les bonnes notes.
+    </p>
+  `;
+
+  return baseLayout(body, `${stars} — Nouvel avis sur ${input.productTitle}`);
+}
+
+/* ── Waitlist ──────────────────────────────────────────────────────── */
+
+/** Confirmation d'inscription à la liste d'attente. */
+export function waitlistConfirmationEmailHtml(input: {
+  email: string;
+}): string {
+  const body = `
+    <h1 style="margin:0 0 8px;font-size:22px;font-weight:700;color:${C.ink};line-height:1.3;">
+      Tu es sur la liste !
+    </h1>
+    <p style="margin:0 0 4px;font-size:15px;color:${C.ink};line-height:1.6;">
+      Salut <strong>${escapeHtml(input.email.split("@")[0])}</strong>,
+    </p>
+    <p style="margin:0 0 12px;font-size:14px;color:${C.muted};line-height:1.6;">
+      Merci de ton intérêt pour <strong>Djassa</strong> ! Ton email a bien été
+      enregistré sur notre liste d'attente.
+    </p>
+
+    <table role="presentation" cellspacing="0" cellpadding="14" border="0"
+           style="background-color:${C.accentBg};border-radius:10px;margin:16px 0;width:100%;">
+      <tr>
+        <td>
+          <p style="margin:0;font-size:14px;color:${C.accentFg};line-height:1.5;">
+            On te préviendra dès l'ouverture officielle. Reste connecté !
+          </p>
+        </td>
+      </tr>
+    </table>
+
+    <p style="margin:16px 0 0;font-size:13px;color:${C.muted};">
+      D'ici là, suis-nous sur les réseaux pour ne rien manquer.
+    </p>
+  `;
+
+  return baseLayout(body, "Bienvenue sur la liste d'attente Djassa");
+}
+
+/* ── Signalements / Reports ────────────────────────────────────────── */
+
+/** Nouveau signalement — notification admin. */
+export function signalementRecuAdminEmailHtml(input: {
+  targetType: string;
+  targetId: string;
+  reason: string;
+  reporterEmail: string;
+}): string {
+  const body = `
+    <h1 style="margin:0 0 8px;font-size:22px;font-weight:700;color:${C.destructive};line-height:1.3;">
+      Nouveau signalement
+    </h1>
+    <p style="margin:0 0 12px;font-size:15px;color:${C.muted};line-height:1.6;">
+      Un utilisateur a signalé un contenu pour modération.
+    </p>
+
+    <table role="presentation" cellspacing="0" cellpadding="14" border="0"
+           style="background-color:#fef2f2;border-radius:10px;margin:16px 0;width:100%;">
+      <tr>
+        <td>
+          <p style="margin:0;font-size:13px;color:${C.ink};line-height:1.5;">
+            Type : <strong>${escapeHtml(input.targetType)}</strong><br/>
+            ID concerné : <strong>${escapeHtml(input.targetId)}</strong><br/>
+            Signalé par : <strong>${escapeHtml(input.reporterEmail)}</strong>
+          </p>
+          <p style="margin:12px 0 0;font-size:14px;color:${C.destructive};line-height:1.6;">
+            <strong>Motif :</strong> ${escapeHtml(input.reason)}
+          </p>
+        </td>
+      </tr>
+    </table>
+
+    ${ctaButton(`${config.frontendUrl}/admin/signalements`, "Voir le signalement")}
+  `;
+
+  return baseLayout(body, "Nouveau signalement sur Djassa");
+}
+
+/** Signalement résolu — notification au reporter. */
+export function signalementResoluEmailHtml(input: {
+  reporterName: string;
+  resolution: "traite" | "rejete";
+  adminNote?: string | null;
+}): string {
+  const resolved = input.resolution === "traite";
+  const body = `
+    <h1 style="margin:0 0 8px;font-size:22px;font-weight:700;color:${C.ink};line-height:1.3;">
+      Signalement ${resolved ? "traité" : "examiné"}
+    </h1>
+    <p style="margin:0 0 4px;font-size:15px;color:${C.ink};line-height:1.6;">
+      Salut <strong>${escapeHtml(input.reporterName)}</strong>,
+    </p>
+    <p style="margin:0 0 12px;font-size:14px;color:${C.muted};line-height:1.6;">
+      ${resolved
+        ? "Le signalement que tu as soumis a été examiné et l'action nécessaire a été prise. Merci de contribuer à la sécurité de Djassa."
+        : "Le signalement que tu as soumis a été examiné. Après vérification, aucune infraction n'a été constatée."}
+    </p>
+
+    ${input.adminNote
+      ? `<table role="presentation" cellspacing="0" cellpadding="14" border="0"
+                style="background-color:${C.accentBg};border-radius:10px;margin:16px 0;width:100%;">
+           <tr>
+             <td>
+               <p style="margin:0;font-size:13px;color:${C.accentFg};line-height:1.5;">
+                 Note de l'équipe : ${escapeHtml(input.adminNote)}
+               </p>
+             </td>
+           </tr>
+         </table>`
+      : ""}
+
+    <p style="margin:16px 0 0;font-size:13px;color:${C.muted};">
+      Merci de veiller sur la communauté.
+    </p>
+  `;
+
+  return baseLayout(body, resolved ? "Signalement traité" : "Signalement examiné");
+}
+
+/* ── Conversations (fallback email) ────────────────────────────────── */
+
+/** Nouveau message — notification vendeur (fallback si hors ligne). */
+export function nouveauMessageVendeurEmailHtml(input: {
+  vendorName: string;
+  productTitle: string;
+  productPhotoUrl?: string | null;
+  conversationUrl: string;
+  messagePreview: string;
+}): string {
+  const body = `
+    <h1 style="margin:0 0 8px;font-size:22px;font-weight:700;color:${C.ink};line-height:1.3;">
+      Nouveau message de client
+    </h1>
+    <p style="margin:0 0 4px;font-size:15px;color:${C.ink};line-height:1.6;">
+      Salut <strong>${escapeHtml(input.vendorName)}</strong>,
+    </p>
+    <p style="margin:0 0 12px;font-size:14px;color:${C.muted};line-height:1.6;">
+      Tu as reçu un nouveau message au sujet de ton article
+      <strong>${escapeHtml(input.productTitle)}</strong>.
+    </p>
+
+    <table role="presentation" cellspacing="0" cellpadding="14" border="0"
+           style="background-color:${C.accentBg};border-radius:10px;margin:16px 0;width:100%;">
+      <tr>
+        <td>
+          <p style="margin:0;font-size:14px;color:${C.ink};line-height:1.6;font-style:italic;">
+            "${escapeHtml(input.messagePreview.length > 120 ? input.messagePreview.slice(0, 120) + "…" : input.messagePreview)}"
+          </p>
+        </td>
+      </tr>
+    </table>
+
+    ${ctaButton(input.conversationUrl, "Répondre au message")}
+
+    <p style="margin:8px 0 0;font-size:13px;color:${C.muted};line-height:1.5;">
+      Réponds rapidement — les clients achètent chez le vendeur le plus réactif.
+    </p>
+  `;
+
+  return baseLayout(body, `Nouveau message : ${input.productTitle}`);
+}
+
+/** Commande auto-remboursée (expiration délai expédition) — notification acheteur. */
+export function commandeAutoRembourseeEmailHtml(input: {
+  buyerName: string;
+  productTitle: string;
+  productPhotoUrl?: string | null;
+  price: number;
+}): string {
+  const body = `
+    <h1 style="margin:0 0 8px;font-size:22px;font-weight:700;color:${C.ink};line-height:1.3;">
+      Remboursement automatique
+    </h1>
+    <p style="margin:0 0 4px;font-size:15px;color:${C.ink};line-height:1.6;">
+      Salut <strong>${escapeHtml(input.buyerName)}</strong>,
+    </p>
+    <p style="margin:0 0 12px;font-size:14px;color:${C.muted};line-height:1.6;">
+      Le vendeur n'a pas expédié ta commande dans les délais impartis.
+      Le montant de <strong>${formatFcfa(input.price)}</strong> va t'être remboursé.
+    </p>
+
+    ${orderInfoCard({
+      productTitle: input.productTitle,
+      productPhotoUrl: input.productPhotoUrl,
+      price: input.price,
+    })}
+
+    <p style="margin:16px 0 0;font-size:13px;color:${C.muted};line-height:1.5;">
+      Le remboursement sera crédité sous 5 à 10 jours ouvrés. Tu peux commander
+      ce même article chez un autre vendeur.
+    </p>
+  `;
+
+  return baseLayout(body, `Remboursement automatique : ${input.productTitle}`);
+}
+
+/** Commande auto-confirmée (expiration délai confirmation) — notification vendeur. */
+export function commandeAutoConfirmeeVendeurEmailHtml(input: {
+  vendorName: string;
+  productTitle: string;
+  productPhotoUrl?: string | null;
+  netAmount: number;
+}): string {
+  const body = `
+    <h1 style="margin:0 0 8px;font-size:22px;font-weight:700;color:${C.ink};line-height:1.3;">
+      Paiement libéré automatiquement
+    </h1>
+    <p style="margin:0 0 4px;font-size:15px;color:${C.ink};line-height:1.6;">
+      Salut <strong>${escapeHtml(input.vendorName)}</strong>,
+    </p>
+    <p style="margin:0 0 12px;font-size:14px;color:${C.muted};line-height:1.6;">
+      Le client n'a pas confirmé la réception dans les délais impartis.
+      Le paiement de <strong>${formatFcfa(input.netAmount)}</strong> est libéré automatiquement.
+    </p>
+
+    ${orderInfoCard({
+      productTitle: input.productTitle,
+      productPhotoUrl: input.productPhotoUrl,
+      price: input.netAmount,
+      netAmount: input.netAmount,
+    })}
+  `;
+
+  return baseLayout(body, `Paiement libéré : ${formatFcfa(input.netAmount)}`);
+}

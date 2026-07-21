@@ -17,6 +17,13 @@ export class ReportRepository {
     return prisma.report.findUnique({ where: { id } });
   }
 
+  findByIdWithReporter(id: string) {
+    return prisma.report.findUnique({
+      where: { id },
+      include: { reporter: { select: { email: true } } },
+    });
+  }
+
   findMany(status?: ReportStatus) {
     return prisma.report.findMany({
       where: status ? { status } : undefined,
