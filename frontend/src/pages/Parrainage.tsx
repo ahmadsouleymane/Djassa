@@ -9,6 +9,7 @@ import { referralApi, type ReferralStats } from "@/api/referrals";
 import { StatusBadge } from "@/components/referrals/StatusBadge";
 import { ReferralStatsCards } from "@/components/referrals/ReferralStats";
 import { ShareLink } from "@/components/referrals/ShareLink";
+import { WalletCard } from "@/components/referrals/WalletCard";
 import { ProgramExplainer } from "@/components/referrals/ProgramExplainer";
 import { ContentGallery } from "@/components/referrals/ContentGallery";
 import { Leaderboard } from "@/components/referrals/Leaderboard";
@@ -155,6 +156,9 @@ export function Parrainage() {
 
       {/* Lien + QR */}
       {code && <ShareLink code={code} />}
+
+      {/* Cagnotte + retrait Mobile Money */}
+      <WalletCard onChange={reload} />
 
       {/* Galerie de contenu */}
       <ContentGallery

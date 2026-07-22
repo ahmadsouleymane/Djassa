@@ -17,10 +17,30 @@ export type ReferralStats = {
   conversions: number;
   rewardedConversions: number;
   totalEarnings: number;
+  walletBalance: number;
   level: ReferralLevel;
   nextThreshold: { nextLevel: ReferralLevel; needed: number } | null;
   referrals: ReferralEntry[];
 };
+
+export type Wallet = {
+  balance: number;
+  totalEarned: number;
+};
+
+export type WithdrawalMethod = "wave" | "orange_money" | "mtn";
+
+export type Withdrawal = {
+  id: string;
+  amount: number;
+  method: WithdrawalMethod;
+  phone: string;
+  status: "pending" | "paid" | "rejected";
+  createdAt: string;
+  processedAt: string | null;
+};
+
+export const MIN_WITHDRAWAL_AMOUNT = 500;
 
 export type ReferralCode = {
   code: string;
@@ -46,4 +66,9 @@ export const referralApi = {
     apiClient.get<CodeCheckResult>(`/api/referrals/check/${encodeURIComponent(code)}`),
   getLeaderboard: () =>
     apiClient.get<{ leaderboard: LeaderboardEntry[] }>("/api/referrals/leaderboard"),
+  getWallet: () => apiClient.get<Wallet>("/api/referrals/wallet"),
+  listWithdrawals: () =>
+    apiClient.get<{ withdrawals: Withdrawal[] }>("/api/referrals/withdrawals"),
+  createWithdrawal: (amount: number, method: WithdrawalMethod, phone: string) =>
+    apiClient.post<Withdrawal>("/api/referrals/withdrawals", { amount, method, phone }),
 };
