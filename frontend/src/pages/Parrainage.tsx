@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { ArrowRight, X } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
@@ -7,6 +9,7 @@ import { referralApi, type ReferralStats } from "@/api/referrals";
 import { StatusBadge } from "@/components/referrals/StatusBadge";
 import { ReferralStatsCards } from "@/components/referrals/ReferralStats";
 import { ShareLink } from "@/components/referrals/ShareLink";
+import { ProgramExplainer } from "@/components/referrals/ProgramExplainer";
 import { ContentGallery } from "@/components/referrals/ContentGallery";
 import { Leaderboard } from "@/components/referrals/Leaderboard";
 
@@ -31,10 +34,22 @@ export function Parrainage() {
       "Parraine tes amis sur Djassa et gagne du crédit. Affiches, QR code et messages prêts à partager.",
   });
 
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const isWelcome = searchParams.get("welcome") === "1";
+  const nextDestination = searchParams.get("next") || "/marche";
+
   const [stats, setStats] = useState<ReferralStats | null>(null);
   const [code, setCode] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  function dismissWelcome() {
+    const params = new URLSearchParams(searchParams);
+    params.delete("welcome");
+    params.delete("next");
+    setSearchParams(params, { replace: true });
+  }
 
   function reload() {
     setIsLoading(true);
@@ -80,6 +95,34 @@ export function Parrainage() {
 
   return (
     <div className="flex flex-col gap-8">
+      {/* Hero de bienvenue (juste après inscription) */}
+      {isWelcome && (
+        <div className="relative overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-5 sm:p-7">
+          <button
+            type="button"
+            onClick={dismissWelcome}
+            aria-label="Fermer"
+            className="absolute right-3 top-3 rounded-full p-1.5 text-muted-foreground transition hover:bg-muted"
+          >
+            <X className="size-4" />
+          </button>
+          <p className="text-sm font-semibold uppercase tracking-wide text-primary">
+            Bienvenue sur Djassa 🎉
+          </p>
+          <h2 className="mt-1.5 text-2xl font-semibold sm:text-3xl">
+            Ton compte est prêt. Et si tu gagnais de l'argent avec nous ?
+          </h2>
+          <p className="mt-2 max-w-xl text-sm text-muted-foreground sm:text-base">
+            Invite tes amis et des vendeurs, touche une commission sur ce qu'ils font, et retire
+            ton argent quand tu veux. Découvre comment juste en dessous 👇
+          </p>
+          <Button variant="outline" className="mt-4" onClick={() => navigate(nextDestination)}>
+            Continuer vers Djassa
+            <ArrowRight className="ml-1.5 size-4" />
+          </Button>
+        </div>
+      )}
+
       {/* Header */}
       <header>
         <h1 className="text-3xl font-semibold md:text-4xl">Gaou Check</h1>
@@ -87,6 +130,9 @@ export function Parrainage() {
           Parraine tes amis et gagne du crédit DJASSA à chaque premier achat.
         </p>
       </header>
+
+      {/* Présentation du programme + exemples */}
+      <ProgramExplainer />
 
       {/* Statut + progression */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

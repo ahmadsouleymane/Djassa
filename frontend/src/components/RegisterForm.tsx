@@ -77,7 +77,9 @@ export function RegisterForm({
     setIsSubmitting(true);
     try {
       await register(email, phone, password, accountType, referralCode);
-      navigate(redirectTo);
+      // Après inscription, on propose le programme partenaire, puis l'utilisateur
+      // continue vers sa destination normale (marché / dashboard vendeur).
+      navigate(`/parrainage?welcome=1&next=${encodeURIComponent(redirectTo)}`);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Erreur d'inscription");
     } finally {
