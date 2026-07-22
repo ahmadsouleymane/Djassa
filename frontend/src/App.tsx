@@ -171,14 +171,7 @@ export function App() {
           <Route path="/cgu" element={withLayout(<CGU />)} />
           <Route path="/politique-de-confidentialite" element={withLayout(<Confidentialite />)} />
           <Route path="/mentions-legales" element={withLayout(<MentionsLegales />)} />
-          <Route
-            path="/parrainage"
-            element={
-              <PrivateRoute>
-                <Parrainage />
-              </PrivateRoute>
-            }
-          />
+          <Route path="/parrainage" element={withLayout(<Parrainage />)} />
           <Route
             path="/catalogue"
             element={

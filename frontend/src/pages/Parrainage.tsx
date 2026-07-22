@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { useAuth } from "@/context/AuthContext";
 import { referralApi, type ReferralStats } from "@/api/referrals";
 import { StatusBadge } from "@/components/referrals/StatusBadge";
 import { ReferralStatsCards } from "@/components/referrals/ReferralStats";
@@ -32,9 +33,10 @@ function computeProgress(level: string, conversions: number): number {
 export function Parrainage() {
   usePageTitle("Gaou Check — Parrainage", {
     description:
-      "Parraine tes amis sur Djassa et gagne du crédit. Affiches, QR code et messages prêts à partager.",
+      "Gagne de l'argent avec Djassa : parraine des acheteurs et des vendeurs, touche une commission et retire ta cagnotte en Mobile Money.",
   });
 
+  const { user, isLoading: authLoading } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const isWelcome = searchParams.get("welcome") === "1";
@@ -65,10 +67,16 @@ export function Parrainage() {
   }
 
   useEffect(() => {
-    reload();
-  }, []);
+    if (authLoading) return;
+    if (user) {
+      reload();
+    } else {
+      setIsLoading(false);
+    }
+  }, [authLoading, user]);
 
-  if (isLoading) {
+  // Chargement (auth en cours, ou données membre en cours de chargement)
+  if (authLoading || (user && isLoading)) {
     return (
       <div className="flex flex-col gap-6">
         <Skeleton className="h-10 w-64" />
@@ -83,21 +91,10 @@ export function Parrainage() {
     );
   }
 
-  if (error || !stats) {
-    return (
-      <div className="flex flex-col items-center gap-4 py-16 text-center">
-        <p className="text-muted-foreground">{error ?? "Une erreur est survenue."}</p>
-        <Button variant="outline" onClick={reload}>
-          Réessayer
-        </Button>
-      </div>
-    );
-  }
-
   return (
     <div className="flex flex-col gap-8">
       {/* Hero de bienvenue (juste après inscription) */}
-      {isWelcome && (
+      {isWelcome && user && (
         <div className="relative overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-5 sm:p-7">
           <button
             type="button"
@@ -128,46 +125,81 @@ export function Parrainage() {
       <header>
         <h1 className="text-3xl font-semibold md:text-4xl">Gaou Check</h1>
         <p className="mt-1 text-muted-foreground">
-          Parraine tes amis et gagne du crédit DJASSA à chaque premier achat.
+          Le programme partenaire de Djassa : parraine des acheteurs et des vendeurs, et gagne de
+          l'argent réel.
         </p>
       </header>
 
-      {/* Présentation du programme + exemples */}
+      {/* Présentation du programme + exemples (visible par tous) */}
       <ProgramExplainer />
 
-      {/* Statut + progression */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <StatusBadge level={stats.level} />
-        {stats.nextThreshold && (
-          <div className="flex items-center gap-3">
-            <p className="text-sm text-muted-foreground">
-              <strong>{stats.nextThreshold.needed}</strong> conversion
-              {stats.nextThreshold.needed > 1 ? "s" : ""} restante
-              {stats.nextThreshold.needed > 1 ? "s" : ""} pour devenir{" "}
-              <strong>{stats.nextThreshold.nextLevel === "kpata" ? "Kpata" : stats.nextThreshold.nextLevel === "boss" ? "Boss" : "Grand Choco"}</strong>
-            </p>
-            <Progress value={computeProgress(stats.level, stats.conversions)} className="h-2 w-32" />
+      {user && stats ? (
+        <>
+          {/* Statut + progression */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <StatusBadge level={stats.level} />
+            {stats.nextThreshold && (
+              <div className="flex items-center gap-3">
+                <p className="text-sm text-muted-foreground">
+                  <strong>{stats.nextThreshold.needed}</strong> conversion
+                  {stats.nextThreshold.needed > 1 ? "s" : ""} restante
+                  {stats.nextThreshold.needed > 1 ? "s" : ""} pour devenir{" "}
+                  <strong>{stats.nextThreshold.nextLevel === "kpata" ? "Kpata" : stats.nextThreshold.nextLevel === "boss" ? "Boss" : "Grand Choco"}</strong>
+                </p>
+                <Progress value={computeProgress(stats.level, stats.conversions)} className="h-2 w-32" />
+              </div>
+            )}
           </div>
-        )}
-      </div>
 
-      {/* Stats */}
-      <ReferralStatsCards stats={stats} />
+          {/* Stats */}
+          <ReferralStatsCards stats={stats} />
 
-      {/* Lien + QR */}
-      {code && <ShareLink code={code} />}
+          {/* Lien + QR */}
+          {code && <ShareLink code={code} />}
 
-      {/* Cagnotte + retrait Mobile Money */}
-      <WalletCard onChange={reload} />
+          {/* Cagnotte + retrait Mobile Money */}
+          <WalletCard onChange={reload} />
 
-      {/* Galerie de contenu */}
-      <ContentGallery
-        currentLevel={stats.level}
-        code={code ?? ""}
-        count={stats.conversions}
-      />
+          {/* Galerie de contenu */}
+          <ContentGallery currentLevel={stats.level} code={code ?? ""} count={stats.conversions} />
+        </>
+      ) : user && error ? (
+        <div className="flex flex-col items-center gap-4 py-8 text-center">
+          <p className="text-muted-foreground">{error}</p>
+          <Button variant="outline" onClick={reload}>
+            Réessayer
+          </Button>
+        </div>
+      ) : (
+        /* Visiteur non connecté : appel à créer un compte pour obtenir son lien */
+        <div className="rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/10 to-transparent p-6 text-center sm:p-8">
+          <h2 className="text-xl font-semibold sm:text-2xl">Prêt à encaisser avec Djassa ?</h2>
+          <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground sm:text-base">
+            Crée ton compte gratuitement pour recevoir ton lien de parrainage personnel et commencer
+            à gagner de l'argent en amenant du monde.
+          </p>
+          <div className="mt-5 flex flex-col justify-center gap-3 sm:flex-row">
+            <Button size="lg" onClick={() => navigate("/inscription")}>
+              Créer mon compte
+            </Button>
+            <Button size="lg" variant="outline" onClick={() => navigate("/inscription-vendeur")}>
+              Devenir vendeur
+            </Button>
+          </div>
+          <p className="mt-4 text-sm text-muted-foreground">
+            Déjà un compte ?{" "}
+            <button
+              type="button"
+              onClick={() => navigate("/connexion")}
+              className="font-semibold text-primary hover:underline"
+            >
+              Se connecter
+            </button>
+          </p>
+        </div>
+      )}
 
-      {/* Classement */}
+      {/* Classement (public) */}
       <Leaderboard />
     </div>
   );

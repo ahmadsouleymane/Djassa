@@ -14,6 +14,7 @@ const PUBLIC_ROUTES = [
   "/mot-de-passe-oublie",
   "/reinitialiser-mot-de-passe",
   "/vendre",
+  "/parrainage",
 ];
 
 function hasPreviewAccess(searchParams: URLSearchParams): boolean {
