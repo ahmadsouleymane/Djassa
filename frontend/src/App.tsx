@@ -13,24 +13,26 @@ import { LaunchGate } from "./components/LaunchGate";
 import { Waitlist } from "./pages/Waitlist";
 import { initAnalytics, trackPageview, setAnalyticsAuthToken } from "./lib/analytics";
 // Pages publiques : chargées immédiatement (premier rendu + indexation SEO).
-import { Landing } from "./pages/Landing";
-import { Login } from "./pages/Login";
-import { Register } from "./pages/Register";
-import { RegisterVendeur } from "./pages/RegisterVendeur";
-import { LandingVendeur } from "./pages/LandingVendeur";
-import { ForgotPassword } from "./pages/ForgotPassword";
-import { ResetPassword } from "./pages/ResetPassword";
-import { Marche } from "./pages/Marche";
-import { ProductDetail } from "./pages/ProductDetail";
-import { VendeurProfil } from "./pages/VendeurProfil";
-import { CommentCaMarche } from "./pages/CommentCaMarche";
-import { APropos } from "./pages/APropos";
-import { Contact } from "./pages/Contact";
-import { FAQ } from "./pages/FAQ";
-import { CGU } from "./pages/CGU";
-import { Confidentialite } from "./pages/Confidentialite";
-import { MentionsLegales } from "./pages/MentionsLegales";
-import { NotFound } from "./pages/NotFound";
+// Pages publiques en lazy : chaque route ne charge que son code (et GSAP ne pèse
+// plus sur le bundle principal, il part avec le chunk de Landing).
+const Landing = lazy(() => import("./pages/Landing").then((m) => ({ default: m.Landing })));
+const Login = lazy(() => import("./pages/Login").then((m) => ({ default: m.Login })));
+const Register = lazy(() => import("./pages/Register").then((m) => ({ default: m.Register })));
+const RegisterVendeur = lazy(() => import("./pages/RegisterVendeur").then((m) => ({ default: m.RegisterVendeur })));
+const LandingVendeur = lazy(() => import("./pages/LandingVendeur").then((m) => ({ default: m.LandingVendeur })));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword").then((m) => ({ default: m.ForgotPassword })));
+const ResetPassword = lazy(() => import("./pages/ResetPassword").then((m) => ({ default: m.ResetPassword })));
+const Marche = lazy(() => import("./pages/Marche").then((m) => ({ default: m.Marche })));
+const ProductDetail = lazy(() => import("./pages/ProductDetail").then((m) => ({ default: m.ProductDetail })));
+const VendeurProfil = lazy(() => import("./pages/VendeurProfil").then((m) => ({ default: m.VendeurProfil })));
+const CommentCaMarche = lazy(() => import("./pages/CommentCaMarche").then((m) => ({ default: m.CommentCaMarche })));
+const APropos = lazy(() => import("./pages/APropos").then((m) => ({ default: m.APropos })));
+const Contact = lazy(() => import("./pages/Contact").then((m) => ({ default: m.Contact })));
+const FAQ = lazy(() => import("./pages/FAQ").then((m) => ({ default: m.FAQ })));
+const CGU = lazy(() => import("./pages/CGU").then((m) => ({ default: m.CGU })));
+const Confidentialite = lazy(() => import("./pages/Confidentialite").then((m) => ({ default: m.Confidentialite })));
+const MentionsLegales = lazy(() => import("./pages/MentionsLegales").then((m) => ({ default: m.MentionsLegales })));
+const NotFound = lazy(() => import("./pages/NotFound").then((m) => ({ default: m.NotFound })));
 // Pages authentifiées : chargées à la demande pour garder le bundle initial léger.
 const Catalogue = lazy(() => import("./pages/Catalogue").then((m) => ({ default: m.Catalogue })));
 const Panier = lazy(() => import("./pages/Panier").then((m) => ({ default: m.Panier })));
