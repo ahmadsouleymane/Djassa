@@ -61,6 +61,11 @@ model User {
   referralCode   String?    @unique
   referralsMade  Referral[] @relation("ReferralsMade")
   referralOf     Referral[] @relation("ReferralOf")
+
+  /// Cagnotte d'affiliation (FCFA) : gains cumulés, dépensables ou retirables
+  walletBalance   Int              @default(0)
+  referralRewards ReferralReward[] @relation("ReferralRewardsEarned")
+  withdrawals     Withdrawal[]
 }
 
 model PasswordResetToken {
@@ -307,10 +312,64 @@ model Referral {
   referredUser   User?          @relation("ReferralOf", fields: [referredUserId], references: [id])
   rewardStatus   RewardStatus   @default(pending)
   rewardAmount   Int            @default(0)
+  /// Début de la fenêtre d'affiliation vendeur (1re vente du filleul vendeur)
+  vendorWindowStartsAt DateTime?
+  rewards        ReferralReward[]
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 
   @@index([referrerId])
   @@index([referredEmail])
+  @@index([status])
+}
+
+enum ReferralRewardKind {
+  buyer_first_purchase
+  vendor_sale
+}
+
+/// Un gain d'affiliation crédité (1 ligne par commande récompensée → idempotent).
+model ReferralReward {
+  id         String             @id @default(uuid())
+  referralId String
+  referral   Referral           @relation(fields: [referralId], references: [id])
+  referrerId String
+  referrer   User               @relation("ReferralRewardsEarned", fields: [referrerId], references: [id])
+  orderId    String
+  amount     Int
+  kind       ReferralRewardKind
+  createdAt  DateTime           @default(now())
+
+  /// Idempotence : au plus une récompense par commande ET par type (acheteur / vendeur).
+  @@unique([orderId, kind])
+  @@index([referrerId])
+  @@index([referralId])
+}
+
+enum WithdrawalMethod {
+  wave
+  orange_money
+  mtn
+}
+
+enum WithdrawalStatus {
+  pending
+  paid
+  rejected
+}
+
+/// Demande de retrait de cagnotte vers un compte Mobile Money.
+model Withdrawal {
+  id          String           @id @default(uuid())
+  userId      String
+  user        User             @relation(fields: [userId], references: [id])
+  amount      Int
+  method      WithdrawalMethod
+  phone       String
+  status      WithdrawalStatus @default(pending)
+  createdAt   DateTime         @default(now())
+  processedAt DateTime?
+
+  @@index([userId])
   @@index([status])
 }

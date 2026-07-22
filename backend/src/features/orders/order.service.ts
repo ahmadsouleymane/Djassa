@@ -379,11 +379,14 @@ export const OrderService = {
       }
     }
 
-    // Crédit de parrainage : si c'est le premier achat confirmé du buyer,
-    // on tente de créditer son parrain (fire-and-forget, non-bloquant).
-    import("../referrals/referrals.service.js").then(({ ReferralService }) =>
-      ReferralService.tryRewardReferrer(order.buyerId, order.price),
-    ).catch(() => {});
+    // Crédits de parrainage (fire-and-forget, non-bloquant) :
+    // - acheteur : si c'est le premier achat confirmé du filleul acheteur ;
+    // - vendeur : sur chaque vente d'un vendeur parrainé, pendant sa fenêtre de 30 jours.
+    import("../referrals/referrals.service.js").then(({ ReferralService }) => {
+      const now = new Date();
+      void ReferralService.tryRewardReferrer(order.buyerId, order.id, order.price);
+      void ReferralService.tryRewardVendorReferrer(order.vendorId, order.id, order.price, now);
+    }).catch(() => {});
 
     return updated;
   },

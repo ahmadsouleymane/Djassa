@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import { ReferralService } from "./referrals.service.js";
-import { applyReferralSchema } from "./referrals.schema.js";
+import { applyReferralSchema, createWithdrawalSchema } from "./referrals.schema.js";
 import { ValidationError } from "../../shared/errors/index.js";
 
 function fieldErrors(error: { flatten: () => { fieldErrors: Record<string, string[] | undefined> } }) {
@@ -57,6 +57,52 @@ export async function checkCode(req: Request, res: Response, next: NextFunction)
 export async function getLeaderboard(_req: Request, res: Response, next: NextFunction) {
   try {
     const result = await ReferralService.getLeaderboard();
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getWallet(req: Request, res: Response, next: NextFunction) {
+  try {
+    const result = await ReferralService.getWallet(req.userId!);
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function createWithdrawal(req: Request, res: Response, next: NextFunction) {
+  const parsed = createWithdrawalSchema.safeParse(req.body);
+  if (!parsed.success) return next(new ValidationError(fieldErrors(parsed.error)));
+
+  try {
+    const result = await ReferralService.requestWithdrawal(req.userId!, parsed.data);
+    res.status(201).json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function listWithdrawals(req: Request, res: Response, next: NextFunction) {
+  try {
+    const withdrawals = await ReferralService.listWithdrawals(req.userId!);
+    res.json({ withdrawals });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function adminSetWithdrawalStatus(req: Request, res: Response, next: NextFunction) {
+  const id = req.params.id as string;
+  const status = (req.body as { status?: unknown }).status;
+  if (status !== "paid" && status !== "rejected") {
+    return next(new ValidationError({ status: "Statut invalide (paid ou rejected)" }));
+  }
+
+  try {
+    const result = await ReferralService.adminSetWithdrawalStatus(id, status);
+    if (!result) return next(new ValidationError({ id: "Retrait introuvable ou déjà traité" }));
     res.json(result);
   } catch (err) {
     next(err);

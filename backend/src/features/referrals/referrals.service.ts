@@ -2,12 +2,15 @@ import crypto from "node:crypto";
 import { ReferralRepository } from "./referrals.repository.js";
 import { UserRepository } from "../users/user.repository.js";
 import {
-  computeReferralCredit,
+  computeAffiliateReward,
   getReferralLevel,
   getNextThreshold,
+  isWithinVendorWindow,
+  validateWithdrawal,
   REFERRAL_MIN_ORDER_AMOUNT,
+  type WithdrawalMethod,
 } from "./referrals.schema.js";
-import { NotFoundError, ConflictError } from "../../shared/errors/index.js";
+import { NotFoundError, ConflictError, ValidationError } from "../../shared/errors/index.js";
 import { logger } from "../../shared/logger/index.js";
 
 const referralRepo = new ReferralRepository();
@@ -45,7 +48,7 @@ export const ReferralService = {
     const totalReferrals = await referralRepo.countByReferrer(userId);
     const conversions = await referralRepo.countConvertedByReferrer(userId);
     const rewardedConversions = await referralRepo.countRewardedByReferrer(userId);
-    const totalEarnings = await referralRepo.sumRewardsByReferrer(userId);
+    const wallet = await referralRepo.getWalletSummary(userId);
     const referrals = await referralRepo.findByReferrerId(userId);
     const code = await userRepo.findReferralCode(userId);
 
@@ -54,7 +57,8 @@ export const ReferralService = {
       totalReferrals,
       conversions,
       rewardedConversions,
-      totalEarnings,
+      totalEarnings: wallet.totalEarned,
+      walletBalance: wallet.balance,
       level: getReferralLevel(conversions),
       nextThreshold: getNextThreshold(conversions),
       referrals: referrals.map((r) => ({
@@ -103,10 +107,10 @@ export const ReferralService = {
   },
 
   /**
-   * Appelé quand un utilisateur confirme sa première commande éligible.
-   * Crédite le parrain UNIQUEMENT si le montant >= REFERRAL_MIN_ORDER_AMOUNT.
+   * Parrainage ACHETEUR : appelé quand un filleul confirme sa première commande.
+   * Crédite le parrain (70% de la marge nette) si la commande >= seuil minimum.
    */
-  async tryRewardReferrer(buyerId: string, orderAmount: number) {
+  async tryRewardReferrer(buyerId: string, orderId: string, orderAmount: number) {
     if (orderAmount < REFERRAL_MIN_ORDER_AMOUNT) {
       logger.info({ buyerId, orderAmount }, "Commande sous le seuil parrainage — ignorée");
       return;
@@ -115,19 +119,79 @@ export const ReferralService = {
     const ref = await referralRepo.findEligibleForReward(buyerId);
     if (!ref) return;
 
-    const credit = computeReferralCredit(orderAmount);
-    if (credit <= 0) return;
+    const amount = computeAffiliateReward(orderAmount);
+    const credited = await referralRepo.creditBuyerReferral(
+      { id: ref.id, referrerId: ref.referrerId },
+      orderId,
+      amount,
+    );
+    if (credited) {
+      logger.info({ referrerId: ref.referrerId, buyerId, orderId, amount }, "Parrain acheteur crédité");
+    }
+  },
 
-    const result = await referralRepo.creditReferral(ref.id, credit);
-    if (result.count === 0) {
-      logger.info({ refId: ref.id, buyerId, credit }, "Parrainage déjà crédité (course condition évitée)");
-      return;
+  /**
+   * Parrainage VENDEUR : appelé à chaque vente confirmée d'un vendeur.
+   * Si ce vendeur a été parrainé, le parrain touche 70% de la marge nette sur
+   * chaque vente pendant 30 jours à partir de sa première vente.
+   */
+  async tryRewardVendorReferrer(vendorId: string, orderId: string, orderAmount: number, saleDate: Date) {
+    const ref = await referralRepo.findReferredUser(vendorId);
+    if (!ref) return;
+
+    const windowStart = ref.vendorWindowStartsAt;
+    if (windowStart && !isWithinVendorWindow(windowStart, saleDate)) {
+      return; // fenêtre de 30 jours expirée
     }
 
-    logger.info(
-      { referrerId: ref.referrerId, buyerId, orderAmount, credit },
-      "Parrain crédité",
+    const amount = computeAffiliateReward(orderAmount);
+    const credited = await referralRepo.creditVendorSale({
+      referralId: ref.id,
+      referrerId: ref.referrerId,
+      orderId,
+      amount,
+      saleDate,
+      setWindowStart: !windowStart,
+    });
+    if (credited) {
+      logger.info({ referrerId: ref.referrerId, vendorId, orderId, amount }, "Parrain vendeur crédité");
+    }
+  },
+
+  /** Résumé de la cagnotte du membre connecté. */
+  async getWallet(userId: string) {
+    return referralRepo.getWalletSummary(userId);
+  },
+
+  /** Crée une demande de retrait Mobile Money (débite la cagnotte). */
+  async requestWithdrawal(
+    userId: string,
+    input: { amount: number; method: WithdrawalMethod; phone: string },
+  ) {
+    const { balance } = await referralRepo.getWalletSummary(userId);
+    const check = validateWithdrawal(balance, input.amount);
+    if (!check.ok) throw new ValidationError({ amount: check.error });
+
+    const withdrawal = await referralRepo.createWithdrawal(
+      userId,
+      input.amount,
+      input.method,
+      input.phone,
     );
+    if (!withdrawal) throw new ValidationError({ amount: "Solde insuffisant" });
+
+    logger.info({ userId, amount: input.amount, method: input.method }, "Demande de retrait créée");
+    return withdrawal;
+  },
+
+  /** Historique des retraits du membre connecté. */
+  async listWithdrawals(userId: string) {
+    return referralRepo.listWithdrawals(userId);
+  },
+
+  /** Admin : marque un retrait payé ou rejeté (recrédite la cagnotte si rejeté). */
+  async adminSetWithdrawalStatus(withdrawalId: string, status: "paid" | "rejected") {
+    return referralRepo.setWithdrawalStatus(withdrawalId, status);
   },
 
   /** Classement public. */
